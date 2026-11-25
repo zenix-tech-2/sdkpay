@@ -165,3 +165,76 @@ npm run dev        # → http://localhost:3000
 ## License
 
 Proprietary — © 2026 SDK Pay Inc. All rights reserved.
+
+---
+
+## Payment providers — AshTech Pay (primary) + SasPay (backup)
+
+SDK Pay does **not** use hosted checkout. All Mobile Money collections and payouts go through **Direct APIs**, server-side, with raw-body HMAC-SHA256 webhook verification.
+
+```
+Deposit / Send / Payout
+        │
+        ▼
+┌───────────────────────┐   unavailable    ┌───────────────────────┐
+│  AshTech Pay          │ ───────────────▶ │  SasPay               │
+│  POST /v1/collect     │  (op/country not │  POST /payments/      │
+│  POST /v1/payouts/…   │   in AshTech     │   softpay/            │
+│  GET  /v1/transaction │   or 5xx/timeout)│  GET  /payments/:id/  │
+└───────────────────────┘                  │       verify/          │
+                                           └───────────────────────┘
+        │
+        ▼
+   Ledger + balance update (idempotent, webhook-driven)
+```
+
+### How it works
+
+- **Primary** — AshTech Pay Direct API (`ASHTECH_API_KEY`, `ASHTECH_USER_ID`): `POST /v1/collect` for Mobile Money pushes, `POST /v1/crypto/collect` for USDT, `POST /v1/payouts/mobile-money` for withdrawals, `GET /v1/transaction/:id` for status, `GET /v1/countries` + `GET /v1/fees` for the live catalog. `notify_url` is set automatically from `APP_URL`.
+- **Backup** — SasPay (`SASPAY_API_KEY`): `POST /payments/softpay/` (network codes resolved live from `GET /countries/`, matched by country + operator keywords, e.g. `mtn_bj`), `POST /payouts/initialize/`, `GET /payments/:id/verify/`. Used automatically when AshTech reports the operator/country as unavailable (4xx catalog errors, 5xx or timeouts). Auth errors (401/403/429) never fail over — they surface so they can be fixed.
+- **Webhooks** — `/api/webhooks/ashtech` and `/api/webhooks/saspay`: raw-body HMAC-SHA256 verification (hex or base64, `sha256=`-prefix tolerated, several signature-header candidates), then the transaction is settled exactly once via the ledger (`settleCredit`/`settleFailure` are idempotent; payment-link sales bump their counters too).
+- **Demo mode** — with no provider keys set, the app behaves exactly as before: top-ups settle a few seconds after submission (clearly badged "Demo mode" on the processing screen) so the full UX can be exercised without credentials.
+- **Public hosted checkout** (`/pay/[slug]`) — also provider-routed; payers get a "Confirm on your phone" screen and the page flips to success when the webhook/poll confirms.
+
+### Going live
+
+1. Set `ASHTECH_API_KEY`, `ASHTECH_USER_ID`, `ASHTECH_WEBHOOK_SECRET` (+ `SASPAY_API_KEY`, `SASPAY_WEBHOOK_SECRET` as backup) and `APP_URL` in Vercel.
+2. In your AshTech dashboard, set the Direct API webhook URL to `https://<domain>/api/webhooks/ashtech` (secret = `ASHTECH_WEBHOOK_SECRET`). Same for SasPay → `/api/webhooks/saspay`.
+3. Verify with a small live collection (500 FCFA) before enabling for users.
+
+See `.env.example` for the full variable list and `src/lib/providers/` for the adapters (`types.ts`, `ashtech.ts`, `saspay.ts`, `index.ts` router, `src/lib/ledger.ts` for idempotent settlement).
+
+---
+
+## Two deployments, one codebase — merchant app + admin console
+
+SDK Pay deploys as **two independent apps** from this same repository, gated by `APP_ROLE`:
+
+| Deployment | APP_ROLE | Domain | Serves |
+|---|---|---|---|
+| Merchant app | `merchant` | `app.sdkpay.com` (or preview default) | Customer app. `/admin/*` returns **404** — hidden entirely. |
+| Admin console | `admin` | `admin.sdkpay.com` | `/admin/*` + `/login` + API/assets only. Everything else redirects to `/admin`. |
+| Local / preview | *(unset)* | localhost / e2b preview | Unified — both apps work, like before. |
+
+### Steps
+1. Push the repo to GitHub (already done for the preview).
+2. Vercel → New Project → import the repo → **name**: `sdkpay-app`. Env: `DATABASE_URL`, `APP_ROLE=merchant`, provider keys. Deploy.
+3. Vercel → New Project → import the same repo again → **name**: `sdkpay-admin`. Env: identical keys + `APP_ROLE=admin`. Deploy.
+4. Point domains: `app.sdkpay.com` → `sdkpay-app`, `admin.sdkpay.com` → `sdkpay-admin`.
+5. Admin signs in at `admin.sdkpay.com/login` with an admin account (`admin@sdkpay.com` / `admin1234` for the demo) — lands directly on the control plane.
+
+The merchant deployment can't see the console (route physically returns 404); the admin deployment can't serve customer pages. Auth and admin-role checks are enforced inside both apps independently — the proxy is only the outer boundary.
+
+## Admin control plane (`/admin`)
+
+Dark, ledger-first console — intentionally a different product from the merchant app:
+
+- **Overview** — KYC queue, verified/suspended counts, fees collected, incoming-volume chart, custody totals (XAF & USDT), payment-link sales, latest transactions & verification queue, one-tap jumps
+- **KYC reviews** — pending/approved/rejected queue with document viewer (front/back/selfie, zoom), approve or reject with quick-reason chips; customers are notified instantly
+- **User control** — search & filter every account (name/email/username/phone, KYC/status/role), paginated table; per-user page: suspend/restore, promote to admin, KYC override, **audited balance adjustment** (writes a ledger entry + notifies the user), password reset (shown once), permanent delete; wallets, transaction history, KYC submissions
+- **Finance** — **Fees & limits editor** (deposit/withdrawal/send/crypto/conversion %, withdrawal min/max, min deposit — server-side enforced, live everywhere instantly), **Transactions** explorer (search/filter/paginate/read-only, full ledger detail), **Payment links** moderation (activate/deactivate/delete)
+- **App control** — **Maintenance mode** (off / banner / full lockout for non-admins) with editable title, message and expected-back time; **feature kill-switches** (deposits, withdrawals, sends, signups, payment links); **announcement banner** with tone (info/warn/critical)
+- **Broadcast** — one message into every customer's notification bell, targeted at all / verified / pending / suspended / admins, with live preview and delivery count
+- **Release notes** — publish/manage what appears at `/updates` in the app
+
+Both deployments share the same Postgres (Supabase) and the same session cookies are per-domain, so admins simply log in on the admin domain.

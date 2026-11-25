@@ -29,6 +29,24 @@ import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
 import { SESSION_COOKIE, getSessionUser, sha256 } from "@/lib/session";
 import { randomRef, shortSlug } from "@/lib/format";
+import { collectWithFallback, payoutWithFallback, verifyProviderRef, ashtech, providersConfigured } from "@/lib/providers";
+import { settleCredit, settleFailure } from "@/lib/ledger";
+import { ProviderHttpError, ProviderNetworkError } from "@/lib/providers/types";
+import { getFees, getFlags } from "@/lib/settings";
+
+const providerError = (e: unknown) =>
+  e instanceof ProviderHttpError
+    ? `${e.message}${e.status ? ` (provider HTTP ${e.status})` : ""}`
+    : e instanceof ProviderNetworkError
+      ? "Payment provider unreachable — please try again"
+      : "Payment provider error — please try again";
+
+/** SasPay/XOF families use ISO 3-letter "XOF"/"XAF"; strip the per-country suffixes used in the UI. */
+const normalizeCurrency = (label: string) => {
+  if (label.startsWith("XOF")) return "XOF";
+  if (label.startsWith("XAF")) return "XAF";
+  return label.split(/[ .·]/)[0];
+};
 
 const num = (v: FormDataEntryValue | null) => {
   const n = Number(String(v ?? "0").replace(/[^\d.]/g, ""));
@@ -44,6 +62,9 @@ export async function login(_prev: { error: string | null }, formData: FormData)
   const user = rows[0];
   if (!user || user.passwordHash !== sha256(password)) {
     return { error: "Invalid email or password. Try the demo account button below." };
+  }
+  if (user.status === "suspended") {
+    return { error: "This account has been suspended. Contact support@sdkpay.com for review." };
   }
   const jar = await cookies();
   jar.set(SESSION_COOKIE, user.id, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
@@ -61,6 +82,8 @@ export async function logout() {
 export async function createPaymentLink(formData: FormData) {
   const user = await getSessionUser();
   if (!user) redirect("/login");
+  const flags = await getFlags();
+  if (!flags.links) return;
   const title = String(formData.get("title") ?? "").trim();
   if (!title) return;
   const amountRaw = String(formData.get("amount") ?? "").trim();
@@ -132,41 +155,122 @@ export async function createDeposit(input: {
   net: number;
   currencyLabel: string;
   country: string;
+  countryCode?: string;
   operator: string;
   phone: string;
   feePercent?: number;
-}): Promise<{ ok: boolean; ref?: string; error?: string }> {
+}): Promise<{ ok: boolean; ref?: string; error?: string; provider?: string }> {
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Not authenticated" };
+  const flags = await getFlags();
+  if (!flags.deposits) return { ok: false, error: "Deposits are temporarily disabled by SDK Pay. Please try again later." };
   if (!(input.amount > 0)) return { ok: false, error: "Enter a valid amount" };
+  const fees = await getFees();
+  if (input.amount < fees.min_deposit) return { ok: false, error: `Minimum deposit is ${fees.min_deposit} FCFA.` };
+  // fees are ALWAYS computed server-side — the client only displays estimates
+  const isCrypto = input.currencyLabel.startsWith("USDT");
+  const feePercent = isCrypto ? fees.crypto_deposit_percent : fees.deposit_percent;
+  const fee = Math.round(((input.amount * feePercent) / 100) * 100) / 100;
+  const net = Math.max(0, input.amount - fee);
   const ref = randomRef("ASH-D");
+  const currency = isCrypto ? "USDT" : normalizeCurrency(input.currencyLabel);
+
+  // --- route through the provider rail (AshTech Direct API primary, SasPay backup) ---
+  let provider: "ashtech" | "saspay" | "local" = "local";
+  let providerRef: string | null = null;
+  let providerStatus = "pending";
+  try {
+    if (isCrypto) {
+      if (ashtech.ashtechAvailable()) {
+        const r = await ashtech.cryptoCollect({
+          amount: input.amount, currency: "USDT", countryCode: "XX", countryName: "Crypto", operator: "USDT",
+          phone: input.phone, reference: ref,
+          customerEmail: user.email, customerFirstName: user.fullName.split(" ")[0], customerLastName: user.fullName.split(" ").slice(1).join(" "),
+        });
+        provider = r.provider; providerRef = r.providerRef; providerStatus = r.status;
+      }
+    } else {
+      const r = await collectWithFallback({
+        amount: input.amount,
+        currency,
+        countryCode: (input.countryCode ?? "CM").toUpperCase(),
+        countryName: input.country,
+        operator: input.operator,
+        phone: input.phone,
+        reference: ref,
+        notifyUrl: null,
+        customerEmail: user.email,
+        customerFirstName: user.fullName.split(" ")[0],
+        customerLastName: user.fullName.split(" ").slice(1).join(" "),
+      });
+      provider = r.provider; providerRef = r.providerRef; providerStatus = r.status;
+    }
+  } catch (e) {
+    return { ok: false, error: providerError(e) };
+  }
+
   await db.insert(transactions).values({
     userId: user.id,
     ref,
-    type: input.currencyLabel.startsWith("USDT") ? "crypto_deposit" : "deposit",
+    type: isCrypto ? "crypto_deposit" : "deposit",
     direction: "credit",
-    status: "pending",
+    status: providerStatus === "completed" ? "completed" : "pending",
     amount: String(input.amount),
-    fee: String(input.fee),
-    feePercent: String(input.feePercent ?? 4),
-    net: String(input.net),
-    currency: input.currencyLabel.startsWith("USDT") ? "USDT" : "XAF",
+    fee: String(fee),
+    feePercent: String(feePercent),
+    net: String(net),
+    currency,
     operator: input.operator,
     country: input.country,
     recipientPhone: input.phone,
-    source: input.currencyLabel.startsWith("USDT") ? "crypto" : "app",
+    source: isCrypto ? "crypto" : "app",
+    provider,
+    providerRef,
+    providerStatus,
     balanceBefore: null,
     balanceAfter: null,
   });
+  // local demo rail settles via pollTransactionStatus; provider rail settles via webhook/poll
   await db.insert(notifications).values({
     userId: user.id,
     title: "Deposit pending",
-    body: `Your deposit of ${input.net.toLocaleString("fr-FR")} ${input.currencyLabel.startsWith("USDT") ? "USDT" : "XAF"} is being processed.`,
+    body: `Your deposit of ${net.toLocaleString("fr-FR")} ${currency} is being processed.`,
     kind: "deposit_pending",
   });
   revalidatePath("/transactions");
   revalidatePath("/notifications");
-  return { ok: true, ref };
+  return { ok: true, ref, provider };
+}
+
+/** Polled by the processing screen. Settles the ledger exactly once (webhook or poll). */
+export async function pollTransactionStatus(ref: string): Promise<{ status: "pending" | "completed" | "failed"; provider: string; creditedAmount?: number | null }> {
+  const user = await getSessionUser();
+  if (!user) return { status: "pending", provider: "local" };
+  const [tx] = await db.select().from(transactions).where(and(eq(transactions.ref, ref), eq(transactions.userId, user.id))).limit(1);
+  if (!tx) return { status: "pending", provider: "local" };
+  if (tx.status === "completed" || tx.status === "failed") return { status: tx.status as "completed" | "failed", provider: tx.provider };
+
+  if (tx.provider === "local" || !tx.providerRef) {
+    // demo rail: auto-settle shortly after creation so the UI resolves
+    const ageMs = Date.now() - tx.createdAt.getTime();
+    if (ageMs > 8000) {
+      await settleCredit(tx);
+      revalidatePath("/transactions");
+      revalidatePath("/dashboard");
+      return { status: "completed", provider: "local" };
+    }
+    return { status: "pending", provider: "local" };
+  }
+  try {
+    const v = await verifyProviderRef(tx.provider, tx.providerRef);
+    if (v.status === "completed") await settleCredit(tx, { creditedAmount: v.creditedAmount });
+    else if (v.status === "failed") await settleFailure(tx);
+    revalidatePath("/transactions");
+    revalidatePath("/dashboard");
+    return { status: v.status, provider: tx.provider, creditedAmount: v.creditedAmount ?? null };
+  } catch {
+    return { status: "pending", provider: tx.provider };
+  }
 }
 
 export async function createWithdrawal(input: {
@@ -178,17 +282,49 @@ export async function createWithdrawal(input: {
   phone?: string;
   address?: string;
   country?: string;
+  countryCode?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const user = await getSessionUser();
   if (!user) return { ok: false, error: "Not authenticated" };
+  const flags = await getFlags();
+  if (!flags.withdrawals) return { ok: false, error: "Withdrawals are temporarily disabled by SDK Pay. Please try again later." };
   const isCrypto = input.method === "crypto";
   const account = isCrypto ? await getUsdtBalance(user.id) : await getPrimaryBalance(user.id);
   if (!account) return { ok: false, error: "Wallet not found" };
   const balance = Number(account.balance);
   if (balance < input.amount) return { ok: false, error: "Insufficient balance" };
-  const min = isCrypto ? 1 : 550;
-  if (input.amount < min) return { ok: false, error: isCrypto ? "Minimum withdrawal is 1 USDT" : "Minimum withdrawal is 550 XAF" };
+  const fees = await getFees();
+  const min = isCrypto ? fees.usdt_min : fees.min_withdrawal;
+  const max = isCrypto ? fees.usdt_max : fees.max_withdrawal;
+  if (input.amount < min) return { ok: false, error: isCrypto ? `Minimum withdrawal is ${fees.usdt_min} USDT` : `Minimum withdrawal is ${fees.min_withdrawal} XAF` };
+  if (input.amount > max) return { ok: false, error: isCrypto ? `Maximum withdrawal is ${fees.usdt_max} USDT` : `Maximum withdrawal is ${fees.max_withdrawal.toLocaleString("fr-FR")} XAF` };
+  // authoritative server-side fee + net
+  const fee = isCrypto ? fees.crypto_withdrawal_fixed : Math.round(((input.amount * fees.withdrawal_percent) / 100) * 100) / 100;
+  const net = Math.max(0, input.amount - fee);
   const ref = randomRef("ASH-W");
+
+  // --- route Mobile Money payouts through the provider rail (AshTech → SasPay backup) ---
+  let provider: "ashtech" | "saspay" | "local" = "local";
+  let providerRef: string | null = null;
+  let providerStatus = "pending";
+  if (!isCrypto) {
+    try {
+      const r = await payoutWithFallback({
+        amount: input.amount,
+        currency: normalizeCurrency(account.currency),
+        countryCode: (input.countryCode ?? "CM").toUpperCase(),
+        countryName: input.country ?? "Cameroun",
+        operator: input.operator ?? "MTN Money",
+        phone: input.phone ?? "",
+        recipientName: user.fullName,
+        reference: ref,
+      });
+      provider = r.provider; providerRef = r.providerRef; providerStatus = r.status;
+    } catch (e) {
+      return { ok: false, error: providerError(e) };
+    }
+  }
+
   await adjustBalance(account.id, -input.amount);
   await db.insert(transactions).values({
     userId: user.id,
@@ -197,15 +333,18 @@ export async function createWithdrawal(input: {
     direction: "debit",
     status: "pending",
     amount: String(input.amount),
-    fee: String(input.fee),
-    feePercent: isCrypto ? "0" : "4.00",
-    net: String(input.net),
+    fee: String(fee),
+    feePercent: isCrypto ? "0" : String(fees.withdrawal_percent),
+    net: String(net),
     currency: account.currency,
     operator: input.operator ?? null,
     country: input.country ?? "Cameroun",
     recipient: isCrypto ? (input.address?.slice(0, 10) + "…" + input.address?.slice(-4)) : user.fullName,
     recipientPhone: input.phone ?? null,
     source: isCrypto ? "crypto" : "app",
+    provider,
+    providerRef,
+    providerStatus,
     balanceBefore: String(balance),
     balanceAfter: String(balance - input.amount),
   });
@@ -218,6 +357,8 @@ export async function createWithdrawal(input: {
 export async function createInternalTransfer(formData: FormData) {
   const user = await getSessionUser();
   if (!user) return { ok: false as const, error: "Not authenticated" };
+  const flags = await getFlags();
+  if (!flags.sends) return { ok: false as const, error: "Sends are temporarily disabled by SDK Pay. Please try again later." };
   const query = String(formData.get("query") ?? "").trim().toLowerCase();
   const currency = String(formData.get("currency") ?? "XAF");
   const amount = num(formData.get("amount"));
@@ -260,7 +401,10 @@ export async function createMobileSend(formData: FormData) {
   const operator = String(formData.get("operator") ?? "");
   const country = String(formData.get("country") ?? "Cameroun");
   if (!(amount > 0) || !phone || !operator) return { ok: false as const, error: "Complete all fields" };
-  const fee = Math.round(amount * 0.04 * 100) / 100;
+  const flags = await getFlags();
+  if (!flags.sends) return { ok: false as const, error: "Sends are temporarily disabled by SDK Pay. Please try again later." };
+  const fees = await getFees();
+  const fee = Math.round(((amount * fees.send_percent) / 100) * 100) / 100;
   const account = await getPrimaryBalance(user.id);
   if (!account) return { ok: false as const, error: "Wallet not found" };
   const bal = Number(account.balance);
@@ -269,7 +413,7 @@ export async function createMobileSend(formData: FormData) {
   const ref = randomRef("ASH-S");
   await db.insert(transactions).values({
     userId: user.id, ref, type: "mobile_money_send", direction: "debit", status: "pending",
-    amount: String(amount), fee: String(fee), feePercent: "4.00", net: String(amount - fee), currency: account.currency,
+    amount: String(amount), fee: String(fee), feePercent: String(fees.send_percent), net: String(amount - fee), currency: account.currency,
     operator, country, recipient: name || phone, recipientPhone: phone, source: "app", balanceBefore: String(bal), balanceAfter: String(bal - amount),
   });
   revalidatePath("/transactions");
@@ -279,6 +423,9 @@ export async function createMobileSend(formData: FormData) {
 export async function createCryptoSend(formData: FormData) {
   const user = await getSessionUser();
   if (!user) return { ok: false as const, error: "Not authenticated" };
+  const flags = await getFlags();
+  if (!flags.sends) return { ok: false as const, error: "Sends are temporarily disabled by SDK Pay. Please try again later." };
+  const fees = await getFees();
   const amount = num(formData.get("amount"));
   const address = String(formData.get("address") ?? "").trim();
   if (!(amount >= 1)) return { ok: false as const, error: "Minimum send is 1.00 USDT" };
@@ -290,7 +437,7 @@ export async function createCryptoSend(formData: FormData) {
   const ref = randomRef("ASH-C");
   await db.insert(transactions).values({
     userId: user.id, ref, type: "crypto_send", direction: "debit", status: "pending",
-    amount: String(amount), fee: "1.00", feePercent: "0", net: String(Math.max(0, amount - 1)), currency: "USDT",
+    amount: String(amount), fee: String(fees.crypto_withdrawal_fixed), feePercent: "0", net: String(Math.max(0, amount - fees.crypto_withdrawal_fixed)), currency: "USDT",
     recipient: address.slice(0, 10) + "…" + address.slice(-4), source: "crypto", balanceBefore: String(bal), balanceAfter: String(bal - amount),
   });
   revalidatePath("/transactions");
@@ -477,42 +624,78 @@ export async function submitPublicPayment(input: {
   operator: string;
   phone: string;
   payerName: string;
-}): Promise<{ ok: boolean; ref?: string; error?: string }> {
+}): Promise<{ ok: boolean; ref?: string; error?: string; status?: "pending" | "completed"; provider?: string }> {
   const [link] = await db.select().from(paymentLinks).where(eq(paymentLinks.slug, input.slug)).limit(1);
   if (!link || !link.active) return { ok: false, error: "This payment link is unavailable" };
   const amount = link.amount !== null ? Number(link.amount) : input.amount;
   if (!(amount > 0)) return { ok: false, error: "Enter a valid amount" };
   if (input.phone.replace(/\D/g, "").length < 8) return { ok: false, error: "Enter a valid Mobile Money number" };
   const ref = randomRef("ASH-L");
+  const operatorLabel = { ORANGE_MONEY: "Orange Money", MTN_MONEY: "MTN Money", WAVE: "Wave" }[input.operator] ?? input.operator;
+  const currency = normalizeCurrency(link.currency);
+
+  // route through the provider rail when configured (AshTech primary, SasPay backup)
+  let status: "pending" | "completed" = "completed";
+  let provider: "ashtech" | "saspay" | "local" = "local";
+  let providerRef: string | null = null;
+  let providerStatus = "completed";
+  const configured = providersConfigured();
+  if (configured.primary || configured.backup) {
+    try {
+      const r = await collectWithFallback({
+        amount,
+        currency,
+        countryCode: currency === "XOF" ? "BJ" : "CM",
+        countryName: "Cameroun",
+        operator: operatorLabel,
+        phone: input.phone,
+        reference: ref,
+        customerFirstName: input.payerName || "Customer",
+        customerLastName: "",
+      });
+      provider = r.provider;
+      providerRef = r.providerRef;
+      providerStatus = r.status;
+      status = r.status === "completed" ? "completed" : "pending";
+    } catch (e) {
+      return { ok: false, error: providerError(e) };
+    }
+  }
+
   await db.insert(transactions).values({
     userId: link.userId,
     ref,
     type: "payment_received",
     direction: "credit",
-    status: "completed",
+    status,
     amount: String(amount),
     fee: "0",
     feePercent: "0",
     net: String(amount),
-    currency: link.currency,
+    currency,
     operator: input.operator,
     country: "Cameroun",
     recipient: input.payerName || null,
     recipientPhone: input.phone,
     source: "link",
+    provider,
+    providerRef,
+    providerStatus,
     paymentLinkId: link.id,
   });
-  await db.update(paymentLinks)
-    .set({ paymentsCount: sql`${paymentLinks.paymentsCount} + 1`, collected: sql`${paymentLinks.collected} + ${amount}`, clicks: sql`${paymentLinks.clicks} + 1` })
-    .where(eq(paymentLinks.id, link.id));
+  if (status === "completed") {
+    await db.update(paymentLinks)
+      .set({ paymentsCount: sql`${paymentLinks.paymentsCount} + 1`, collected: sql`${paymentLinks.collected} + ${amount}`, clicks: sql`${paymentLinks.clicks} + 1` })
+      .where(eq(paymentLinks.id, link.id));
+  }
   await db.insert(notifications).values({
     userId: link.userId,
-    title: "Payment received",
-    body: `${amount.toLocaleString("fr-FR")} ${link.currency} received via "${link.title}" (${input.operator.replace(/_/g, " ")} · ${input.phone}).`,
-    kind: "payment_received",
+    title: status === "completed" ? "Payment received" : "Payment pending",
+    body: `${amount.toLocaleString("fr-FR")} ${currency} via "${link.title}" (${operatorLabel} · ${input.phone})${status === "pending" ? " — awaiting customer approval" : ""}.`,
+    kind: status === "completed" ? "payment_received" : "deposit_pending",
   });
   revalidatePath("/notifications");
-  return { ok: true, ref };
+  return { ok: true, ref, status, provider };
 }
 
 export async function trackLinkClick(slug: string) {
@@ -528,6 +711,10 @@ export async function signup(_prev: { error: string | null }, formData: FormData
   const phone = String(formData.get("phone") ?? "").trim();
   const country = String(formData.get("country") ?? "Cameroun");
   const password = String(formData.get("password") ?? "");
+  const flags = await getFlags();
+  if (!flags.signups) {
+    return { error: "New account creation is temporarily disabled. Please check back soon." };
+  }
   if (!fullName || !username || !email || password.length < 8) {
     return { error: "Fill in every field. Password must be at least 8 characters." };
   }
@@ -612,4 +799,23 @@ export async function rejectKyc(submissionId: string, reason: string) {
   await db.insert(notifications).values({ userId: sub.userId, title: "KYC rejected", body: `Your verification was rejected: ${clean}. Please update your documents and resubmit.`, kind: "deposit_rejected" });
   revalidatePath("/admin/kyc");
   revalidatePath("/admin");
+}
+
+/** Public (unauthenticated) probe for hosted-checkout payers — returns only the coarse status. */
+export async function getPaymentStatus(ref: string): Promise<{ status: "pending" | "completed" | "failed" }> {
+  const [tx] = await db.select().from(transactions).where(and(eq(transactions.ref, ref), eq(transactions.type, "payment_received"))).limit(1);
+  if (!tx) return { status: "pending" };
+  if (tx.status === "completed" || tx.status === "failed") return { status: tx.status as "completed" | "failed" };
+  if (tx.provider === "local" || !tx.providerRef) {
+    await settleCredit(tx);
+    return { status: "completed" };
+  }
+  try {
+    const v = await verifyProviderRef(tx.provider, tx.providerRef);
+    if (v.status === "completed") await settleCredit(tx, { creditedAmount: v.creditedAmount });
+    else if (v.status === "failed") await settleFailure(tx);
+    return { status: v.status };
+  } catch {
+    return { status: "pending" };
+  }
 }

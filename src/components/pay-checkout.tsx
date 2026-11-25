@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Lock, BadgeCheck, ShieldCheck, Store, Loader2, CheckCircle2, Check, ChevronRight } from "lucide-react";
-import { submitPublicPayment, trackLinkClick } from "@/lib/actions";
+import { submitPublicPayment, trackLinkClick, getPaymentStatus } from "@/lib/actions";
 import { fmtAmount } from "@/lib/format";
 
 const OPERATORS = [
@@ -25,7 +25,7 @@ export default function PayCheckout({
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [amountStr, setAmountStr] = useState(amount !== null ? String(amount) : "");
-  const [result, setResult] = useState<{ ok: boolean; ref?: string; error?: string } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; ref?: string; error?: string; status?: "pending" | "completed" | "failed"; provider?: string } | null>(null);
   const [pending, start] = useTransition();
 
   // track a single click per mount
@@ -33,6 +33,20 @@ export default function PayCheckout({
     trackLinkClick(slug);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  // poll provider until the payment settles (no-op unless provider returned "pending")
+  useEffect(() => {
+    if (result?.status !== "pending" || !result.ref) return;
+    const t = setInterval(async () => {
+      const r = await getPaymentStatus(result.ref!);
+      if (r.status !== "pending") {
+        setResult((prev) => prev ? { ...prev, status: r.status } : prev);
+        clearInterval(t);
+      }
+    }, 3000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result?.status, result?.ref]);
 
   const payerAmount = amount !== null ? amount : Number(amountStr) || 0;
   const phoneValid = phone.replace(/\D/g, "").length >= 8;
@@ -42,6 +56,34 @@ export default function PayCheckout({
     start(async () => {
       setResult(await submitPublicPayment({ slug, amount: payerAmount, operator, phone, payerName: name }));
     });
+
+  /* ---------- pending (provider awaiting approval) ---------- */
+  if (result?.ok && result.status === "pending") {
+    return (
+      <div className="mx-auto w-full max-w-md text-center">
+        <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-amber-100 ring-8 ring-amber-50">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="7" y="2" width="10" height="20" rx="2" /><path d="M12 18h.01" /></svg>
+        </span>
+        <h1 className="mt-6 text-[24px] font-black tracking-tight text-ink">Confirm on your phone</h1>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-slate-500">Approve the <b>{fmtAmount(payerAmount)} FCFA</b> payment prompt on your Mobile Money phone. This page updates automatically once the payment is confirmed.</p>
+        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <div className="flex items-center justify-center gap-2">{[0, 1, 2].map((i) => <span key={i} className="dot-blink h-2.5 w-2.5 rounded-full bg-amber-500" />)}</div>
+          <p className="mt-2 font-mono text-[11px] font-bold text-amber-800">Ref: {result.ref}</p>
+        </div>
+        <p className="mt-4 text-[11px] text-slate-400">Powered by <b>SDK Pay</b> · Secured by AshTech Pay Direct API</p>
+      </div>
+    );
+  }
+  if (result?.ok && result.status === "failed") {
+    return (
+      <div className="mx-auto w-full max-w-md text-center">
+        <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-red-100"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#e5484d" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg></span>
+        <h1 className="mt-6 text-[24px] font-black tracking-tight text-ink">Payment failed</h1>
+        <p className="mt-1.5 text-[13px] text-slate-500">The payment was declined or expired. No money was deducted. Please try again.</p>
+        <button onClick={() => setResult(null)} className="mt-6 h-13 w-full rounded-2xl bg-navy py-4 text-[15px] font-bold text-white transition hover:bg-navy3">Try again</button>
+      </div>
+    );
+  }
 
   /* ---------- success ---------- */
   if (result?.ok) {

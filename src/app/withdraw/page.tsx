@@ -1,5 +1,6 @@
 import Gate from "@/components/gate";
 import { requireUser } from "@/lib/session";
+import { getFees } from "@/lib/settings";
 import { getAccounts } from "@/lib/data";
 import { db } from "@/db";
 import { payoutMethods } from "@/db/schema";
@@ -12,6 +13,7 @@ export default async function WithdrawPage() {
     getAccounts(user.id),
     db.select().from(payoutMethods).where(eq(payoutMethods.userId, user.id)).orderBy(desc(payoutMethods.createdAt)),
   ]);
+  const fees = await getFees();
   const primary = accounts.find((a) => a.isPrimary) ?? accounts[0];
   const usdt = accounts.find((a) => a.currency === "USDT");
 
@@ -23,6 +25,7 @@ export default async function WithdrawPage() {
           xafBalance={primary ? Number(primary.balance) : 0}
           usdtBalance={usdt ? Number(usdt.balance) : 0}
           methods={methods.map((m) => ({ id: m.id, operator: m.operator, phone: m.phone, label: m.label }))}
+          fees={fees}
         />
       </div>
     </Gate>

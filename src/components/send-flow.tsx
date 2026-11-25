@@ -8,10 +8,11 @@ import {
 } from "lucide-react";
 import { COUNTRIES, flagUrl } from "@/lib/countries";
 import { createInternalTransfer, createMobileSend, createCryptoSend } from "@/lib/actions";
+import type { FeeSettings } from "@/lib/settings";
 
 export type SendWallet = { currency: string; balance: number; countryCode: string; country: string };
 
-export default function SendFlow({ wallets }: { wallets: SendWallet[] }) {
+export default function SendFlow({ wallets, fees }: { wallets: SendWallet[]; fees: FeeSettings }) {
   const [tab, setTab] = useState<"momo" | "internal" | "crypto">("momo");
   const [walletIdx, setWalletIdx] = useState(0);
   const wallet = wallets[walletIdx] ?? { currency: "XAF", balance: 0, countryCode: "cm", country: "Cameroun" };
@@ -232,7 +233,7 @@ export default function SendFlow({ wallets }: { wallets: SendWallet[] }) {
                 ))}
               </div>
               <div className="mt-3 divide-y divide-slate-100 rounded-2xl border border-slate-100">
-                <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Fees</span><span className="font-bold text-ink">1.00 USDT</span></div>
+                <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Fees</span><span className="font-bold text-ink">{fees.crypto_withdrawal_fixed.toFixed(2)} USDT</span></div>
                 <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Debited</span><span className="font-extrabold text-ink">{(Number(cryptoAmount) || 0).toFixed(2)} USDT</span></div>
               </div>
               {cryptoResult?.error && <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-[12.5px] font-semibold text-red-600">{cryptoResult.error}</p>}

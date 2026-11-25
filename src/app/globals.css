@@ -90,6 +90,67 @@ body {
   border-radius: 4px;
 }
 
+/* ---------- landing page motion system ---------- */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
+}
+.floaty { animation: floaty 5.5s ease-in-out infinite; }
+.floaty-late { animation: floaty 6.5s ease-in-out 1.2s infinite; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+  width: max-content;
+}
+.marquee-paused:hover .animate-marquee { animation-play-state: paused; }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0ms);
+  will-change: transform, opacity;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes hero-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.hero-gradient {
+  background-size: 220% 220%;
+  animation: hero-pan 12s ease infinite;
+}
+
+@keyframes ping-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 189, 13, 0.5); }
+  80%, 100% { box-shadow: 0 0 0 16px rgba(255, 189, 13, 0); }
+}
+.ping-ring { animation: ping-ring 2.4s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+@keyframes shimmer-sweep {
+  from { background-position: -150% 0; }
+  to { background-position: 150% 0; }
+}
+.text-shine {
+  background: linear-gradient(110deg, #FFBD0D 20%, #fff6d8 38%, #FFBD0D 60%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-sweep 3.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floaty, .floaty-late, .animate-marquee, .hero-gradient, .text-shine, .ping-ring { animation: none !important; }
+  .reveal { transition: none; opacity: 1; transform: none; }
+}
+
 input,
 select,
 textarea {

@@ -84,6 +84,8 @@ export function txTitle(t: { type: string; operator?: string | null }): string {
       return "USDT Deposit";
     case "payment_received":
       return "Payment received";
+    case "adjustment":
+      return "Manual adjustment";
     default:
       return "Transaction";
   }

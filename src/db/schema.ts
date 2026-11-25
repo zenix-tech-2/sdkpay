@@ -19,6 +19,7 @@ export const users = pgTable("users", {
   countryCode: text("country_code").default("cm"),
   kycStatus: text("kyc_status").notNull().default("none"), // none | pending | verified | rejected
   role: text("role").notNull().default("user"), // user | admin
+  status: text("status").notNull().default("active"), // active | suspended
   kycRejectionReason: text("kyc_rejection_reason"),
   passwordHash: text("password_hash").notNull(),
   publicId: text("public_id").notNull().unique(), // e.g. SDKPAY53769259
@@ -81,6 +82,9 @@ export const transactions = pgTable("transactions", {
   recipient: text("recipient"),
   recipientPhone: text("recipient_phone"),
   source: text("source").notNull().default("app"), // app | api | link | crypto
+  provider: text("provider").notNull().default("local"), // local | ashtech | saspay
+  providerRef: text("provider_ref"),
+  providerStatus: text("provider_status"),
   balanceBefore: numeric("balance_before", { precision: 16, scale: 2 }),
   balanceAfter: numeric("balance_after", { precision: 16, scale: 2 }),
   paymentLinkId: uuid("payment_link_id").references(() => paymentLinks.id, {

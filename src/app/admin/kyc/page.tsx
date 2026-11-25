@@ -32,66 +32,61 @@ export default async function AdminKycQueue({ searchParams }: { searchParams: Pr
   }).from(kycSubmissions);
 
   const pill = (s: string) =>
-    s === "approved" ? "bg-emerald-100 text-emerald-700" : s === "rejected" ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-700";
+    s === "approved" ? "border-emerald-400/30 text-emerald-400" : s === "rejected" ? "border-red-400/30 text-red-400" : "border-amber-400/30 text-amber-300";
 
   return (
     <>
-      <h1 className="text-[28px] font-extrabold tracking-tight text-ink sm:text-[32px]">KYC reviews</h1>
-      <p className="text-[13px] text-slate-500">Approve or reject identity submissions. Users are notified instantly.</p>
+      <p className="flex items-center gap-2 text-[10.5px] font-extrabold uppercase tracking-[0.3em] text-[#FFBD0D]"><ShieldCheck size={14} /> Compliance</p>
+      <h1 className="mt-1 text-[28px] font-black tracking-tight text-white sm:text-[32px]">KYC reviews</h1>
+      <p className="text-[12px] text-white/40">Approve or reject identity submissions — the customer is notified instantly, either way.</p>
 
-      {/* tabs */}
       <div className="mt-4 flex flex-wrap gap-2">
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.value;
           return (
-            <Link
-              key={t.value}
-              href={`/admin/kyc?status=${t.value}`}
-              className={`flex h-11 items-center gap-2 rounded-xl border px-4 text-[13px] font-bold transition ${active ? "border-navy bg-navy text-white shadow" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}
-            >
-              <Icon size={16} /> {t.label}
-              <span className={`rounded-full px-2 py-0.5 text-[10.5px] font-extrabold ${active ? "bg-white/20" : "bg-slate-100"}`}>{counts?.[t.value as keyof typeof counts] ?? 0}</span>
+            <Link key={t.value} href={`/admin/kyc?status=${t.value}`} className={`flex h-11 items-center gap-2 rounded-xl border px-4 text-[12px] font-bold transition ${active ? "border-[#FFBD0D] bg-[#FFBD0D] text-[#232054]" : "border-white/10 text-white/60 hover:text-white"}`}>
+              <Icon size={15} /> {t.label}
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${active ? "bg-[#232054]/20" : "bg-white/10"}`}>{counts?.[t.value as keyof typeof counts] ?? 0}</span>
             </Link>
           );
         })}
       </div>
 
-      {/* list */}
-      <div className="mt-4 grid max-w-4xl gap-3">
+      <div className="mt-4 grid max-w-4xl gap-2.5">
         {rows.map(({ sub, user }) => {
           const DocIcon = docIcon(sub.docType);
           return (
-            <Link key={sub.id} href={`/admin/kyc/${sub.id}`} className="group flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:border-gold hover:shadow-md sm:flex-row sm:items-center">
+            <Link key={sub.id} href={`/admin/kyc/${sub.id}`} className="group flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition hover:border-[#FFBD0D]/30 hover:bg-white/[0.05] sm:flex-row sm:items-center">
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy/90 text-[13px] font-black text-gold">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FFBD0D]/10 text-[12px] font-black text-[#FFBD0D]">
                   {user.fullName.split(" ").slice(0, 2).map((p) => p[0]).join("").toUpperCase()}
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-[14.5px] font-extrabold text-ink">{sub.fullName}</span>
-                  <span className="block truncate text-[11.5px] text-slate-500">{user.email} · {user.phone ?? "—"}</span>
-                  <span className="mt-0.5 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400"><DocIcon size={12} /> {docLabel(sub.docType)} · <span className="font-mono">{sub.docNumber}</span></span>
+                  <span className="block truncate text-[14px] font-extrabold text-white">{sub.fullName}</span>
+                  <span className="block truncate text-[11px] text-white/40">{user.email} · {user.phone ?? "—"}</span>
+                  <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-semibold text-white/35"><DocIcon size={11} /> {docLabel(sub.docType)} · <span className="font-mono">{sub.docNumber}</span></span>
                 </span>
               </div>
               <div className="flex items-center gap-3 sm:ml-auto">
                 <span className="flex -space-x-3">
                   {[sub.frontImage, sub.backImage, sub.selfieImage].filter(Boolean).slice(0, 3).map((src, i) => (
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img key={i} src={src as string} alt="" className="h-14 w-14 rounded-xl border-2 border-white object-cover shadow-sm" />
+                    <img key={i} src={src as string} alt="" className="h-14 w-14 rounded-xl border-2 border-[#0E1434] object-cover" />
                   ))}
                 </span>
-                <span className="hidden text-[10.5px] font-semibold text-slate-400 md:block">{fmtDayLabel(sub.createdAt)}</span>
-                <span className={`rounded-md px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide ${pill(sub.status)}`}>{sub.status}</span>
-                <ChevronRight size={18} className="text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-navy3" />
+                <span className="hidden text-[10px] font-semibold text-white/35 md:block">{fmtDayLabel(sub.createdAt)}</span>
+                <span className={`rounded-md border px-2 py-1 text-[9px] font-black uppercase tracking-wider ${pill(sub.status)}`}>{sub.status}</span>
+                <ChevronRight size={17} className="text-white/25 transition group-hover:translate-x-0.5 group-hover:text-[#FFBD0D]" />
               </div>
             </Link>
           );
         })}
         {rows.length === 0 && (
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-12 text-center">
-            <Inbox size={36} className="mx-auto text-slate-200" />
-            <p className="mt-3 text-[15px] font-bold text-ink">Nothing here</p>
-            <p className="mt-1 text-[12.5px] text-slate-500">No {tab === "all" ? "" : tab} submissions at the moment.</p>
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-12 text-center">
+            <Inbox size={36} className="mx-auto text-white/15" />
+            <p className="mt-3 text-[15px] font-bold text-white/70">Nothing here</p>
+            <p className="mt-1 text-[12px] text-white/35">No {tab === "all" ? "" : tab} submissions at the moment.</p>
           </div>
         )}
       </div>

@@ -7,12 +7,13 @@ import {
 } from "lucide-react";
 import { createWithdrawal, saveCryptoAddress } from "@/lib/actions";
 import { COUNTRIES, flagUrl } from "@/lib/countries";
+import type { FeeSettings } from "@/lib/settings";
 
 export type PayoutMethod = { id: string; operator: string; phone: string; label: string | null };
 
 export default function WithdrawFlow({
-  xafBalance, usdtBalance, methods,
-}: { xafBalance: number; usdtBalance: number; methods: PayoutMethod[] }) {
+  xafBalance, usdtBalance, methods, fees,
+}: { xafBalance: number; usdtBalance: number; methods: PayoutMethod[]; fees: FeeSettings }) {
   const [method, setMethod] = useState<"momo" | "crypto">("momo");
   const [countryCode, setCountryCode] = useState("cm");
   const [operatorId, setOperatorId] = useState("MTN_MONEY");
@@ -29,12 +30,12 @@ export default function WithdrawFlow({
   const country = COUNTRIES.find((c) => c.code === countryCode) ?? COUNTRIES[0];
   const operators = country.operators.slice(0, 3);
   const amount = Number(amountStr) || 0;
-  const momoFee = Math.round(amount * 0.04 * 100) / 100;
-  const cryptoFee = 1.0;
+  const momoFee = Math.round(((amount * fees.withdrawal_percent) / 100) * 100) / 100;
+  const cryptoFee = fees.crypto_withdrawal_fixed;
   const net = method === "momo" ? Math.max(0, amount - momoFee) : Math.max(0, amount - (feePayer === "you" ? cryptoFee : 0));
   const balance = method === "momo" ? xafBalance : usdtBalance;
   const currency = method === "momo" ? "XAF" : "USDT";
-  const min = method === "momo" ? 550 : 1;
+  const min = method === "momo" ? fees.min_withdrawal : fees.usdt_min;
   const valid = amount >= min && amount <= balance;
 
   const submit = () => {
@@ -42,7 +43,7 @@ export default function WithdrawFlow({
     startTransition(async () => {
       const res = await createWithdrawal(
         method === "momo"
-          ? { amount, fee: momoFee, net, method: "mobile_money", operator: operatorId, phone: methods.find((m) => m.id === methodId)?.phone, country: country.name }
+          ? { amount, fee: momoFee, net, method: "mobile_money", operator: operators.find((o) => o.id === operatorId)?.name ?? operatorId, phone: methods.find((m) => m.id === methodId)?.phone, country: country.name, countryCode }
           : { amount, fee: cryptoFee, net, method: "crypto", address, country: "Crypto · Tron" }
       );
       if (res.ok) setDone(true);
@@ -82,11 +83,11 @@ export default function WithdrawFlow({
         <div className="mt-4 grid grid-cols-2 divide-x divide-white/10 border-t border-white/10 pt-4">
           <div className="pr-4">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/45">Min. withdrawal</p>
-            <p className="mt-0.5 text-[16px] font-extrabold text-gold">{method === "momo" ? "550 XAF" : "1 USDT"}</p>
+            <p className="mt-0.5 text-[16px] font-extrabold text-gold">{method === "momo" ? `${fees.min_withdrawal.toLocaleString("fr-FR")} XAF` : `${fees.usdt_min} USDT`}</p>
           </div>
           <div className="pl-6">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/45">Max. withdrawal</p>
-            <p className="mt-0.5 text-[16px] font-extrabold text-gold">{method === "momo" ? "2,000,000 XAF" : "1,500 USDT"}</p>
+            <p className="mt-0.5 text-[16px] font-extrabold text-gold">{method === "momo" ? `${fees.max_withdrawal.toLocaleString("en-US")} XAF` : `${fees.usdt_max.toLocaleString("en-US")} USDT`}</p>
           </div>
         </div>
       </div>
@@ -126,7 +127,7 @@ export default function WithdrawFlow({
             <button onClick={() => setAmountStr(String(balance))} className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-extrabold text-amber-700 transition hover:bg-amber-200">MAX</button>
           </div>
         </div>
-        <p className="mt-2 text-[11.5px] text-slate-400">Available: <b className="text-slate-600">{balance.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} {currency}</b>{method === "momo" && amount > 0 && <> · Recipient receives <b className="text-emerald-600">{net.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} FCFA</b> after 4% fee</>}{method === "crypto" && amount > 0 && <> · Recipient receives <b className="text-emerald-600">{net.toFixed(4)} USDT</b>{feePayer === "recipient" ? " (1.00 USDT fee deducted)" : ""}</>}</p>
+        <p className="mt-2 text-[11.5px] text-slate-400">Available: <b className="text-slate-600">{balance.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} {currency}</b>{method === "momo" && amount > 0 && <> · Recipient receives <b className="text-emerald-600">{net.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} FCFA</b> after {fees.withdrawal_percent}% fee</>}{method === "crypto" && amount > 0 && <> · Recipient receives <b className="text-emerald-600">{net.toFixed(4)} USDT</b>{feePayer === "recipient" ? " (1.00 USDT fee deducted)" : ""}</>}</p>
       </div>
 
       {/* destination */}
@@ -193,8 +194,8 @@ export default function WithdrawFlow({
             ))}
           </div>
           <div className="mt-3 divide-y divide-slate-100 rounded-2xl border border-slate-100">
-            <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Fees</span><span className="font-bold text-ink">1.00 USDT</span></div>
-            <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Debited</span><span className="font-extrabold text-ink">{(feePayer === "you" ? amount : amount + 1).toFixed(2)} USDT</span></div>
+            <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Fees</span><span className="font-bold text-ink">{fees.crypto_withdrawal_fixed.toFixed(2)} USDT</span></div>
+            <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Debited</span><span className="font-extrabold text-ink">{(feePayer === "you" ? amount : amount + fees.crypto_withdrawal_fixed).toFixed(2)} USDT</span></div>
           </div>
         </div>
       )}
@@ -202,7 +203,7 @@ export default function WithdrawFlow({
       <Link href="/fees" className="mt-4 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-500 transition hover:text-ink"><Info size={15} /> Fee details</Link>
 
       {error && <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-[13px] font-semibold text-red-600">{error}</p>}
-      {amount > 0 && amount < min && <p className="mt-3 text-[12px] font-semibold text-amber-700">Minimum for this method is {min === 1 ? "1 USDT" : "550 XAF"}.</p>}
+      {amount > 0 && amount < min && <p className="mt-3 text-[12px] font-semibold text-amber-700">Minimum for this method is {min === fees.usdt_min ? `${fees.usdt_min} USDT` : `${fees.min_withdrawal} XAF`}.</p>}
 
       <button
         disabled={!valid || pending || (method === "crypto" && (!address || address.length < 20))}

@@ -6,10 +6,11 @@ import { SectionLabel, Panel } from "@/components/ui";
 import LinkCard from "@/components/link-card";
 import { requireUser } from "@/lib/session";
 import { getPaymentLinks } from "@/lib/data";
+import { getFlags } from "@/lib/settings";
 
 export default async function LinksPage() {
   const user = await requireUser();
-  const links = await getPaymentLinks(user.id);
+  const [links, flags] = await Promise.all([getPaymentLinks(user.id), getFlags()]);
   const headerList = await headers();
   const host = headerList.get("host") ?? "sdkpay.com";
   const proto = host.includes("localhost") ? "http" : "https";
@@ -19,12 +20,16 @@ export default async function LinksPage() {
     <Gate>
       <h1 className="text-[28px] font-extrabold tracking-tight text-ink sm:text-[32px]">My payment links</h1>
 
-      <Link
-        href="/links/new"
-        className="mt-4 flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-gold to-gold2 text-[16px] font-extrabold text-navy2 shadow-md shadow-gold/25 transition hover:brightness-105"
-      >
-        <Plus size={22} strokeWidth={2.5} /> New link
-      </Link>
+      {flags.links ? (
+        <Link
+          href="/links/new"
+          className="mt-4 flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-gold to-gold2 text-[16px] font-extrabold text-navy2 shadow-md shadow-gold/25 transition hover:brightness-105"
+        >
+          <Plus size={22} strokeWidth={2.5} /> New link
+        </Link>
+      ) : (
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-[13px] font-semibold text-amber-800">Payment links are temporarily disabled by SDK Pay. Existing links keep working — new ones can&apos;t be created right now.</div>
+      )}
 
       <SectionLabel><span className="mt-5 block">Recent links</span></SectionLabel>
 

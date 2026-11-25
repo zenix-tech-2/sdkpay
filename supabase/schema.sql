@@ -194,3 +194,18 @@ ON CONFLICT (key) DO NOTHING;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_rejection_reason text;
 ALTER TABLE users ALTER COLUMN kyc_status SET DEFAULT 'none';
+
+-- Provider routing (AshTech primary, SasPay backup)
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS provider text NOT NULL DEFAULT 'local';
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS provider_ref text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS provider_status text;
+CREATE INDEX IF NOT EXISTS transactions_provider_ref_idx ON transactions(provider_ref);
+
+-- Admin control: user suspension + runtime settings (fees, maintenance, flags, announcements)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active';
+INSERT INTO app_meta(key, value) VALUES
+  ('fees', '{"deposit_percent":4.0,"withdrawal_percent":4.0,"send_percent":4.0,"crypto_deposit_percent":2.5,"crypto_withdrawal_fixed":1.0,"conversion_percent":1.0,"min_withdrawal":550,"max_withdrawal":2000000,"usdt_min":1,"usdt_max":1500,"min_deposit":100}'::jsonb),
+  ('maintenance', '{"mode":"off","title":"Scheduled maintenance","message":"SDK Pay is undergoing scheduled maintenance. We will be back shortly.","until":""}'::jsonb),
+  ('flags', '{"deposits":true,"withdrawals":true,"sends":true,"signups":true,"links":true}'::jsonb),
+  ('announcement', '{"active":false,"text":"","tone":"info"}'::jsonb)
+ON CONFLICT (key) DO NOTHING;

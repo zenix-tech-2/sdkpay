@@ -8,7 +8,7 @@ import { db } from "@/db";
 import { transactions } from "@/db/schema";
 import { getTxSummary } from "@/lib/data";
 import { fmtAmount, fmtDayLabel, fmtTime, txTitle } from "@/lib/format";
-import { ArrowDownToLine, ArrowUpFromLine, BarChart3, Search, RefreshCw, Download, Code2, HandCoins, Calculator, ChartLine } from "lucide-react";
+import { Search, RefreshCw, Download, Code2, ChartLine } from "lucide-react";
 
 export default async function TransactionsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const user = await requireUser();
@@ -38,10 +38,18 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
     else groups.push({ label, items: [t] });
   }
 
+  const txIcon = (t: { type: string }) =>
+    t.type === "deposit" ? "/icons3d/deposit.svg"
+    : t.type === "withdrawal" || t.type === "mobile_money_send" ? "/icons3d/withdraw.svg"
+    : t.type === "internal_transfer" ? "/icons3d/send.svg"
+    : t.type === "crypto_send" || t.type === "crypto_deposit" ? "/icons3d/chart.svg"
+    : t.type === "payment_received" ? "/icons3d/link.svg"
+    : "/icons3d/chart.svg";
+
   const summaryCards = [
-    { icon: HandCoins, tile: "bg-emerald-50", label: "Total incoming", value: `+${fmtAmount(summary.incoming)} FCFA`, tone: "text-emerald-600" },
-    { icon: Calculator, tile: "bg-rose-50", label: "Total outgoing", value: `-${fmtAmount(summary.outgoing)} FCFA`, tone: "text-red-500" },
-    { icon: BarChart3, tile: "bg-sky-50", label: "Results displayed", value: String(rows.length), tone: "text-ink" },
+    { img: "/icons3d/deposit.svg", label: "Total incoming", value: `+${fmtAmount(summary.incoming)} FCFA`, tone: "text-emerald-600" },
+    { img: "/icons3d/withdraw.svg", label: "Total outgoing", value: `-${fmtAmount(summary.outgoing)} FCFA`, tone: "text-red-500" },
+    { img: "/icons3d/chart.svg", label: "Results displayed", value: String(rows.length), tone: "text-ink" },
   ];
 
   return (
@@ -51,18 +59,16 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
       {/* SUMMARY */}
       <SectionLabel><span className="mt-4 block">Summary</span></SectionLabel>
       <div className="grid gap-3 sm:grid-cols-3">
-        {summaryCards.map((c) => {
-          const Icon = c.icon;
-          return (
-            <Panel key={c.label} className="flex items-center gap-4 p-4">
-              <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${c.tile}`}><Icon size={26} strokeWidth={1.8} className="text-slate-700" /></span>
-              <span className="min-w-0">
-                <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">{c.label}</span>
-                <span className={`mt-1 block truncate text-[17px] font-extrabold ${c.tone}`}>{c.value}</span>
-              </span>
-            </Panel>
-          );
-        })}
+        {summaryCards.map((c) => (
+          <Panel key={c.label} className="flex items-center gap-4 p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={c.img} alt="" className="h-14 w-14 shrink-0 object-contain" />
+            <span className="min-w-0">
+              <span className="block text-[15px] font-medium text-[#1F2430]">{c.label}</span>
+              <span className={`mt-0.5 block truncate text-[18px] font-extrabold tracking-tight ${c.tone}`}>{c.value}</span>
+            </span>
+          </Panel>
+        ))}
       </div>
 
       {/* FILTERS */}
@@ -125,9 +131,8 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                 return (
                   <Link key={t.id} href={`/transactions/${t.id}`} className={`block overflow-hidden rounded-2xl border-l-[5px] p-4 shadow-sm transition hover:shadow-md ${failed ? "border-red-400 bg-red-50/70" : completed ? "border-emerald-400 bg-emerald-50/70" : "border-amber-400 bg-amber-50/70"} border-y border-r border-y-slate-100 border-r-slate-100`}>
                     <div className="flex items-center gap-3.5">
-                      <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${failed ? "bg-red-100 text-red-500" : completed ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600"}`}>
-                        {credit ? <ArrowDownToLine size={21} /> : <ArrowUpFromLine size={21} />}
-                      </span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={txIcon(t)} alt="" className="h-12 w-12 shrink-0 object-contain" />
                       <div className="min-w-0 flex-1">
                         <p className="flex flex-wrap items-center gap-2 text-[14px] font-bold text-ink">
                           <span className="truncate">{txTitle(t)}</span>

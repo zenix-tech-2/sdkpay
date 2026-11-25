@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HandCoins, ArrowUpFromLine, Bitcoin, ArrowLeftRight, Info, Percent, ShieldCheck } from "lucide-react";
 import Gate from "@/components/gate";
 import { Panel } from "@/components/ui";
+import { getFees } from "@/lib/settings";
 
 function FeeCard({ icon, tile, title, rows }: { icon: React.ReactNode; tile: string; title: string; rows: [string, string][] }) {
   return (
@@ -14,7 +15,7 @@ function FeeCard({ icon, tile, title, rows }: { icon: React.ReactNode; tile: str
         {rows.map(([k, v]) => (
           <div key={k} className="flex items-center justify-between gap-4 py-2.5 text-[13px]">
             <span className="text-slate-500">{k}</span>
-            <span className="font-bold text-ink">{v}</span>
+            <span className="text-right font-bold text-ink">{v}</span>
           </div>
         ))}
       </div>
@@ -22,30 +23,35 @@ function FeeCard({ icon, tile, title, rows }: { icon: React.ReactNode; tile: str
   );
 }
 
-export default function FeesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function FeesPage() {
+  const fees = await getFees();
+  const mm = `${fees.deposit_percent.toFixed(2)}%`;
+
   return (
     <Gate>
       <h1 className="text-[28px] font-extrabold tracking-tight text-ink sm:text-[32px]">Fees</h1>
-      <p className="text-[13px] text-slate-500">Transparent pricing — shown before every confirmation. No hidden charges.</p>
+      <p className="text-[13px] text-slate-500">Live fee schedule — shown before every confirmation. No hidden charges.</p>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <FeeCard
           icon={<HandCoins size={22} className="text-emerald-600" />} tile="bg-emerald-50" title="Mobile Money"
           rows={[
-            ["Deposit (top up)", "4.00% · min 10 FCFA"],
-            ["Send to a Mobile Money number", "4.00%"],
-            ["Withdraw to Mobile Money", "4.00%"],
+            ["Deposit (top up)", `${mm} · min ${fees.min_deposit} FCFA`],
+            ["Send to a Mobile Money number", `${fees.send_percent.toFixed(2)}%`],
+            ["Withdraw to Mobile Money", `${fees.withdrawal_percent.toFixed(2)}%`],
             ["Failed deposits", "Never charged"],
-            ["Payment link collection", "4.00% per payment"],
+            ["Payment link collection", `${fees.deposit_percent.toFixed(2)}% per payment`],
           ]}
         />
         <FeeCard
           icon={<Bitcoin size={22} className="text-orange-500" />} tile="bg-orange-50" title="Crypto (USDT · Tron)"
           rows={[
-            ["USDT deposit", "2.50%"],
-            ["USDT withdrawal (network)", "1.00 USDT fixed"],
-            ["USDT send to external wallet", "1.00 USDT"],
-            ["Wallet-to-wallet conversion", "1.00%"],
+            ["USDT deposit", `${fees.crypto_deposit_percent.toFixed(2)}%`],
+            ["USDT withdrawal (network)", `${fees.crypto_withdrawal_fixed.toFixed(2)} USDT fixed`],
+            ["USDT send to external wallet", `${fees.crypto_withdrawal_fixed.toFixed(2)} USDT`],
+            ["Wallet-to-wallet conversion", `${fees.conversion_percent.toFixed(2)}%`],
             ["Minimum network confirmation", "1 block (~3 min)"],
           ]}
         />
@@ -53,8 +59,8 @@ export default function FeesPage() {
           icon={<ArrowLeftRight size={22} className="text-violet-600" />} tile="bg-violet-50" title="Internal &amp; conversions"
           rows={[
             ["SDK Pay → SDK Pay transfer", "Free — always"],
-            ["XAF → XOF wallet conversion", "1.00%"],
-            ["USD → XAF auto-conversion", "1.00% (Perfect Rate)"],
+            ["XAF → XOF wallet conversion", `${fees.conversion_percent.toFixed(2)}%`],
+            ["USD → XAF auto-conversion", `${fees.conversion_percent.toFixed(2)}% (Perfect Rate)`],
             ["Cross-border payouts", "2.00%"],
             ["Bulk payout file (100+)", "Volume pricing — talk to sales"],
           ]}
@@ -62,16 +68,15 @@ export default function FeesPage() {
         <FeeCard
           icon={<ArrowUpFromLine size={22} className="text-sky-600" />} tile="bg-sky-50" title="Limits"
           rows={[
-            ["Minimum withdrawal", "550 XAF · 1 USDT"],
-            ["Maximum withdrawal", "2,000,000 XAF · 1,500 USDT"],
+            ["Minimum withdrawal", `${fees.min_withdrawal.toLocaleString("fr-FR")} XAF · ${fees.usdt_min} USDT`],
+            ["Maximum withdrawal", `${fees.max_withdrawal.toLocaleString("fr-FR")} XAF · ${fees.usdt_max.toLocaleString("fr-FR")} USDT`],
             ["Daily Mobile Money send", "5,000,000 XAF"],
-            ["Minimum payment link amount", "100 FCFA"],
+            ["Minimum payment link amount", `${fees.min_deposit} FCFA`],
             ["Unverified accounts", "Deposits capped at 50,000 XAF/day"],
           ]}
         />
       </div>
 
-      {/* reduced fee banner */}
       <div className="mt-5 flex flex-wrap items-center gap-4 rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 p-5">
         <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold/80 text-navy2 shadow-inner"><Percent size={26} strokeWidth={2.2} /></span>
         <div className="min-w-0 flex-1">

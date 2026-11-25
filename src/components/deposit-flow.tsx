@@ -7,8 +7,9 @@ import {
 } from "lucide-react";
 import { toDataURL } from "qrcode";
 import { COUNTRIES, flagUrl, type CountryEntry } from "@/lib/countries";
-import { createDeposit } from "@/lib/actions";
+import { createDeposit, pollTransactionStatus } from "@/lib/actions";
 import Link from "next/link";
+import type { FeeSettings } from "@/lib/settings";
 
 const DIGIT = (n: number) => String(n).padStart(2, "0");
 
@@ -80,7 +81,7 @@ function CountryPicker({ value, onChange }: { value: CountryEntry; onChange: (c:
   );
 }
 
-export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: number; usdtBalance: number }) {
+export default function DepositFlow({ xafBalance, usdtBalance, fees }: { xafBalance: number; usdtBalance: number; fees: FeeSettings }) {
   const [tab, setTab] = useState<"momo" | "crypto">("momo");
   const [country, setCountry] = useState<CountryEntry>(COUNTRIES.find((c) => c.code === "cm")!);
   const [operatorId, setOperatorId] = useState("MTN_MONEY");
@@ -88,6 +89,8 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
   const [amountStr, setAmountStr] = useState("");
   const [stage, setStage] = useState<"form" | "confirm" | "processing">("form");
   const [pendingRef, setPendingRef] = useState<string | null>(null);
+  const [provider, setProvider] = useState<string>("local");
+  const [settled, setSettled] = useState<"pending" | "completed" | "failed">("pending");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,10 +104,10 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
   const [cryptoSubmitting, setCryptoSubmitting] = useState(false);
 
   const amount = Number(amountStr) || 0;
-  const fee = Math.round(amount * 0.04 * 100) / 100;
+  const fee = Math.round(((amount * fees.deposit_percent) / 100) * 100) / 100;
   const net = Math.max(0, amount - fee);
   const usdtAmount = Number(usdtStr) || 0;
-  const usdtFee = Math.round(usdtAmount * 0.025 * 10000) / 10000;
+  const usdtFee = Math.round(((usdtAmount * fees.crypto_deposit_percent) / 100) * 10000) / 10000;
   const usdtNet = Math.max(0, usdtAmount - usdtFee);
 
   const expiry = useCountdown(468, stage === "processing");
@@ -116,16 +119,28 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
 
   const operator = country.operators.find((o) => o.id === operatorId) ?? country.operators[0];
   const phoneValid = phone.replace(/\D/g, "").length >= 8;
-  const canConfirm = amount > 0 && operator && phoneValid;
+  const canConfirm = amount >= fees.min_deposit && operator && phoneValid;
 
   const submitDeposit = async () => {
     setSubmitting(true);
     setError(null);
-    const res = await createDeposit({ amount, fee, net, currencyLabel: country.currency, country: country.name, operator: operator.id, phone, feePercent: 4 });
+    const res = await createDeposit({ amount, fee, net, currencyLabel: country.currency, country: country.name, countryCode: country.code, operator: operator?.name ?? operator?.id ?? "", phone, feePercent: fees.deposit_percent });
     setSubmitting(false);
-    if (res.ok) { setPendingRef(res.ref ?? null); setStage("processing"); }
+    if (res.ok) { setPendingRef(res.ref ?? null); setProvider(res.provider ?? "local"); setSettled("pending"); setStage("processing"); }
     else setError(res.error ?? "Something went wrong");
   };
+
+  /* poll the provider (or demo rail) until the transaction settles */
+  useEffect(() => {
+    if (stage !== "processing" || !pendingRef) return;
+    const t = setInterval(async () => {
+      const r = await pollTransactionStatus(pendingRef);
+      setProvider(r.provider);
+      if (r.status === "completed") { setSettled("completed"); clearInterval(t); }
+      else if (r.status === "failed") { setSettled("failed"); clearInterval(t); }
+    }, 3000);
+    return () => clearInterval(t);
+  }, [stage, pendingRef]);
 
   const generateAddress = () => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789";
@@ -138,7 +153,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
   const submitCryptoDeposit = async () => {
     if (!address) return;
     setCryptoSubmitting(true);
-    const res = await createDeposit({ amount: usdtAmount, fee: usdtFee, net: usdtNet, currencyLabel: "USDT", country: country.name, operator: "USDT · Tron (TRC20)", phone: address.slice(0, 12), feePercent: 2.5 });
+    const res = await createDeposit({ amount: usdtAmount, fee: usdtFee, net: usdtNet, currencyLabel: "USDT", country: country.name, operator: "USDT · Tron (TRC20)", phone: address.slice(0, 12), feePercent: fees.crypto_deposit_percent });
     setCryptoSubmitting(false);
     if (res.ok) setCryptoStage("sent");
     else setError(res.error ?? "Something went wrong");
@@ -146,6 +161,31 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
 
   /* ---------------- processing screen ---------------- */
   if (stage === "processing" && pendingRef) {
+    const providerLabel = provider === "ashtech" ? "AshTech Pay · Direct API" : provider === "saspay" ? "SasPay · backup rail" : "Demo mode";
+
+    if (settled === "completed") {
+      return (
+        <div className="mx-auto max-w-md rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+          <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-200"><CheckIcon size={44} strokeWidth={2.5} /></span>
+          <h2 className="mt-5 text-[24px] font-extrabold text-emerald-900">Deposit complete</h2>
+          <p className="mt-1.5 text-[14px] text-emerald-800"><b>{amount.toLocaleString("fr-FR")} FCFA</b> has been added to your balance via {providerLabel}.</p>
+          <Link href="/dashboard" className="mt-6 block rounded-2xl bg-navy py-4 text-[15px] font-bold text-white transition hover:bg-navy3">Back to dashboard</Link>
+          <Link href="/transactions" className="mt-2 block py-2 text-[12.5px] font-bold text-emerald-700 hover:underline">View transaction</Link>
+        </div>
+      );
+    }
+    if (settled === "failed") {
+      return (
+        <div className="mx-auto max-w-md rounded-3xl border border-red-200 bg-red-50 p-8 text-center">
+          <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-red-100 text-red-500"><X size={44} /></span>
+          <h2 className="mt-5 text-[24px] font-extrabold text-red-700">Deposit failed</h2>
+          <p className="mt-1.5 text-[13.5px] leading-relaxed text-red-700/80">The payment was rejected or expired. No amount was debited from your Mobile Money account.</p>
+          <button onClick={() => { setStage("form"); setSettled("pending"); }} className="mt-6 w-full rounded-2xl bg-navy py-4 text-[15px] font-bold text-white transition hover:bg-navy3">Try again</button>
+          <Link href="/transactions" className="mt-2 block py-2 text-[12.5px] font-bold text-red-700 hover:underline">View transaction</Link>
+        </div>
+      );
+    }
+
     return (
       <div className="mx-auto max-w-md rounded-3xl border border-slate-200/80 bg-white p-7 text-center shadow-sm">
         <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-amber-100 shadow-[0_0_0_12px_rgba(253,230,138,0.35)]">
@@ -153,6 +193,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
         </div>
         <h2 className="mt-6 text-[22px] font-extrabold text-ink">Processing</h2>
         <p className="mt-1 text-[13px] text-slate-500">Approve the request on your Mobile Money phone</p>
+        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{providerLabel}</span>
         <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
           <p className="text-[26px] font-black text-gold2">{amount.toLocaleString("fr-FR")} FCFA</p>
           <p className="text-[12px] font-semibold text-amber-800/70">via {operator?.name}</p>
@@ -223,7 +264,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
 
           {amount > 0 && (
             <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-4 py-2.5 text-[12.5px]">
-              <span className="font-semibold text-slate-500">Fees (4%) · you receive</span>
+              <span className="font-semibold text-slate-500">Fees ({fees.deposit_percent}%) · you receive</span>
               <span className="font-extrabold text-emerald-600">{net.toLocaleString("fr-FR")} FCFA</span>
             </div>
           )}
@@ -267,7 +308,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
 
           {usdtAmount > 0 && (
             <div className="mt-4 divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-slate-50/60">
-              <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Total fees (2.5%)</span><span className="font-bold text-red-500">-{usdtFee.toFixed(4)} USDT</span></div>
+              <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Total fees ({fees.crypto_deposit_percent}%)</span><span className="font-bold text-red-500">-{usdtFee.toFixed(4)} USDT</span></div>
               <div className="flex items-center justify-between px-4 py-2.5 text-[13px]"><span className="font-semibold text-slate-500">Net amount credited</span><span className="font-extrabold text-emerald-600">{usdtNet.toFixed(4)} USDT</span></div>
             </div>
           )}
@@ -277,6 +318,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
           </button>
           {refundOpen && <input value={refund} onChange={(e) => setRefund(e.target.value)} placeholder="T… (used only if the payment cannot be credited)" className="mt-2 h-12 w-full rounded-xl border border-slate-200 px-4 font-mono text-[12px] outline-none focus:border-gold" />}
 
+          {error && <p className="mt-3 rounded-xl bg-red-50 px-4 py-2 text-[12.5px] font-semibold text-red-600">{error}</p>}
           <button
             disabled={usdtAmount < 1}
             onClick={generateAddress}
@@ -311,7 +353,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
           </div>
           <div className="mt-4 divide-y divide-slate-100 rounded-2xl border border-slate-100">
             <div className="flex items-center justify-between px-4 py-2.5 text-[13.5px]"><span className="font-semibold text-slate-500">Send exactly</span><span className="font-extrabold text-ink">{usdtAmount.toFixed(4)} USDT</span></div>
-            <div className="flex items-center justify-between px-4 py-2.5 text-[13.5px]"><span className="font-semibold text-slate-500">Total fees (2.5%)</span><span className="font-bold text-red-500">-{usdtFee.toFixed(4)} USDT</span></div>
+            <div className="flex items-center justify-between px-4 py-2.5 text-[13.5px]"><span className="font-semibold text-slate-500">Total fees ({fees.crypto_deposit_percent}%)</span><span className="font-bold text-red-500">-{usdtFee.toFixed(4)} USDT</span></div>
             <div className="flex items-center justify-between px-4 py-2.5 text-[13.5px]"><span className="font-semibold text-slate-500">Net amount credited</span><span className="font-extrabold text-emerald-600">{usdtNet.toFixed(4)} USDT</span></div>
           </div>
 
@@ -364,7 +406,7 @@ export default function DepositFlow({ xafBalance, usdtBalance }: { xafBalance: n
               ].map(([k, v]) => (
                 <div key={k} className="flex items-center justify-between px-4 py-3"><span className="text-[13px] text-slate-500">{k}</span><span className="text-[13.5px] font-bold text-ink">{v}</span></div>
               ))}
-              <div className="flex items-center justify-between px-4 py-3"><span className="text-[13px] text-slate-500">Fees (4%)</span><span className="text-[13.5px] font-bold text-red-500">-{fee.toLocaleString("fr-FR")} FCFA</span></div>
+              <div className="flex items-center justify-between px-4 py-3"><span className="text-[13px] text-slate-500">Fees ({fees.deposit_percent}%)</span><span className="text-[13.5px] font-bold text-red-500">-{fee.toLocaleString("fr-FR")} FCFA</span></div>
               <div className="flex items-center justify-between bg-emerald-50/60 px-4 py-3.5"><span className="text-[14px] font-bold text-ink">Credited amount</span><span className="text-[15px] font-extrabold text-emerald-600">{net.toLocaleString("fr-FR")} FCFA</span></div>
             </div>
             {error && <p className="mt-3 rounded-xl bg-red-50 px-4 py-2 text-[12.5px] font-semibold text-red-600">{error}</p>}

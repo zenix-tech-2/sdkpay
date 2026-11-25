@@ -16,7 +16,9 @@ export async function getSessionUser() {
   const id = jar.get(SESSION_COOKIE)?.value;
   if (!id) return null;
   const rows = await db.select().from(users).where(eq(users.id, id)).limit(1);
-  return rows[0] ?? null;
+  const user = rows[0] ?? null;
+  if (!user || user.status === "suspended") return null; // suspended accounts are signed out everywhere
+  return user;
 }
 
 export async function requireUser() {

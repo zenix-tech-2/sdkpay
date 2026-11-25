@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRightLeft, BadgeCheck, ChevronRight, Circle, Coins, HandCoins, Banknote, Calculator, Wallet, ArrowDownLeft, ArrowUpRight, ShieldCheck, Smartphone, KeyRound, MessageCircle, Link2, Eye } from "lucide-react";
+import { ArrowRightLeft, BadgeCheck, ChevronRight, Circle, Coins, ArrowDownLeft, ArrowUpRight, ShieldCheck, Smartphone, KeyRound, MessageCircle, Link2, Eye } from "lucide-react";
 import Gate from "@/components/gate";
 import { SectionLabel, Panel } from "@/components/ui";
 import FilterSelect from "@/components/filter-select";
@@ -35,10 +35,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const maxBar = Math.max(...series.map((s) => s.value), 1);
 
   const quickActions = [
-    { href: "/deposit", label: "Deposit", icon: HandCoins, tile: "bg-emerald-50 text-emerald-600" },
-    { href: "/send", label: "Send", icon: Banknote, tile: "bg-violet-50 text-violet-600" },
-    { href: "/withdraw", label: "Withdraw", icon: Calculator, tile: "bg-orange-50 text-orange-600" },
-    { href: "/links/new", label: "Payment link", icon: Wallet, tile: "bg-amber-50 text-amber-600" },
+    { href: "/deposit", label: "Deposit", img: "/icons3d/deposit.svg" },
+    { href: "/send", label: "Send", img: "/icons3d/send.svg" },
+    { href: "/withdraw", label: "Withdraw", img: "/icons3d/withdraw.svg" },
+    { href: "/links/new", label: "Payment link", img: "/icons3d/link.svg" },
   ];
 
   return (
@@ -102,17 +102,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <section>
             <SectionLabel>Quick actions</SectionLabel>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {quickActions.map((a) => {
-                const Icon = a.icon;
-                return (
-                  <Link key={a.label} href={a.href} className="group flex flex-col items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-gold hover:shadow-lg">
-                    <span className={`flex h-16 w-16 items-center justify-center rounded-2xl ${a.tile} transition-transform group-hover:scale-110`}>
-                      <Icon size={30} strokeWidth={1.8} />
-                    </span>
-                    <span className="text-[13px] font-bold text-ink">{a.label}</span>
-                  </Link>
-                );
-              })}
+              {quickActions.map((a) => (
+                <Link key={a.label} href={a.href} className="group flex flex-col items-center gap-2.5 rounded-3xl border border-black/[0.06] bg-white px-3 py-4 shadow-[0_1px_2px_rgba(16,24,40,0.06)] transition active:scale-[0.97] sm:hover:-translate-y-0.5 sm:hover:shadow-lg">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={a.img} alt="" width={76} height={76} className="h-[4.6rem] w-[4.6rem] object-contain transition-transform duration-300 group-hover:scale-110" />
+                  <span className="text-[14.5px] font-bold tracking-[-0.01em] text-[#101318]">{a.label}</span>
+                </Link>
+              ))}
             </div>
           </section>
 
