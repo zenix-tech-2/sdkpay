@@ -130,22 +130,21 @@ function ShellInner({ user, children }: { user: ShellUser; children: React.React
   return (
     <div className="sdk-shell min-h-screen bg-[#f4f6fb]">
       {/* yellow top strip like app */}
-      <div className="h-9 bg-[#f6b800] sticky top-0 z-40" />
       <NavigationProgress />
 
       {/* topbar */}
-      <div className="sdk-topbar sticky top-9 z-40 bg-[#f4f6fb]/95 backdrop-blur border-b border-slate-200">
-        <div className="mx-auto max-w-6xl px-4 h-[51px] flex items-center gap-3">
+      <div className="sdk-topbar sticky top-0 z-40 bg-[#f4f6fb]/95 backdrop-blur border-b border-slate-200">
+        <div className="mx-auto max-w-6xl px-3 h-[44px] flex items-center gap-2.5">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden rounded-xl border border-slate-900 p-1.5 text-slate-900"
+            className="lg:hidden rounded-lg border border-slate-900 p-1 text-slate-900"
             aria-label="open menu"
           >
             <PanelLeftClose size={17.1} strokeWidth={2.4} />
           </button>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
-            className="hidden lg:flex rounded-xl border border-slate-900 p-1.5 text-slate-900"
+            className="hidden lg:flex rounded-lg border border-slate-900 p-1 text-slate-900"
             aria-label="toggle menu"
           >
             {sidebarOpen ? <PanelLeftClose size={17.1} strokeWidth={2.4} /> : <PanelLeftOpen size={17.1} strokeWidth={2.4} />}
@@ -159,7 +158,7 @@ function ShellInner({ user, children }: { user: ShellUser; children: React.React
                   setLangOpen(!langOpen);
                   setNotifOpen(false);
                 }}
-                className="flex items-center gap-1 rounded-2xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50"
               >
                 <Languages size={15.3} />
               </button>
@@ -195,7 +194,7 @@ function ShellInner({ user, children }: { user: ShellUser; children: React.React
                   setNotifOpen(!notifOpen);
                   setLangOpen(false);
                 }}
-                className="relative flex items-center justify-center rounded-full bg-red-100 h-[36.5px] w-[36.5px] text-slate-900 hover:bg-red-200/70"
+                className="relative flex items-center justify-center rounded-full bg-red-100 h-[32px] w-[32px] text-slate-900 hover:bg-red-200/70"
               >
                 <Bell size={16.2} fill="currentColor" />
                 {unread > 0 && (
@@ -236,7 +235,7 @@ function ShellInner({ user, children }: { user: ShellUser; children: React.React
 
             {/* avatar */}
             <Link href="/dashboard/accounts" className="relative">
-              <img src={avatarUrl(user.fullName)} alt={user.fullName} className="h-[36.5px] w-[36.5px] rounded-full object-cover ring-2 ring-white shadow" />
+              <img src={avatarUrl(user.fullName)} alt={user.fullName} className="h-[32px] w-[32px] rounded-full object-cover ring-2 ring-white shadow" />
               <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white ring-2 ring-[#f4f6fb]">
                 <BadgeCheck size={11.7} />
               </span>
