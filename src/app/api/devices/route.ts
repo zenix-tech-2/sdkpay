@@ -1,36 +1,58 @@
-import { ne } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getSessionUser, verifyToken, COOKIE_NAME } from "@/lib/auth";
 import { db } from "@/db";
 import { sessions } from "@/db/schema";
-import { isUserResult, requireUser, apiError } from "@/lib/api-helpers";
+import { eq, and, desc, ne } from "drizzle-orm";
 
-const demoDevices = [
-  { id: "demo-1", label: "Mobile · Chrome", ip: "162.251.62.98", age: "2 days ago", current: true },
-  { id: "demo-2", label: "Mobile · Chrome", ip: "86.105.212.251", age: "6 days ago", current: false },
-  { id: "demo-3", label: "Mobile · Chrome", ip: "86.105.212.251", age: "11 days ago", current: false },
-  { id: "demo-4", label: "Mobile · Chrome", ip: "216.106.182.83", age: "20 days ago", current: false },
-];
-
-export async function GET() {
-  try {
-    const result = await requireUser();
-    if (!isUserResult(result)) return result.response;
-    return Response.json({ devices: demoDevices });
-  } catch (error) {
-    return apiError(error);
-  }
+async function currentJti() {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  const payload = await verifyToken(token);
+  return payload?.jti ?? null;
 }
 
-export async function DELETE() {
-  try {
-    const result = await requireUser();
-    if (!isUserResult(result)) return result.response;
-    const jar = await cookies();
-    const token = jar.get("sdkpay_session")?.value;
-    if (token) await db.delete(sessions).where(ne(sessions.token, token));
-    else await db.delete(sessions);
-    return Response.json({ ok: true, disconnected: 3 });
-  } catch (error) {
-    return apiError(error);
+export async function GET() {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  const jti = await currentJti();
+  if (jti) {
+    await db.update(sessions).set({ lastActiveAt: new Date() }).where(eq(sessions.tokenId, jti));
   }
+  const rows = await db
+    .select({
+      id: sessions.id,
+      tokenId: sessions.tokenId,
+      device: sessions.device,
+      ip: sessions.ip,
+      lastActiveAt: sessions.lastActiveAt,
+      createdAt: sessions.createdAt,
+    })
+    .from(sessions)
+    .where(eq(sessions.userId, user.id))
+    .orderBy(desc(sessions.lastActiveAt));
+  return NextResponse.json({
+    current: jti,
+    devices: rows.map((r) => ({ ...r, isCurrent: r.tokenId === jti })),
+  });
+}
+
+export async function DELETE(req: Request) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  const url = new URL(req.url);
+  const jti = await currentJti();
+  if (url.searchParams.get("others") === "1") {
+    if (!jti) return NextResponse.json({ error: "No session." }, { status: 400 });
+    await db.delete(sessions).where(and(eq(sessions.userId, user.id), ne(sessions.tokenId, jti)));
+    return NextResponse.json({ ok: true });
+  }
+  const id = url.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  const rows = await db.select().from(sessions).where(and(eq(sessions.id, id), eq(sessions.userId, user.id))).limit(1);
+  if (!rows.length) return NextResponse.json({ error: "Not found." }, { status: 404 });
+  if (rows[0].tokenId === jti) return NextResponse.json({ error: "Cannot disconnect this device here. Use Log out." }, { status: 400 });
+  await db.delete(sessions).where(eq(sessions.id, id));
+  return NextResponse.json({ ok: true });
 }

@@ -1,19 +1,37 @@
-import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { users, wallets } from "@/db/schema";
+import { COUNTRIES } from "@/data/countries";
 
-export async function getWalletsForUser(userId: number) {
-  const [account] = await db.select({ balance: users.balance }).from(users).where(eq(users.id, userId)).limit(1);
-  const primaryBalance = Number(account?.balance ?? 0) + 0.44;
-  await db.insert(wallets).values({
-    userId,
-    currency: "XAF",
-    countryName: "Cameroon XAF",
-    flag: "🇨🇲",
-    balance: primaryBalance,
-    isPrimary: true,
-  }).onConflictDoNothing();
-  await db.update(wallets).set({ balance: primaryBalance })
-    .where(and(eq(wallets.userId, userId), eq(wallets.currency, "XAF")));
-  return db.select().from(wallets).where(eq(wallets.userId, userId)).orderBy(wallets.id);
+export interface CatalogEntry {
+  code: string;
+  country: string;
+  flag: string;
+  iso: string;
+}
+
+const EXTRA: CatalogEntry[] = [
+  { code: "INR", country: "Inde", flag: "🇮🇳", iso: "in" },
+];
+
+/** Full catalog for the "Add account" screen (deduped by wallet code). */
+export const WALLET_CATALOG: CatalogEntry[] = (() => {
+  const all: CatalogEntry[] = [
+    ...COUNTRIES.map((c) => ({ code: c.wallet, country: c.name, flag: c.flag, iso: c.code.toLowerCase() })),
+    ...EXTRA,
+    { code: "USDT", country: "Crypto · Tron", flag: "₮", iso: "usdt" },
+  ];
+  const seen = new Set<string>();
+  return all.filter((e) => (seen.has(e.code) ? false : (seen.add(e.code), true)));
+})();
+
+export function isoForWallet(code: string): string {
+  return WALLET_CATALOG.find((c) => c.code === code)?.iso ?? "";
+}
+
+export function settlementOf(code: string): "XAF" | "XOF" | "USDT" {
+  if (code === "USDT") return "USDT";
+  if (code.startsWith("XOF")) return "XOF";
+  return "XAF";
+}
+
+export function displayUnit(code: string) {
+  return code === "USDT" ? "USDT" : "FCFA";
 }

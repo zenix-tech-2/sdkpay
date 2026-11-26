@@ -1,118 +1,239 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { Check, ChevronDown, Lock, Phone, ShieldCheck, UserRound } from "lucide-react";
-import { Logo } from "@/components/Logo";
-import { countries } from "@/lib/countries";
-import { formatNumber } from "@/lib/format";
+import { ShieldCheck, CheckCircle2, Loader2, ArrowLeft, FileText, ExternalLink, Clock } from "lucide-react";
+import Logo from "@/components/Logo";
+import { OperatorSelect } from "@/components/dashboard/WalletForm";
 
-type LinkData = {
+interface LinkData {
   link: {
-    id: number;
     title: string;
-    description: string;
-    amount: number;
-    currency: string;
-    status: string;
     slug: string;
-    freeAmount: boolean;
-    pdfUrl: string;
-    imageUrl: string;
-    redirectUrl: string;
-    expiryDate: string;
+    amount: number | null;
+    currency: string;
+    description: string | null;
+    isActive: boolean;
+    totalCollected: number;
+    paymentsCount: number;
+    imageUrl: string | null;
+    redirectUrl: string | null;
+    expiresAt: string | null;
   };
-  merchant: { fullName: string; username: string; countryCode: string };
-};
+  merchant: { fullName: string; username: string } | null;
+  expired: boolean;
+}
 
-export default function CheckoutPage() {
-  const params = useParams();
-  const slug = String(params?.slug ?? "");
+export default function PayPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [data, setData] = useState<LinkData | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [amount, setAmount] = useState("");
+  const [operator, setOperator] = useState("MTN MoMo");
   const [phone, setPhone] = useState("");
-  const [payerName, setPayerName] = useState("");
-  const [operator, setOperator] = useState("MTN Money");
-  const [countryCode, setCountryCode] = useState("CM");
-  const [customAmount, setCustomAmount] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<{ reference: string; amount: number; title: string; redirectUrl?: string; pdfUrl?: string } | null>(null);
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [payErr, setPayErr] = useState("");
+  const [done, setDone] = useState<{ reference: string; amount: number; pdfUrl: string | null; redirectUrl: string | null } | null>(null);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
-    fetch(`/api/pay/${slug}`, { cache: "no-store" })
-      .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error ?? "Lien introuvable");
-        setData(json);
+    fetch(`/api/pay/${slug}`)
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) setError(d.error || "Lien introuvable.");
+        else setData(d);
       })
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false));
+      .catch(() => setError("Erreur réseau."));
   }, [slug]);
 
-  async function pay(event: React.FormEvent) {
-    event.preventDefault();
-    setSubmitting(true); setError("");
-    const res = await fetch(`/api/pay/${slug}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, payerName, operator, countryCode, countryName: countries.find((item) => item.code === countryCode)?.name ?? "Cameroun", amount: customAmount }),
-    });
-    const json = await res.json();
-    if (res.ok) setSuccess(json);
-    else setError(json.error ?? "Paiement impossible");
-    setSubmitting(false);
+  useEffect(() => {
+    if (done?.redirectUrl) {
+      setCountdown(8);
+      const id = setInterval(() => {
+        setCountdown((c) => {
+          if (c <= 1) {
+            clearInterval(id);
+            window.location.href = done.redirectUrl!;
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+      return () => clearInterval(id);
+    }
+  }, [done]);
+
+  async function pay(e: React.FormEvent) {
+    e.preventDefault();
+    setPayErr("");
+    setLoading(true);
+    try {
+      const r = await fetch(`/api/pay/${slug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: data?.link.amount ?? Number(amount), operator, phone, name }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        setPayErr(d.error);
+        return;
+      }
+      setDone(d);
+    } catch {
+      setPayErr("Erreur réseau.");
+    } finally {
+      setLoading(false);
+    }
   }
 
+  const finalAmount = data?.link.amount ?? Number(amount || 0);
+  const disabled = !data?.link.isActive || data?.expired;
+
   return (
-    <main className="min-h-screen bg-[#f4f8ff]">
-      <div className="h-8 bg-[#ffb800]" />
-      <div className="mx-auto max-w-[520px] px-4 pb-16 pt-9">
-        <div className="flex justify-center"><Logo size="lg" /></div>
-        <p className="mt-8 text-center text-[12px] font-semibold text-[#7c87a1]">Paiement sécurisé · SDK Pay Checkout</p>
+    <div className="min-h-screen bg-[#eef3f8]">
+      <div className="h-14 bg-[#f6b800]" />
+      <div className="mx-auto max-w-lg px-4 pb-16">
+        <div className="flex items-center justify-between pt-5">
+          <Logo />
+          <Link href="/" className="flex items-center gap-1 text-[13px] font-bold text-slate-500 hover:text-slate-800">
+            <ArrowLeft size={15} /> Accueil
+          </Link>
+        </div>
 
-        {loading && <div className="mt-8 h-64 animate-pulse rounded-2xl bg-[#e6ecf7]" />}
-        {error && !success && <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow-sm"><p className="text-[15px] font-bold text-[#c83c3c]">{error}</p><Link href="/" className="mt-4 inline-block text-[12px] font-bold text-[#e5a300]">Retour à l&apos;accueil</Link></div>}
+        {error && (
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-10 text-center">
+            <p className="text-[40px]">🔗</p>
+            <h1 className="mt-3 text-[19px] font-extrabold">{error}</h1>
+            <p className="mt-1 text-[13px] font-medium text-slate-500">Vérifiez le lien avec le marchand.</p>
+            <Link href="/" className="mt-4 inline-block rounded-full bg-yellow-400 px-6 py-3 text-[13.5px] font-extrabold">
+              Découvrir SDK Pay
+            </Link>
+          </div>
+        )}
 
-        {data && !success && (
-          <div className="mt-7 overflow-hidden rounded-[20px] border border-[#e7edf8] bg-white shadow-[0_14px_40px_rgba(25,40,85,.06)]">
-            <div className="bg-[#1d2a77] px-6 py-7 text-center text-white">
-              {data.link.imageUrl && <img src={data.link.imageUrl} alt="" className="mx-auto mb-3 h-14 w-14 rounded-xl object-cover" />}
-              <p className="text-[12px] text-[#c3cdef]">{data.merchant.fullName}</p>
-              <h1 className="font-display mt-2 text-[22px] font-extrabold">{data.link.title}</h1>
-              <p className="font-display mt-4 text-[38px] font-extrabold">{data.link.freeAmount ? "Montant libre" : `${formatNumber(data.link.amount)} FCFA`}</p>
+        {!error && !data && (
+          <div className="mt-8 rounded-3xl bg-white p-10 text-center text-[14px] font-bold text-slate-400">
+            Chargement du lien de paiement...
+          </div>
+        )}
+
+        {data && !done && (
+          <div className="mt-6 overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-xl">
+            {data.link.imageUrl && (
+              <img src={data.link.imageUrl} alt={data.link.title} className="h-52 w-full object-cover" />
+            )}
+            <div className="bg-[#23207e] p-6 text-white text-center">
+              <p className="text-[12px] font-bold text-white/60">MARCHAND</p>
+              <p className="text-[17px] font-extrabold">{data.merchant?.fullName ?? "Marchand SDK Pay"}</p>
+              <p className="mt-3 text-[12px] font-bold text-white/60">{data.link.title}</p>
+              {data.link.amount ? (
+                <p className="mt-1 text-[40px] font-extrabold tracking-tight">
+                  {data.link.amount.toLocaleString("fr-FR")} <span className="text-[18px] text-yellow-400">{data.link.currency}</span>
+                </p>
+              ) : (
+                <div className="mx-auto mt-2 max-w-[220px]">
+                  <input
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    type="number"
+                    min={100}
+                    placeholder="Montant"
+                    className="w-full rounded-2xl bg-white/10 px-4 py-3 text-center text-[24px] font-extrabold placeholder:text-white/30 placeholder:text-[15px] focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  />
+                  <p className="mt-1 text-[12px] font-bold text-white/50">Montant libre • min. 100 {data.link.currency}</p>
+                </div>
+              )}
+              {data.link.description && <p className="mt-2 text-[12.5px] font-medium text-white/60">{data.link.description}</p>}
+              <p className="mt-2 text-[11.5px] font-bold text-white/40">
+                {data.link.paymentsCount} paiement(s) • {data.link.totalCollected.toLocaleString("fr-FR")} {data.link.currency} collectés
+              </p>
             </div>
+
             <form onSubmit={pay} className="space-y-4 p-6">
-              {data.link.description && <p className="rounded-xl bg-[#f5f8ff] p-3 text-[12px] leading-relaxed text-[#5d6882]">{data.link.description}</p>}
-              {data.link.freeAmount && <div><label className="label">Montant à payer (FCFA) *</label><input required type="number" min={100} value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} placeholder="2500" className="field pl-4" /></div>}
-              <div><label className="label">Votre nom</label><div className="relative"><UserRound size={18} className="field-icon" /><input value={payerName} onChange={(e) => setPayerName(e.target.value)} placeholder="Jean Dupont" className="field" /></div></div>
-              <div><label className="label">Opérateur Mobile Money</label><div className="relative"><select value={operator} onChange={(e) => setOperator(e.target.value)} className="field appearance-none pr-10">{["MTN Money", "Orange Money", "Airtel Money", "Wave", "Moov Money", "M-Pesa", "Free Money"].map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={17} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7d8aa9]" /></div></div>
-              <div><label className="label">Pays</label><div className="relative"><select value={countryCode} onChange={(e) => setCountryCode(e.target.value)} className="field appearance-none pr-10">{countries.map((country) => <option key={country.code} value={country.code}>{country.flag} {country.name}</option>)}</select><ChevronDown size={17} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7d8aa9]" /></div></div>
-              <div><label className="label">Numéro de téléphone</label><div className="relative"><Phone size={18} className="field-icon" /><input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+237 6XX XXX XXX" className="field" /></div></div>
-              {error && <p className="rounded-lg bg-[#fff0f0] px-3 py-2 text-[12px] font-semibold text-[#c83c3c]">{error}</p>}
-              <button disabled={submitting || data.link.status !== "active" || (!!data.link.expiryDate && Date.parse(data.link.expiryDate) < Date.now())} className="brand-btn h-[54px] w-full rounded-xl text-[15px] disabled:opacity-60">
-                {submitting ? "Traitement du paiement..." : data.link.freeAmount ? "Payer" : `Payer ${formatNumber(data.link.amount)} FCFA`}
+              {payErr && <p className="rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-[13px] font-bold text-red-600">{payErr}</p>}
+              {!data.link.isActive && (
+                <p className="rounded-xl bg-yellow-50 border border-yellow-200 px-4 py-2.5 text-[13px] font-bold text-yellow-700">
+                  Ce lien est actuellement désactivé par le marchand.
+                </p>
+              )}
+              {data.expired && (
+                <p className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-[13px] font-bold text-red-600">
+                  <Clock size={16} /> Ce lien a expiré.
+                </p>
+              )}
+              <div>
+                <p className="mb-2 text-[13px] font-extrabold">Votre nom</p>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ex. Amina Diallo"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500"
+                />
+              </div>
+              <div>
+                <p className="mb-2 text-[13px] font-extrabold">Moyen de paiement</p>
+                <OperatorSelect value={operator} onChange={setOperator} />
+              </div>
+              <div>
+                <p className="mb-2 text-[13px] font-extrabold">Numéro {operator.includes("VISA") ? "de carte" : "Mobile Money"}</p>
+                <input
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Ex. 237 6 XX XX XX XX"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || disabled}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[15.5px] font-extrabold shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-50"
+              >
+                {loading && <Loader2 size={18} className="animate-spin" />}
+                {loading ? "Paiement en cours..." : `Payer ${finalAmount.toLocaleString("fr-FR")} ${data.link.currency}`}
               </button>
-              <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#8b96b0]"><Lock size={12} /> Paiement chiffré et sécurisé par SDK Pay</p>
+              <p className="flex items-center justify-center gap-1.5 text-center text-[11.5px] font-bold text-slate-400">
+                <ShieldCheck size={14} className="text-green-500" /> Paiement sécurisé SSL • Propulsé par SDK Pay
+              </p>
+              <p className="text-center text-[11px] font-medium text-slate-400">Mode démo : aucun débit réel ne sera effectué.</p>
             </form>
           </div>
         )}
 
-        {success && (
-          <div className="mt-8 rounded-[20px] border border-[#e7edf8] bg-white p-8 text-center shadow-[0_14px_40px_rgba(25,40,85,.06)]">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e3f6eb] text-[#2e9e63]"><Check size={34} /></div>
-            <h1 className="font-display mt-5 text-[24px] font-extrabold text-[#17213d]">Paiement confirmé !</h1>
-            <p className="mt-2 text-[13px] text-[#6c7892]">{formatNumber(success.amount)} FCFA payés pour {success.title}.</p>
-            <p className="mt-4 rounded-lg bg-[#f5f8ff] px-3 py-2.5 text-[11px] font-semibold text-[#3c4966]">Référence : {success.reference}</p>
-            {success.pdfUrl && <a href={success.pdfUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-[12px] font-bold text-[#e5a300]">📄 Télécharger votre document PDF</a>}
-            {success.redirectUrl && <a href={success.redirectUrl} className="brand-btn mt-5 block rounded-xl px-6 py-3 text-[13px]">Continuer vers le site marchand</a>}
-            <Link href="/" className="mt-4 inline-block text-[12px] font-bold text-[#7c87a1]">Retour à l&apos;accueil</Link>
+        {done && (
+          <div className="mt-6 rounded-[26px] border border-green-200 bg-white p-8 text-center shadow-xl">
+            <CheckCircle2 size={64} className="mx-auto text-green-500" />
+            <h1 className="mt-4 text-[22px] font-extrabold">Paiement réussi !</h1>
+            <p className="mt-1 text-[14px] font-semibold text-slate-500">
+              {done.amount.toLocaleString("fr-FR")} {data?.link.currency} payés à {data?.merchant?.fullName}.
+            </p>
+            <p className="mt-3 inline-block rounded-full bg-slate-100 px-4 py-2 font-mono text-[12.5px] font-bold">Réf : {done.reference}</p>
+            {done.pdfUrl && (
+              <a
+                href={done.pdfUrl}
+                target="_blank"
+                className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-blue-50 border border-blue-200 px-4 py-3.5 text-[14px] font-extrabold text-blue-700 hover:bg-blue-100"
+              >
+                <FileText size={18} /> Télécharger votre fichier / reçu (PDF)
+              </a>
+            )}
+            {done.redirectUrl && (
+              <a
+                href={done.redirectUrl}
+                className="mt-3 flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3.5 text-[14px] font-extrabold text-white hover:bg-slate-800"
+              >
+                <ExternalLink size={17} /> Continuer vers le site marchand {countdown > 0 && `(${countdown}s)`}
+              </a>
+            )}
+            <div className="mt-5">
+              <Link href="/" className="inline-block rounded-full bg-yellow-400 px-6 py-3 text-[13.5px] font-extrabold">
+                Créer mon propre lien SDK Pay
+              </Link>
+            </div>
           </div>
         )}
-
-        <div className="mt-7 flex items-center justify-center gap-2 text-[11px] text-[#8b96b0]"><ShieldCheck size={14} /> Transactions protégées · SSL · Monitoring anti-fraude</div>
       </div>
-    </main>
+    </div>
   );
 }

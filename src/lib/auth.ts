@@ -1,74 +1,116 @@
-import { randomBytes } from "node:crypto";
-import { cookies } from "next/headers";
-import { and, eq, gt } from "drizzle-orm";
-import { db } from "@/db";
-import { sessions, users, type User } from "@/db/schema";
-import { ensureSchema } from "@/lib/ensure-schema";
+import { SignJWT, jwtVerify } from "jose";
+import { cookies, headers } from "next/headers";
+import { db, pool } from "@/db";
+import { sessions, users } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { randomBytes } from "crypto";
 
-const COOKIE_NAME = "sdkpay_session";
+const SECRET = new TextEncoder().encode(
+  process.env.AUTH_SECRET || "sdkpay-dev-secret-change-me-32chars!!"
+);
+export const COOKIE_NAME = "sdkpay_session";
 
-export async function createSession(userId: number) {
-  const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
-  await db.insert(sessions).values({ token, userId, expiresAt });
-  const jar = await cookies();
-  jar.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    secure: false,
-    expires: expiresAt,
-  });
+export async function signToken(payload: { sub: string; jti: string }) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("30d")
+    .sign(SECRET);
 }
 
-export async function destroySession() {
-  const jar = await cookies();
-  const token = jar.get(COOKIE_NAME)?.value;
-  if (token) {
-    await db.delete(sessions).where(eq(sessions.token, token));
-    jar.delete(COOKIE_NAME);
+export async function verifyToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, SECRET);
+    return payload as { sub: string; jti: string };
+  } catch {
+    return null;
   }
 }
 
-export async function getSessionUser(): Promise<User | null> {
-  await ensureSchema();
-  const jar = await cookies();
-  const token = jar.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  const rows = await db
-    .select({ user: users })
-    .from(sessions)
-    .innerJoin(users, eq(users.id, sessions.userId))
-    .where(and(eq(sessions.token, token), gt(sessions.expiresAt, new Date())))
-    .limit(1);
-  return rows[0]?.user ?? null;
+function parseDevice(ua: string) {
+  const mobile = /mobile|android|iphone|ipad/i.test(ua);
+  let browser = "Browser";
+  if (/chrome/i.test(ua) && !/edg/i.test(ua)) browser = "Chrome";
+  else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = "Safari";
+  else if (/firefox/i.test(ua)) browser = "Firefox";
+  else if (/edg/i.test(ua)) browser = "Edge";
+  return `${mobile ? "Mobile" : "Desktop"} · ${browser}`;
 }
 
-export function publicUser(user: User) {
-  return {
-    id: user.id,
-    fullName: user.fullName,
-    username: user.username,
-    email: user.email,
-    phone: user.phone,
-    dialCode: user.dialCode,
-    countryCode: user.countryCode,
-    referralCode: user.referralCode,
-    apiKey: user.apiKey,
-    webhookSecret: user.webhookSecret,
-    balance: user.balance,
-    usdtBalance: user.usdtBalance,
-    theme: user.theme,
-    notifyEmail: user.notifyEmail,
-    notifyPush: user.notifyPush,
-    notifySms: user.notifySms,
-    notifyMarketing: user.notifyMarketing,
-    conversionSources: user.conversionSources,
-    conversionDestination: user.conversionDestination,
-    conversionActive: user.conversionActive,
-    withdrawalNumbers: user.withdrawalNumbers,
-    pinConfigured: user.pinConfigured,
-    accountId: `ASHTECH${String(user.id + 53769258)}`,
-    createdAt: user.createdAt,
+export async function createSession(userId: string) {
+  const jti = randomBytes(24).toString("hex");
+  const token = await signToken({ sub: userId, jti });
+  const expiresAt = new Date(Date.now() + 30 * 24 * 3600 * 1000);
+  let device: string | undefined;
+  let ip: string | undefined;
+  try {
+    const h = await headers();
+    device = parseDevice(h.get("user-agent") || "");
+    ip = (h.get("x-forwarded-for") || "").split(",")[0].trim() || undefined;
+  } catch {
+    /* ignore */
+  }
+  await db.insert(sessions).values({ userId, tokenId: jti, expiresAt, device, ip });
+  const store = await cookies();
+  store.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 30 * 24 * 3600,
+  });
+  return token;
+}
+
+export async function destroySession() {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (token) {
+    const payload = await verifyToken(token);
+    if (payload?.jti) {
+      await db.delete(sessions).where(eq(sessions.tokenId, payload.jti)).catch(() => {});
+    }
+  }
+  store.set(COOKIE_NAME, "", { path: "/", maxAge: 0 });
+}
+
+export async function getSessionUser() {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  const payload = await verifyToken(token);
+  if (!payload?.sub || !payload?.jti) return null;
+  const rows = await db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.tokenId, payload.jti))
+    .limit(1);
+  if (!rows.length) return null;
+  if (new Date(rows[0].expiresAt).getTime() < Date.now()) return null;
+  const urows = await db.select().from(users).where(eq(users.id, payload.sub)).limit(1);
+  if (!urows.length) return null;
+  const { passwordHash, ...safe } = urows[0] as Record<string, unknown>;
+  void passwordHash;
+  return safe as unknown as {
+    id: string;
+    fullName: string;
+    username: string;
+    email: string;
+    phone: string;
+    countryCode: string;
+    country: string;
+    referralCode: string;
+    balanceXaf: number;
+    balanceXof: number;
+    balanceUsdt: number;
+    reducedFeeUntil: Date | null;
+    status: string;
+    role: string;
+    kycStatus: string;
+    language: string;
+    createdAt: Date;
   };
 }
+
+// lightweight query helper for raw pool usage
+export { pool };

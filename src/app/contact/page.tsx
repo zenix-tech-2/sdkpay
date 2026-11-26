@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Mail, Phone, MapPin, Send, CheckCircle2 } from "lucide-react";
+import Logo from "@/components/Logo";
+
+export default function ContactPage() {
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+
+  return (
+    <div className="min-h-screen bg-[#eef3f8]">
+      <div className="h-14 bg-[#f6b800]" />
+      <div className="mx-auto max-w-4xl px-4 pb-16">
+        <div className="flex items-center justify-between pt-5">
+          <Logo />
+          <Link href="/" className="flex items-center gap-1 text-[13px] font-bold text-slate-500 hover:text-slate-800">
+            <ArrowLeft size={15} /> Accueil
+          </Link>
+        </div>
+
+        <h1 className="mt-8 text-center text-[30px] font-extrabold tracking-tight">Contact</h1>
+        <p className="mt-1 text-center text-[14px] font-medium text-slate-500">Notre équipe répond en moins de 24h, 7j/7</p>
+
+        <div className="mt-8 grid sm:grid-cols-3 gap-3">
+          {[
+            { icon: Mail, t: "Email", v: "support@sdkpay.com" },
+            { icon: Phone, t: "Téléphone", v: "+237 6 83 67 78 72" },
+            { icon: MapPin, t: "Adresse", v: "Douala, Cameroun" },
+          ].map((c) => (
+            <div key={c.t} className="rounded-3xl border border-slate-200 bg-white p-5 text-center">
+              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
+                <c.icon size={19} />
+              </span>
+              <p className="mt-2 text-[12px] font-extrabold text-slate-400">{c.t}</p>
+              <p className="text-[13.5px] font-extrabold">{c.v}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 rounded-[26px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xl">
+          {sent ? (
+            <div className="py-8 text-center">
+              <CheckCircle2 size={56} className="mx-auto text-green-500" />
+              <h2 className="mt-3 text-[20px] font-extrabold">Message envoyé !</h2>
+              <p className="mt-1 text-[13.5px] font-medium text-slate-500">Merci {form.name || ""}, notre équipe vous répondra très vite.</p>
+              <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }} className="mt-4 rounded-full bg-slate-900 px-6 py-2.5 text-[13.5px] font-extrabold text-white">
+                Nouveau message
+              </button>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setSent(true);
+              }}
+              className="space-y-4"
+            >
+              <div className="grid sm:grid-cols-2 gap-3">
+                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Votre nom" className="rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500" />
+                <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Votre email" className="rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500" />
+              </div>
+              <input required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Sujet : ex. Problème de retrait" className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500" />
+              <textarea required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Décrivez votre besoin..." rows={5} className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-medium focus:border-yellow-500" />
+              <button className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[15px] font-extrabold hover:bg-yellow-300">
+                <Send size={17} /> Envoyer le message
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

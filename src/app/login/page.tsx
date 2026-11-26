@@ -1,21 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { Logo } from "@/components/Logo";
+import Link from "next/link";
+import { User, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { LogoLarge } from "@/components/Logo";
+
+const inputCls =
+  "w-full rounded-xl border border-slate-200 bg-white px-4 py-[13px] text-[15px] font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition";
+const labelCls = "mb-1.5 block text-[16px] font-extrabold text-slate-900";
 
 export default function LoginPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
     setError("");
     setLoading(true);
     try {
@@ -25,42 +29,105 @@ export default function LoginPage() {
         body: JSON.stringify({ identifier, password }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Connexion impossible"); return; }
+      if (!res.ok) {
+        setError(data.error || "Erreur de connexion.");
+        return;
+      }
       router.push("/dashboard");
       router.refresh();
     } catch {
-      setError("Impossible de contacter le serveur");
+      setError("Erreur réseau. Réessayez.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#f4f8ff]">
-      <div className="h-8 bg-[#ffb800]" />
-      <div className="mx-auto flex max-w-[560px] flex-col items-center px-4 pb-16 pt-9">
-        <div className="scale-[1.45] origin-center"><Logo size="lg" /></div>
-        <h1 className="font-display mt-10 text-center text-[30px] font-extrabold text-[#111b36] sm:text-[38px]">Welcome back</h1>
-        <p className="mt-2 text-center text-[13px] text-[#7b869f]">Connectez-vous à votre wallet SDK Pay.</p>
+    <div className="min-h-screen auth-bg pb-16">
+      <div className="h-14 bg-[#f6b800]" />
+      <div className="mx-auto max-w-xl px-4 sm:px-6">
+        <div className="pt-4">
+          <LogoLarge />
+        </div>
+        <h1 className="mt-8 text-center text-[30px] sm:text-[36px] font-extrabold tracking-tight text-slate-900">
+          Welcome back
+        </h1>
+        <p className="mt-2 text-center text-[14px] font-semibold text-slate-500">
+          Connectez-vous pour gérer vos paiements
+        </p>
 
-        <form onSubmit={submit} className="mt-8 w-full rounded-[22px] border border-[#e8edf7] bg-white px-5 py-8 shadow-[0_12px_40px_rgba(30,45,90,.05)] sm:px-8">
-          <label className="label">Email ou nom d&apos;utilisateur</label>
-          <div className="relative"><Mail size={18} className="field-icon" /><input required value={identifier} onChange={(e) => setIdentifier(e.target.value)} placeholder="votreemail@exemple.com" className="field" /></div>
-          <div className="mt-5"><label className="label">Password</label>
-            <div className="relative"><Lock size={18} className="field-icon" /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="field pr-12" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7d8aa9]">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+        <form onSubmit={submit} className="mt-8 rounded-[26px] border border-slate-200 bg-white p-6 sm:p-9 shadow-xl shadow-slate-200/50 space-y-5">
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-[13.5px] font-bold text-red-600">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className={labelCls}>Email or username</label>
+            <div className="relative">
+              <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                required
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="votreemail@exemple.com"
+                className={`${inputCls} pl-12`}
+                autoComplete="username"
+              />
             </div>
           </div>
-          {error && <p className="mt-5 rounded-lg bg-[#fff0f0] px-3 py-2.5 text-[13px] font-medium text-[#c83c3c]">{error}</p>}
-          <button type="submit" disabled={loading} className="brand-btn mt-7 h-[54px] w-full rounded-xl text-[15px] disabled:opacity-60">{loading ? "Connexion..." : "Se connecter"}</button>
-          <div className="mt-5 rounded-xl border border-dashed border-[#e4c982] bg-[#fffbf0] px-4 py-3 text-center text-[12px] text-[#6c758d]">
-            Compte démo : <strong className="text-[#26324d]">demo@sdkpay.com</strong> / <strong className="text-[#26324d]">demo1234</strong>
-            <button type="button" onClick={() => { setIdentifier("demo@sdkpay.com"); setPassword("demo1234"); }} className="ml-2 font-bold text-[#e5a300] hover:underline">Remplir</button>
+
+          <div>
+            <label className={labelCls}>Password</label>
+            <div className="relative">
+              <Lock size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                required
+                type={show ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className={`${inputCls} pl-12 pr-12`}
+                autoComplete="current-password"
+              />
+              <button type="button" onClick={() => setShow(!show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
+                {show ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
-          <p className="mt-6 text-center text-[13px] text-[#5f6b86]">Pas encore de compte ? <Link href="/signup" className="font-bold text-[#e5a300] hover:underline">Créer un compte</Link></p>
+
+          <div className="flex items-center justify-between text-[13px] font-bold">
+            <label className="flex items-center gap-2 text-slate-600">
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded accent-yellow-500" />
+              Se souvenir de moi
+            </label>
+            <a href="#" className="text-yellow-600 hover:underline">Mot de passe oublié ?</a>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[16px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60 transition"
+          >
+            {loading && <Loader2 size={18} className="animate-spin" />}
+            {loading ? "Connexion..." : "Se connecter"}
+          </button>
+
+          <p className="text-center text-[13.5px] font-semibold text-slate-500">
+            Pas encore de compte ?{" "}
+            <Link href="/register" className="font-extrabold text-yellow-600 hover:underline">
+              Créer un compte
+            </Link>
+          </p>
         </form>
-        <Link href="/" className="mt-7 text-[12px] font-semibold text-[#7b869f] hover:text-[#e5a300]">← Retour à l&apos;accueil</Link>
+
+        <div className="mt-6 text-center">
+          <Link href="/" className="text-[13px] font-bold text-slate-400 hover:text-slate-600">
+            ← Retour à l&apos;accueil
+          </Link>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

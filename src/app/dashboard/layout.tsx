@@ -1,0 +1,10 @@
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
+import DashboardShell from "@/components/dashboard/DashboardShell";
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+  if (user.status === "suspended") redirect("/suspended");
+  return <DashboardShell user={user as never}>{children}</DashboardShell>;
+}

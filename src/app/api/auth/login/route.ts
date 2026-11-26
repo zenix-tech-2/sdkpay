@@ -1,25 +1,41 @@
-import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { createSession, publicUser } from "@/lib/auth";
-import { ensureSchema } from "@/lib/ensure-schema";
-import { apiError } from "@/lib/api-helpers";
-import { verifyPassword } from "@/lib/password";
+import { eq, or } from "drizzle-orm";
+import { createSession } from "@/lib/auth";
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    await ensureSchema();
-    const body = await request.json();
-    const identifier = String(body.identifier ?? "").trim().toLowerCase();
-    const password = String(body.password ?? "");
-    const [user] = await db.select().from(users).where(eq(users.email, identifier)).limit(1);
-    const account = user ?? (await db.select().from(users).where(eq(users.username, identifier)).limit(1))[0];
-    if (!account || !verifyPassword(password, account.passwordHash)) {
-      return Response.json({ error: "Identifiants incorrects" }, { status: 401 });
+    const { identifier, password } = await req.json();
+    if (!identifier?.trim() || !password) {
+      return NextResponse.json({ error: "Email / nom d'utilisateur et mot de passe requis." }, { status: 400 });
     }
-    await createSession(account.id);
-    return Response.json({ ok: true, user: publicUser(account) });
-  } catch (error) {
-    return apiError(error);
+    const idLower = identifier.trim().toLowerCase();
+    const rows = await db
+      .select()
+      .from(users)
+      .where(or(eq(users.email, idLower), eq(users.username, idLower)))
+      .limit(1);
+    if (!rows.length) {
+      return NextResponse.json({ error: "Compte introuvable. Vérifiez vos identifiants." }, { status: 401 });
+    }
+    const user = rows[0];
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) {
+      return NextResponse.json({ error: "Mot de passe incorrect." }, { status: 401 });
+    }
+    if (user.status === "suspended") {
+      return NextResponse.json({ error: "Account suspended. Contact support@sdkpay.com." }, { status: 403 });
+    }
+    await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+    await createSession(user.id);
+    return NextResponse.json({
+      ok: true,
+      user: { id: user.id, fullName: user.fullName, username: user.username, email: user.email },
+    });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
   }
 }

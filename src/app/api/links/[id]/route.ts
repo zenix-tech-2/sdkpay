@@ -1,55 +1,48 @@
-import { and, eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth";
 import { db } from "@/db";
 import { paymentLinks } from "@/db/schema";
-import { isUserResult, requireUser, apiError } from "@/lib/api-helpers";
-import { linkColumns, parseLinkInput } from "@/lib/link-input";
+import { eq, and, ne } from "drizzle-orm";
+import { slugify } from "@/lib/format";
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const result = await requireUser();
-    if (!isUserResult(result)) return result.response;
-    const { id } = await params;
-    const linkId = Number(id);
-    const body = await request.json();
-
-    if (body.title === undefined) {
-      const status = body.status === "disabled" ? "disabled" : "active";
-      const [link] = await db.update(paymentLinks).set({ status })
-        .where(and(eq(paymentLinks.id, linkId), eq(paymentLinks.userId, result.user.id)))
-        .returning();
-      if (!link) return Response.json({ error: "Lien introuvable" }, { status: 404 });
-      return Response.json({ link });
-    }
-
-    const parsed = parseLinkInput(body);
-    if (parsed.error) return Response.json({ error: parsed.error }, { status: 400 });
-    const values = parsed.values;
-    if (values.slugHint) {
-      const existing = await db.select({ id: paymentLinks.id }).from(paymentLinks).where(eq(paymentLinks.slug, values.slugHint)).limit(1);
-      if (existing.length && existing[0].id !== linkId) return Response.json({ error: "Cette URL personnalisée est déjà utilisée" }, { status: 409 });
-    }
-    const [link] = await db.update(paymentLinks).set({
-      ...linkColumns(values),
-      ...(values.slugHint ? { slug: values.slugHint } : {}),
-    }).where(and(eq(paymentLinks.id, linkId), eq(paymentLinks.userId, result.user.id))).returning();
-    if (!link) return Response.json({ error: "Lien introuvable" }, { status: 404 });
-    return Response.json({ link });
-  } catch (error) {
-    return apiError(error);
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  const { id } = await params;
+  const body = await req.json();
+  const patch: Record<string, unknown> = {};
+  if (typeof body.title === "string" && body.title.trim()) patch.title = body.title.trim();
+  if (body.amount !== undefined) patch.amount = body.amount ? Number(body.amount) : null;
+  if (typeof body.currency === "string") patch.currency = body.currency;
+  if (typeof body.description === "string") patch.description = body.description || null;
+  if (typeof body.isActive === "boolean") patch.isActive = body.isActive;
+  if (typeof body.imageUrl === "string") patch.imageUrl = body.imageUrl || null;
+  if (typeof body.pdfUrl === "string") patch.pdfUrl = body.pdfUrl || null;
+  if (typeof body.redirectUrl === "string") patch.redirectUrl = body.redirectUrl || null;
+  if (typeof body.allowedCountries === "string") patch.allowedCountries = body.allowedCountries || "ALL";
+  if (body.expiresAt !== undefined) patch.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
+  if (typeof body.customSlug === "string" && body.customSlug.trim()) {
+    const slug = slugify(body.customSlug.trim());
+    if (slug.length < 3) return NextResponse.json({ error: "Custom URL too short." }, { status: 400 });
+    const exists = await db
+      .select({ id: paymentLinks.id })
+      .from(paymentLinks)
+      .where(and(eq(paymentLinks.slug, slug), ne(paymentLinks.id, id)))
+      .limit(1);
+    if (exists.length) return NextResponse.json({ error: "This custom URL is already taken." }, { status: 409 });
+    patch.slug = slug;
   }
+  await db
+    .update(paymentLinks)
+    .set(patch)
+    .where(and(eq(paymentLinks.id, id), eq(paymentLinks.userId, user.id)));
+  return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const result = await requireUser();
-    if (!isUserResult(result)) return result.response;
-    const { id } = await params;
-    const [link] = await db.delete(paymentLinks)
-      .where(and(eq(paymentLinks.id, Number(id)), eq(paymentLinks.userId, result.user.id)))
-      .returning({ id: paymentLinks.id });
-    if (!link) return Response.json({ error: "Lien introuvable" }, { status: 404 });
-    return Response.json({ ok: true });
-  } catch (error) {
-    return apiError(error);
-  }
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  const { id } = await params;
+  await db.delete(paymentLinks).where(and(eq(paymentLinks.id, id), eq(paymentLinks.userId, user.id)));
+  return NextResponse.json({ ok: true });
 }

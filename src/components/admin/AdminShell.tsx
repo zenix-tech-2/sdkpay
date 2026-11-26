@@ -1,122 +1,159 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Activity, ArrowLeftRight, BarChart3, Bell, ChevronRight, Download, FileText,
-  Headset, Inbox, KeyRound, LayoutDashboard, Link2, LogOut, Megaphone, Menu,
-  Package, Percent, RotateCcw, Route, Settings, ShieldCheck, Smartphone, Star,
-  ToggleLeft, UserCog, Users, Wallet, X, type LucideIcon,
+  Menu,
+  X,
+  Bell,
+  LayoutGrid,
+  Users,
+  ShieldCheck,
+  KeyRound,
+  ArrowLeftRight,
+  Link2,
+  Undo2,
+  Megaphone,
+  Send,
+  Star,
+  Headset,
+  Activity,
+  ScrollText,
+  Smartphone,
+  BookOpen,
+  LogOut,
+  SlidersHorizontal,
 } from "lucide-react";
-import { useAdmin } from "@/components/admin/AdminProvider";
 
-type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number };
-type NavGroup = { label: string; items: NavItem[] };
+const NAVY = "#10132e";
+const GOLD = "#f0a500";
 
-const navGroups: NavGroup[] = [
-  { label: "Overview", items: [
-    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/reports", label: "Reports", icon: BarChart3 },
-  ] },
-  { label: "Client app", items: [
-    { href: "/admin/users", label: "Users", icon: Users },
-    { href: "/admin/client-users", label: "Merchant accounts", icon: UserCog },
-    { href: "/admin/kyc", label: "KYC approvals", icon: ShieldCheck },
-    { href: "/admin/client-kyc", label: "KYC submissions", icon: FileText },
-    { href: "/admin/wallets", label: "Wallets & balances", icon: Wallet },
-    { href: "/admin/api-keys", label: "API keys", icon: KeyRound },
-  ] },
-  { label: "Payments", items: [
-    { href: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
-    { href: "/admin/client-transactions", label: "Ledger", icon: BarChart3 },
-    { href: "/admin/payment-links", label: "Payment links", icon: Link2 },
-    { href: "/admin/refunds", label: "Refunds & disputes", icon: RotateCcw },
-    { href: "/admin/withdrawals", label: "Withdrawals", icon: Download },
-    { href: "/admin/providers", label: "Provider routing", icon: Route },
-    { href: "/admin/fees", label: "Fee rules", icon: Percent },
-  ] },
-  { label: "Operations", items: [
-    { href: "/admin/notifications", label: "Notifications", icon: Bell },
-    { href: "/admin/client-notifications", label: "Merchant alerts", icon: Inbox },
-    { href: "/admin/support", label: "Support tickets", icon: Headset },
-    { href: "/admin/support-inbox", label: "Support inbox", icon: Inbox },
-    { href: "/admin/updates", label: "Updates & media", icon: Megaphone },
-    { href: "/admin/reviews", label: "Reviews", icon: Star },
-    { href: "/admin/catalog", label: "Catalog & requests", icon: Package },
-  ] },
-  { label: "Platform", items: [
-    { href: "/admin/monitoring", label: "Monitoring", icon: Activity },
-    { href: "/admin/audit", label: "Audit log", icon: FileText },
-    { href: "/admin/feature-flags", label: "Feature flags", icon: ToggleLeft },
-    { href: "/admin/team", label: "Team & roles", icon: UserCog },
-    { href: "/admin/merchant-app", label: "Merchant app", icon: Smartphone },
-    { href: "/admin/docs", label: "Docs", icon: FileText },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
-  ] },
+const MENU = [
+  { href: "/admin", label: "Overview", icon: LayoutGrid },
+  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/kyc", label: "KYC approvals", icon: ShieldCheck, badge: "kyc" },
+  { href: "/admin/keys", label: "API keys", icon: KeyRound },
+  { href: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/admin/links", label: "Payment links", icon: Link2 },
+  { href: "/admin/refunds", label: "Refunds & disputes", icon: Undo2, badge: "refunds" },
+  { href: "/admin/updates", label: "Updates & media", icon: Megaphone },
+  { href: "/admin/notifications", label: "Notifications", icon: Send },
+  { href: "/admin/reviews", label: "Reviews", icon: Star, badge: "reviews" },
+  { href: "/admin/support", label: "Support tickets", icon: Headset, badge: "tickets" },
+  { href: "/admin/monitoring", label: "Monitoring", icon: Activity },
+  { href: "/admin/audit", label: "Audit log", icon: ScrollText },
+  { href: "/admin/admins", label: "Team", icon: ShieldCheck },
+  { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
 ];
 
-function isActive(pathname: string, href: string) {
-  if (href === "/admin") return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function SidebarContent({ pathname, close, onLogout, supportBadge, sessionEmail, clientUrl, adminOnly }: {
-  pathname: string; close: () => void; onLogout: () => void; supportBadge: number;
-  sessionEmail: string; clientUrl: string; adminOnly: boolean;
+export default function AdminShell({
+  admin,
+  children,
+}: {
+  admin: { name: string; email: string; role: string };
+  children: React.ReactNode;
 }) {
-  return (
-    <div className="admin-scroll px-3 py-5">
-      <div className="mb-5 flex items-center justify-between px-2"><div><p className="text-[13px] font-extrabold text-white">SDK Pay Admin</p><p className="text-[10px] text-[#8fa0cb]">Operations console</p></div><button onClick={close} className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 lg:hidden"><X size={16} /></button></div>
-      {navGroups.map((group) => (
-        <div key={group.label} className="mb-5">
-          <p className="mb-2 px-2 text-[9px] font-extrabold uppercase tracking-[.16em] text-[#7486b3]">{group.label}</p>
-          <nav className="space-y-1">{group.items.map((item) => { const Icon = item.icon; return <Link key={item.href} href={item.href} onClick={close} className={`admin-sidebar-item ${isActive(pathname, item.href) ? "active" : ""}`}><Icon size={15} /><span className="flex-1">{item.label}</span>{item.label === "Support tickets" && supportBadge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff4d63] px-1 text-[10px] font-extrabold text-white">{supportBadge}</span>}{isActive(pathname, item.href) && <ChevronRight size={14} />}</Link>; })}</nav>
-        </div>
-      ))}
-      <div className="my-4 h-px bg-white/10" />
-      <a href={clientUrl} target={clientUrl.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className="admin-sidebar-item"><Smartphone size={15} /><span>Open merchant app</span></a>
-      <button onClick={onLogout} className="admin-sidebar-item"><LogOut size={15} /><span>Log out</span></button>
-      <div className="mt-5 rounded-[12px] border border-white/10 bg-white/5 p-3"><p className="truncate text-[10px] font-bold text-white">{sessionEmail}</p><p className="mt-1 text-[9px] text-[#9aa8cb]">Independent session · {adminOnly ? "admin-only" : "combined"} deployment</p></div>
-    </div>
-  );
-}
-
-export function AdminShell({ children }: { children: ReactNode }) {
-  const { data, loading, notice } = useAdmin();
   const pathname = usePathname();
   const router = useRouter();
-  const [drawer, setDrawer] = useState(false);
-  if (loading || !data) return <div className="admin-root flex min-h-screen items-center justify-center"><div className="h-24 w-24 animate-spin rounded-full border-4 border-[#dce5f3] border-t-[#ffb800]" /></div>;
+  const [open, setOpen] = useState(false);
+  const [badges, setBadges] = useState({ kyc: 0, refunds: 0, tickets: 0, reviews: 0 });
+
+  useEffect(() => {
+    fetch("/api/admin/overview")
+      .then((r) => r.json())
+      .then((d) => d.badges && setBadges(d.badges))
+      .catch(() => {});
+  }, [pathname]);
 
   async function logout() {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
+    await fetch("/api/admin/auth", { method: "DELETE" });
     router.push("/admin/login");
     router.refresh();
   }
-  const clientUrl = data.deployment.clientAppUrl || "/";
+
+  function isActive(href: string) {
+    if (href === "/admin") return pathname === "/admin";
+    return pathname === href || pathname.startsWith(href + "/");
+  }
+
+  const drawer = (
+    <div className="flex h-full flex-col p-4" style={{ background: NAVY }}>
+      <div className="flex items-center justify-between px-2 py-2">
+        <p className="text-[15px] font-bold text-white">Admin menu</p>
+        <button onClick={() => setOpen(false)} className="rounded-full bg-white/10 p-1.5 text-white lg:hidden" aria-label="close">
+          <X size={16} />
+        </button>
+      </div>
+      <nav className="mt-2 flex-1 space-y-1 overflow-y-auto">
+        {MENU.map((m) => {
+          const active = isActive(m.href);
+          const count = m.badge ? badges[m.badge as keyof typeof badges] : 0;
+          return (
+            <Link
+              key={m.href}
+              href={m.href}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14.5px] font-semibold transition"
+              style={active ? { background: GOLD, color: NAVY } : { color: "#aab0c5" }}
+            >
+              <m.icon size={19} />
+              {m.label}
+              {!!count && (
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-extrabold text-white">
+                  {count > 99 ? "99+" : count}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+        <div className="my-3 border-t border-white/10" />
+        <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14.5px] font-semibold text-[#aab0c5] hover:bg-white/5">
+          <Smartphone size={19} /> Merchant app
+        </Link>
+        <Link href="/docs" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14.5px] font-semibold text-[#aab0c5] hover:bg-white/5">
+          <BookOpen size={19} /> Docs
+        </Link>
+        <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[14.5px] font-semibold text-rose-300 hover:bg-white/5">
+          <LogOut size={19} /> Log out
+        </button>
+      </nav>
+      <p className="truncate px-3.5 pb-1 pt-3 text-[12px] font-medium text-slate-500">
+        {admin.email} · {admin.role}
+      </p>
+    </div>
+  );
 
   return (
-    <div className="admin-root relative min-h-screen">
-      <div key={`admin-progress-${pathname}`} className="route-progress" />
-      <div className="ambient-bg" aria-hidden="true" />
-      <header className="admin-topbar sticky top-0 z-30 flex items-center justify-between px-4 text-white sm:px-6">
-        <button onClick={() => setDrawer(true)} className="lg:hidden" aria-label="Menu"><Menu size={22} /></button>
-        <span className="hidden text-[12px] font-semibold text-[#aeb9d8] lg:block">SDK Pay Operations</span>
-        <p className="absolute left-1/2 -translate-x-1/2 text-[13px] font-bold">SDK Pay Admin</p>
-        <div className="flex items-center gap-3"><span className="hidden text-[10px] font-bold text-[#9fb0db] sm:block">{data.deployment.environment}</span><Link href="/admin/notifications" className="relative"><Bell size={18} />{data.metrics.unreadNotifications > 0 && <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#ff4d63]" />}</Link></div>
+    <div className="min-h-screen" style={{ background: "#edf0f7" }}>
+      {/* topbar */}
+      <header className="sticky top-0 z-40 flex h-[52px] items-center gap-3 px-4" style={{ background: NAVY }}>
+        <button onClick={() => setOpen(true)} className="rounded-lg bg-white/10 p-1.5 text-white lg:hidden" aria-label="menu">
+          <Menu size={20} />
+        </button>
+        <p className="mx-auto text-[15px] font-extrabold text-white lg:mx-0">SDK Pay Admin</p>
+        <Link href="/admin/support" className="relative rounded-lg bg-white/10 p-1.5 text-white" aria-label="tickets">
+          <Bell size={18} />
+          {!!badges.tickets && (
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-extrabold text-white">
+              {badges.tickets > 9 ? "9+" : badges.tickets}
+            </span>
+          )}
+        </Link>
       </header>
 
-      <aside className="admin-sidebar admin-scroll fixed left-0 top-[48px] z-20 hidden h-[calc(100vh-48px)] w-[248px] overflow-y-auto lg:block">
-        <SidebarContent pathname={pathname} close={() => setDrawer(false)} onLogout={() => void logout()} supportBadge={data.metrics.openTickets} sessionEmail={data.session.email} clientUrl={clientUrl} adminOnly={data.deployment.adminOnly} />
-      </aside>
-
-      {drawer && <><button className="admin-overlay" onClick={() => setDrawer(false)} aria-label="Close menu" /><aside className="admin-drawer admin-scroll"><SidebarContent pathname={pathname} close={() => setDrawer(false)} onLogout={() => void logout()} supportBadge={data.metrics.openTickets} sessionEmail={data.session.email} clientUrl={clientUrl} adminOnly={data.deployment.adminOnly} /></aside></>}
-
-      <main className="relative z-[1] px-4 pb-12 pt-6 sm:px-7 lg:ml-[248px]">
-        <div key={pathname} className="page-enter mx-auto max-w-[1240px]">{children}</div>
-      </main>
-      {notice && <div className={`fixed bottom-5 right-5 z-[80] rounded-[12px] px-4 py-3 text-[12px] font-bold text-white shadow-xl ${notice.tone === "error" ? "bg-[#d43c4c]" : "bg-[#17854d]"}`}>{notice.message}</div>}
+      <div className="mx-auto flex max-w-6xl">
+        <aside className="sticky top-[52px] hidden h-[calc(100vh-52px)] w-60 shrink-0 lg:block">{drawer}</aside>
+        {open && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+            <div className="absolute bottom-0 left-0 top-0 w-[80%] max-w-[300px]">{drawer}</div>
+          </div>
+        )}
+        <main key={pathname} className="page-enter min-w-0 flex-1 px-4 py-5 pb-16 sm:px-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

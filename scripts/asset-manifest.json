@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-11-26T02:39:49.036Z",
+  "operators": {
+    "usdt": {
+      "local": "/logos/operators/usdt.svg",
+      "remote": "https://cdn.simpleicons.org/tether"
+    },
+    "tether": {
+      "local": "/logos/operators/tether.svg",
+      "remote": "https://cdn.simpleicons.org/tether"
+    },
+    "usdt (trc20)": {
+      "local": "/logos/operators/usdt-trc20.svg",
+      "remote": "https://cdn.simpleicons.org/tether"
+    },
+    "usdt (bep20)": {
+      "local": "/logos/operators/usdt-bep20.svg",
+      "remote": "https://cdn.simpleicons.org/tether"
+    },
+    "usdt (erc20)": {
+      "local": "/logos/operators/usdt-erc20.svg",
+      "remote": "https://cdn.simpleicons.org/tether"
+    },
+    "bitcoin": {
+      "local": "/logos/operators/bitcoin.svg",
+      "remote": "https://cdn.simpleicons.org/bitcoin"
+    },
+    "bnb chain": {
+      "local": "/logos/operators/bnb-chain.svg",
+      "remote": "https://cdn.simpleicons.org/bnbchain"
+    }
+  },
+  "flags": {
+    "bj": "flagcdn",
+    "bf": "flagcdn",
+    "cm": "flagcdn",
+    "cf": "flagcdn",
+    "cg": "flagcdn",
+    "ci": "FAIL",
+    "ga": "FAIL",
+    "gh": "FAIL",
+    "gn": "FAIL",
+    "gw": "flagcdn",
+    "ml": "FAIL",
+    "ne": "FAIL",
+    "cd": "FAIL",
+    "sn": "flagcdn",
+    "td": "FAIL",
+    "tg": "flagcdn",
+    "ng": "FAIL",
+    "ke": "flagcdn",
+    "ma": "FAIL",
+    "tn": "FAIL",
+    "dz": "FAIL",
+    "mg": "FAIL",
+    "rw": "flagcdn",
+    "sl": "FAIL",
+    "zm": "flagcdn",
+    "ug": "flagcdn",
+    "tz": "flagcdn",
+    "zw": "flagcdn",
+    "mw": "flagcdn",
+    "mz": "flagcdn",
+    "et": "flagcdn",
+    "za": "flagcdn",
+    "eg": "flagcdn",
+    "in": "flagcdn"
+  }
+}

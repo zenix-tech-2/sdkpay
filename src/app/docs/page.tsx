@@ -1,84 +1,307 @@
-import Link from "next/link";
-import { ArrowRight, Code2, KeyRound, ShieldCheck, Webhook } from "lucide-react";
-import { Logo } from "@/components/Logo";
+"use client";
 
-export const metadata = { title: "Documentation API | SDK Pay" };
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, BookOpen, Menu, X } from "lucide-react";
+import Logo from "@/components/Logo";
+
+const NAV: { section: string; items: { id: string; label: string }[] }[] = [
+  {
+    section: "Démarrer",
+    items: [
+      { id: "welcome", label: "Bienvenue sur SDK Pay" },
+      { id: "quickstart", label: "Démarrage rapide" },
+      { id: "auth", label: "Authentification" },
+    ],
+  },
+  {
+    section: "Checkout",
+    items: [{ id: "hosted", label: "Hosted Checkout par redirection" }],
+  },
+  {
+    section: "Direct API",
+    items: [
+      { id: "direct", label: "Direct API" },
+      { id: "momo", label: "Mobile Money" },
+      { id: "flow", label: "Flux de paiement Mobile Money" },
+      { id: "crypto", label: "Paiements crypto" },
+      { id: "wallets", label: "Wallets et conversions" },
+      { id: "payouts", label: "Payouts" },
+      { id: "webhooks", label: "Webhooks" },
+    ],
+  },
+  {
+    section: "Fournisseurs",
+    items: [
+      { id: "providers", label: "AshTechPay + SasPay" },
+      { id: "env", label: "Variables d'environnement" },
+    ],
+  },
+  {
+    section: "Référence",
+    items: [
+      { id: "countries", label: "GET /v1/countries" },
+      { id: "transaction", label: "GET /v1/transaction/:id" },
+      { id: "fees", label: "GET /v1/fees" },
+      { id: "errors", label: "Erreurs et statuts HTTP" },
+    ],
+  },
+  {
+    section: "Ressources",
+    items: [
+      { id: "sandbox", label: "Sandbox et tests" },
+      { id: "security", label: "Sécurité" },
+    ],
+  },
+];
+
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-3 overflow-x-auto rounded-2xl bg-[#0d1117] p-5 font-mono text-[12.5px] leading-relaxed text-slate-200">
+      {children}
+    </div>
+  );
+}
+
+function H({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <h2 id={id} className="mt-10 scroll-mt-24 text-[22px] font-extrabold tracking-tight first:mt-0">
+      {children}
+    </h2>
+  );
+}
+
+function P({ children }: { children: React.ReactNode }) {
+  return <p className="mt-2.5 text-[14px] font-medium leading-relaxed text-slate-500">{children}</p>;
+}
+
+function C({ children }: { children: React.ReactNode }) {
+  return <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[12.5px] font-bold text-slate-800">{children}</code>;
+}
 
 export default function DocsPage() {
-  return (
-    <main className="min-h-screen bg-[#f7f9fd]">
-      <header className="border-b border-[#e8edf6] bg-white">
-        <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-5">
-          <Logo size="md" />
-          <div className="flex items-center gap-3 text-[12px] font-bold"><Link href="/" className="text-[#5d6882] hover:text-[#e5a300]">Accueil</Link><Link href="/signup" className="brand-btn rounded-lg px-4 py-2 text-white">Créer un compte</Link></div>
-        </div>
-      </header>
-      <div className="mx-auto max-w-6xl px-5 py-12">
-        <span className="chip"><Code2 size={11} /> API REST</span>
-        <h1 className="font-display mt-4 text-[34px] font-extrabold text-[#111b36] sm:text-[46px]">Documentation API SDK Pay</h1>
-        <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[#6c7892]">Collectez des paiements Mobile Money dans vos applications. Cette API est compatible avec Postgres/Supabase et déployée sur Vercel.</p>
+  const [active, setActive] = useState("welcome");
+  const [menu, setMenu] = useState(false);
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="h-fit rounded-2xl border border-[#e6ebf5] bg-white p-5 text-[13px] font-semibold text-[#4b5875]">
-            <p className="mb-3 text-[10px] font-extrabold tracking-widest text-[#8b96b0]">SOMMAIRE</p>
-            {[["#auth", "Authentification"], ["#collect", "POST /v1/collect"], ["#links", "Liens de paiement"], ["#webhooks", "Webhooks"], ["#security", "Sécurité & AML/CFT"]].map(([href, label]) => <a key={href} href={href} className="block rounded-lg px-2 py-2 hover:bg-[#fff5dc] hover:text-[#c28a05]">{label}</a>)}
-          </aside>
-          <div className="space-y-6">
-            <section id="auth" className="rounded-2xl border border-[#e6ebf5] bg-white p-6">
-              <h2 className="flex items-center gap-2 text-[19px] font-extrabold text-[#17213d]"><KeyRound size={18} className="text-[#e5a300]" /> Authentification</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-[#6c7892]">Récupérez votre clé API dans <Link href="/dashboard/accounts" className="font-bold text-[#e5a300]">Dashboard → Accounts</Link> et envoyez-la dans l&apos;en-tête Authorization.</p>
-              <pre className="code-window mt-4 overflow-x-auto p-4 text-[11px] leading-relaxed"><code>{`Authorization: Bearer sk_test_VOTRE_CLE_API
-Content-Type: application/json`}</code></pre>
-              <p className="mt-3 text-[11px] text-[#8b96b0]">Compte de démonstration : demo@sdkpay.com / demo1234 · clé sk_test_demo_sdkpay_2026</p>
-            </section>
-            <section id="collect" className="rounded-2xl border border-[#e6ebf5] bg-white p-6">
-              <h2 className="text-[19px] font-extrabold text-[#17213d]">POST /api/v1/collect</h2>
-              <p className="mt-2 text-[13px] text-[#6c7892]">Initie un encaissement Mobile Money et crédite le wallet marchand.</p>
-              <pre className="code-window mt-4 overflow-x-auto p-5 text-[11px] leading-[1.8]"><code>{`curl -X POST https://votre-app.vercel.app/api/v1/collect \\
-  -H "Authorization: Bearer sk_test_demo_sdkpay_2026" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "amount": 2500,
-    "currency": "XAF",
-    "phone": "23700000000",
-    "operator": "MTN Money",
-    "reference": "ORDER-123"
-  }'`}</code></pre>
-              <p className="mt-4 text-[13px] font-bold text-[#17213d]">Réponse 201</p>
-              <pre className="code-window mt-2 overflow-x-auto p-4 text-[11px] leading-[1.8]"><code>{`{
-  "status": "success",
-  "transaction_id": "SDK-...",
-  "amount": 2500,
+  function go(id: string) {
+    setActive(id);
+    setMenu(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const nav = (
+    <div className="space-y-5">
+      {NAV.map((g) => (
+        <div key={g.section}>
+          <p className="px-3 text-[13px] font-extrabold text-slate-900">{g.section}</p>
+          <div className="mt-1.5 space-y-0.5">
+            {g.items.map((it) => (
+              <button
+                key={it.id}
+                onClick={() => go(it.id)}
+                className={`block w-full rounded-xl px-3 py-2 text-left text-[15px] font-medium ${
+                  active === it.id ? "bg-yellow-50 font-bold text-yellow-600" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {it.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-white">
+      <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-[62px] max-w-6xl items-center justify-between px-4">
+          <Logo />
+          <div className="flex items-center gap-2">
+            <Link href="/" className="hidden items-center gap-1 text-[13px] font-bold text-slate-500 sm:flex">
+              <ArrowLeft size={14} /> Accueil
+            </Link>
+            <Link href="/register" className="rounded-full bg-yellow-400 px-4 py-2 text-[13px] font-extrabold">
+              Obtenir une clé API
+            </Link>
+            <button onClick={() => setMenu(!menu)} className="rounded-lg border border-slate-200 p-2 lg:hidden" aria-label="menu">
+              {menu ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
+        </div>
+        {menu && <div className="max-h-[60vh] overflow-y-auto border-t border-slate-100 p-4 lg:hidden">{nav}</div>}
+      </header>
+
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-[260px_1fr]">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">{nav}</div>
+        </aside>
+
+        <div className="min-w-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1 text-[11px] font-extrabold text-yellow-700">
+            <BookOpen size={12} /> SDK Pay Developers · API v1
+          </span>
+          <h1 className="mt-3 text-[30px] font-extrabold tracking-tight">Documentation développeur</h1>
+          <p className="mt-2 text-[14px] font-medium text-slate-500">
+            Base URL : <C>https://sdkpay.com/v1</C> · Auth Bearer · JSON · 23 pays · Webhooks signés
+          </p>
+
+          <H id="welcome">Bienvenue sur SDK Pay</H>
+          <P>
+            SDK Pay orchestre les paiements Mobile Money et crypto en Afrique via une API REST unique. En
+            coulisses, chaque transaction est routée vers <b>AshTechPay Direct</b> (principal) avec{" "}
+            <b>SasPay</b> en bascule automatique pour les pays et opérateurs non couverts.
+          </P>
+
+          <H id="quickstart">Démarrage rapide</H>
+          <P>1. Créez un compte marchand puis générez une clé sur la page Direct API du dashboard.</P>
+          <P>2. Encaissez un paiement Mobile Money :</P>
+          <Code>
+            <p><span className="text-sky-300">POST</span> <span className="text-green-300">/v1/collect</span></p>
+            <pre className="mt-2 whitespace-pre-wrap text-[12px]">{`{
+  "country_code": "CM",
+  "amount": 5000,
   "currency": "XAF",
-  "new_balance": 2509
-}`}</code></pre>
-            </section>
-            <section id="providers" className="rounded-2xl border border-[#e6ebf5] bg-white p-6">
-              <h2 className="flex items-center gap-2 text-[19px] font-extrabold text-[#17213d]"><ShieldCheck size={18} className="text-[#e5a300]" /> Routage des providers Direct API</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-[#6c7892]">Les paiements Mobile Money utilisent <strong>Ashtechpay Direct API</strong> en principal. Si un pays ou un opérateur n&apos;est pas disponible chez Ashtechpay, <strong>Saaspay.me Direct API</strong> prend le relais automatiquement. Les paiements crypto restent exclusivement sur <strong>Ashtechpay Direct API</strong>.</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link href="/docs/direct" className="rounded-lg bg-[#ffb800] px-3 py-2 text-[11px] font-bold text-white">Guide Direct API</Link>
-                <a href="https://doc.ashtechpay.com" target="_blank" rel="noreferrer" className="rounded-lg border border-[#e6ebf5] px-3 py-2 text-[11px] font-bold text-[#3c4966]">Docs Ashtechpay</a>
-                <a href="https://docs.saspay.me/quickstart" target="_blank" rel="noreferrer" className="rounded-lg border border-[#e6ebf5] px-3 py-2 text-[11px] font-bold text-[#3c4966]">Docs Saaspay.me</a>
-              </div>
-            </section>
-            <section id="links" className="rounded-2xl border border-[#e6ebf5] bg-white p-6">
-              <h2 className="text-[19px] font-extrabold text-[#17213d]">Liens de paiement & Checkout</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-[#6c7892]">Créez un lien depuis <Link href="/dashboard/links" className="font-bold text-[#e5a300]">My links</Link>, partagez-le, et vos clients paient sur une page checkout optimisée mobile : <code className="rounded bg-[#f5f8ff] px-2 py-1">/pay/[slug]</code>.</p>
-              <div className="mt-4 flex flex-wrap gap-2">{[["GET /api/pay/[slug]", "Détails du lien"], ["POST /api/pay/[slug]", "Simuler le paiement"], ["POST /api/links", "Créer un lien"]].map(([a, b]) => <span key={a} className="rounded-lg border border-[#e6ebf5] px-3 py-2 text-[11px] text-[#3c4966]"><strong>{a}</strong> · {b}</span>)}</div>
-            </section>
-            <section id="webhooks" className="rounded-2xl border border-[#e6ebf5] bg-white p-6">
-              <h2 className="flex items-center gap-2 text-[19px] font-extrabold text-[#17213d]"><Webhook size={18} className="text-[#e5a300]" /> Webhooks & événements</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-[#6c7892]">Chaque paiement est enregistré dans la table <code>transactions</code> avec son statut, sa référence et sa méthode. Consultez-les via <code>GET /api/dashboard</code> ou <code>GET /api/transactions</code>. Les événements disponibles : payment.succeeded, payin.completed, payout.completed, link.created.</p>
-            </section>
-            <section id="security" className="rounded-2xl border border-[#e6ebf5] bg-white p-6">
-              <h2 className="flex items-center gap-2 text-[19px] font-extrabold text-[#17213d]"><ShieldCheck size={18} className="text-[#e5a300]" /> Sécurité & conformité AML/CFT</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-[#6c7892]">Toutes les communications sont chiffrées (HTTPS). Les comptes sont vérifiés (KYC), chaque transaction est journalisée et analysée par le monitoring anti-fraude. SDK Pay applique une politique stricte de lutte contre le blanchiment de capitaux et le financement du terrorisme, conformément aux standards GAFI. Les paiements sont simulés dans cet environnement de démonstration : aucun agrégateur bancaire réel n&apos;est contacté.</p>
-            </section>
-            <Link href="/signup" className="brand-btn inline-flex items-center gap-2 rounded-xl px-6 py-3 text-[13px]">Obtenir ma clé API <ArrowRight size={15} /></Link>
+  "phone": "237600000000",
+  "operator": "MTN Money",
+  "reference": "ORDER-123"
+}`}</pre>
+          </Code>
+          <P>3. Le client approuve sur son téléphone. 4. Vous recevez le webhook <C>payment.success</C>.</P>
+
+          <H id="auth">Authentification</H>
+          <P>Toutes les requêtes authentifiées utilisent votre clé secrète dans l&apos;en-tête Bearer :</P>
+          <Code>
+            <p className="text-green-300">Authorization: Bearer ak_••••••••••••</p>
+            <p className="text-green-300">Content-Type: application/json</p>
+          </Code>
+          <P>Ne partagez jamais votre clé. Régénérez-la immédiatement en cas de fuite (page Direct API).</P>
+
+          <H id="hosted">Hosted Checkout par redirection</H>
+          <P>
+            Sans backend : créez un lien depuis le dashboard (<C>/dashboard/links/new</C>) et redirigez vos
+            clients vers <C>sdkpay.com/pay/votre-lien</C>. Montant fixe ou libre, QR code, date
+            d&apos;expiration et page de succès inclus.
+          </P>
+
+          <H id="direct">Direct API</H>
+          <P>
+            Contrôle total du flux : vos écrans, votre expérience. Collections (Payin), décaissements
+            (Payout), statut temps réel, wallets et webhooks signés HMAC-SHA256.
+          </P>
+
+          <H id="momo">Mobile Money</H>
+          <P>
+            23 pays · MTN, Orange, Wave, Moov, Airtel, Free, Celtiis, Coris, M-Pesa et plus. Montant
+            minimum 100, devise du pays (XAF / XOF / GHS / NGN…), réglée 1:1 en démo.
+          </P>
+
+          <H id="flow">Flux de paiement Mobile Money</H>
+          <P>
+            <C>pending</C> → le client approuve (push USSD / code PIN) → <C>success</C> (webhook +
+            crédit wallet, frais 4 % déduits) ou <C>failed</C> (aucun débit). Interrogez toujours{" "}
+            <C>GET /v1/transaction/:id</C> avant de livrer.
+          </P>
+
+          <H id="crypto">Paiements crypto</H>
+          <P>
+            Dépôts USDT via AshTechPay Direct (TRC20 / BEP20 / ERC20, frais 2,5 %) : générez une adresse,
+            le client envoie le montant exact, le wallet USDT est crédité après vérification. Retraits :
+            1 USDT forfaitaire, le payeur des frais est configurable.
+          </P>
+
+          <H id="wallets">Wallets et conversions</H>
+          <P>
+            Comptes multi-devises (XAF, XOF, USDT + 20 codes pays). Conversions XAF ↔ XOF gratuites à
+            parité 1:1, règles de conversion automatique dès 500 FCFA équivalent.
+          </P>
+
+          <H id="payouts">Payouts</H>
+          <P>
+            Envoyez vers Mobile Money (<C>POST /v1/disburse</C>, 4 %) ou USDT. Les échecs provider
+            sont automatiquement remboursés sur le wallet. Les payouts SasPay exigent une IP
+            sortante autorisée côté SasPay.
+          </P>
+
+          <H id="webhooks">Webhooks</H>
+          <P>
+            Événements <C>payment.success</C>, <C>payment.failed</C>, <C>payout.success</C> vers votre URL.
+            Vérifiez <C>X-SDK-Signature</C> (HMAC-SHA256 du corps brut avec votre secret webhook).
+          </P>
+          <Code>
+            <pre className="whitespace-pre-wrap text-[12px]">{`POST {VOTRE_URL}  X-SDK-Signature: <hmac>
+{
+  "event": "payment.success",
+  "data": { "reference": "ORDER-123", "amount": 5000 }
+}`}</pre>
+          </Code>
+
+          <H id="providers">AshTechPay + SasPay : routage</H>
+          <P>
+            <b>Règle 1</b> — la crypto passe toujours par AshTechPay Direct. <b>Règle 2</b> — le Mobile
+            Money utilise AshTechPay quand le pays + l&apos;opérateur sont couverts. <b>Règle 3</b> —
+            sinon (ou en cas d&apos;erreur du principal), SasPay prend automatiquement le relais.{" "}
+            <b>Règle 4</b> — sans clés configurées, le routeur simule en mode démo transparent
+            (provider <C>demo</C> visible dans le détail de chaque transaction).
+          </P>
+
+          <H id="env">Variables d&apos;environnement</H>
+          <Code>
+            <pre className="whitespace-pre-wrap text-[12px]">{`ASHTECHPAY_API_KEY=...        # clé AshTechPay (live)
+ASHTECHPAY_BASE_URL=https://ashtechpay.com/v1
+ASHTECHPAY_WEBHOOK_SECRET=...  # vérification webhooks entrants
+SASPAY_SECRET_KEY=sk_live_...   # clé SasPay (backup)
+SASPAY_BASE_URL=https://api.saspay.me/api/v1
+SASPAY_WEBHOOK_SECRET=...       # secret signé SasPay
+PROVIDER_MODE=auto              # auto | ashtechpay | saaspay | demo
+PUBLIC_BASE_URL=https://sdkpay.com  # URL publique (webhooks)`}</pre>
+          </Code>
+          <P>
+            Webhooks provider à enregistrer : <C>/api/webhooks/ashtechpay</C> et{" "}
+            <C>/api/webhooks/saaspay</C>.
+          </P>
+
+          <H id="countries">GET /v1/countries</H>
+          <P>Liste les pays, devises et opérateurs couverts avec le provider routé pour chacun.</P>
+
+          <H id="transaction">GET /v1/transaction/:id</H>
+          <P>Statut temps réel d&apos;une transaction : pending, success ou failed, avec références.</P>
+
+          <H id="fees">GET /v1/fees</H>
+          <P>
+            Grille : Mobile Money 4 %, crypto dépôt 2,5 %, crypto retrait 1 USDT, transferts internes et
+            conversions XAF↔XOF gratuits. Période à frais réduits (−50 %) pour les parrains actifs.
+          </P>
+
+          <H id="errors">Erreurs et statuts HTTP</H>
+          <P>
+            <C>200</C> succès · <C>400</C> paramètres invalides · <C>401</C> clé manquante/invalide ·{" "}
+            <C>404</C> introuvable · <C>502</C> erreur provider (avec bascule automatique quand
+            possible). Corps : <C>{"{ error: string }"}</C>.
+          </P>
+
+          <H id="sandbox">Sandbox et tests</H>
+          <P>
+            Sans clés : mode démo (approbations simulées en ~15 s). Avec clés <C>sk_test_</C> : bac à
+            sable réel des providers. Numéros de test : utilisez vos propres numéros en sandbox.
+          </P>
+
+          <H id="security">Sécurité</H>
+          <P>
+            HTTPS partout, clés hachées SHA-256, PIN à 4 chiffres pour les sorties, sessions
+            révocables par appareil, webhooks signés, vérification KYC et conformité AML/CFT.
+          </P>
+
+          <div className="mt-10 flex flex-wrap gap-2.5">
+            <Link href="/register" className="rounded-xl bg-yellow-400 px-5 py-3 text-[13.5px] font-extrabold">
+              Créer un compte marchand
+            </Link>
+            <Link href="/dashboard/api/direct" className="rounded-xl border border-slate-200 px-5 py-3 text-[13.5px] font-extrabold">
+              Ouvrir Direct API
+            </Link>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

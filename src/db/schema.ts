@@ -1,406 +1,277 @@
-import { boolean, doublePrecision, integer, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  varchar,
+  integer,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  fullName: text("full_name").notNull(),
-  username: text("username").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull(),
-  countryCode: text("country_code").notNull().default("CM"),
-  dialCode: text("dial_code").notNull().default("+237"),
-  referralCode: text("referral_code").notNull(),
-  referredBy: text("referred_by"),
-  apiKey: text("api_key").notNull(),
-  webhookSecret: text("webhook_secret").notNull().default(""),
+export const users = pgTable("sdkpay_users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  fullName: varchar("full_name", { length: 120 }).notNull(),
+  username: varchar("username", { length: 60 }).notNull().unique(),
+  email: varchar("email", { length: 160 }).notNull().unique(),
+  phone: varchar("phone", { length: 40 }).notNull(),
+  countryCode: varchar("country_code", { length: 10 }).notNull().default("+237"),
+  country: varchar("country", { length: 80 }).notNull().default("Cameroun"),
+  referralCode: varchar("referral_code", { length: 10 }).notNull().unique(),
+  referredBy: varchar("referred_by", { length: 10 }),
   passwordHash: text("password_hash").notNull(),
-  balance: integer("balance").notNull().default(9),
-  usdtBalance: doublePrecision("usdt_balance").notNull().default(0),
-  theme: text("theme").notNull().default("light"),
-  notifyEmail: boolean("notify_email").notNull().default(true),
-  notifyPush: boolean("notify_push").notNull().default(false),
-  notifySms: boolean("notify_sms").notNull().default(false),
-  notifyMarketing: boolean("notify_marketing").notNull().default(false),
-  conversionSources: text("conversion_sources").notNull().default('["USD","EUR","XOF","GBP"]'),
-  conversionDestination: text("conversion_destination").notNull().default(""),
-  conversionActive: boolean("conversion_active").notNull().default(false),
-  withdrawalNumbers: text("withdrawal_numbers").notNull().default('["651010478","690326932"]'),
-  pinConfigured: boolean("pin_configured").notNull().default(true),
-  status: text("status").notNull().default("active"),
-  kycStatus: text("kyc_status").notNull().default("pending"),
-  riskLevel: text("risk_level").notNull().default("low"),
-  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [uniqueIndex("users_email_unique").on(t.email), uniqueIndex("users_username_unique").on(t.username), uniqueIndex("users_referral_unique").on(t.referralCode), uniqueIndex("users_api_key_unique").on(t.apiKey)]);
-
-export const sessions = pgTable("sessions", {
-  token: text("token").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  balanceXaf: integer("balance_xaf").notNull().default(0),
+  balanceXof: integer("balance_xof").notNull().default(0),
+  balanceUsdt: integer("balance_usdt").notNull().default(0),
+  reducedFeeUntil: timestamp("reduced_fee_until"),
+  webhookSecret: text("webhook_secret"),
+  webhookUrl: text("webhook_url"),
+  pinHash: text("pin_hash"),
+  notifPrefs: text("notif_prefs"),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  role: varchar("role", { length: 20 }).notNull().default("user"),
+  internalNote: text("internal_note"),
+  lastLoginAt: timestamp("last_login_at"),
+  kycStatus: varchar("kyc_status", { length: 20 }).notNull().default("pending"),
+  language: varchar("language", { length: 5 }).notNull().default("fr"),
+  avatarColor: varchar("avatar_color", { length: 20 }).notNull().default("amber"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const paymentLinks = pgTable("payment_links", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  slug: text("slug").notNull(),
-  title: text("title").notNull(),
-  description: text("description").notNull().default(""),
-  amount: integer("amount").notNull(),
-  currency: text("currency").notNull().default("XAF"),
-  status: text("status").notNull().default("active"),
+export const sessions = pgTable("sdkpay_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  tokenId: varchar("token_id", { length: 64 }).notNull().unique(),
+  device: varchar("device", { length: 120 }),
+  ip: varchar("ip", { length: 45 }),
+  expiresAt: timestamp("expires_at").notNull(),
+  lastActiveAt: timestamp("last_active_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const paymentLinks = pgTable("sdkpay_payment_links", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  slug: varchar("slug", { length: 80 }).notNull().unique(),
+  amount: integer("amount"),
+  currency: varchar("currency", { length: 8 }).notNull().default("XAF"),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
   views: integer("views").notNull().default(0),
-  freeAmount: boolean("free_amount").notNull().default(false),
-  pdfUrl: text("pdf_url").notNull().default(""),
-  allowedCountries: text("allowed_countries").notNull().default("all"),
-  imageUrl: text("image_url").notNull().default(""),
-  expiryDate: text("expiry_date").notNull().default(""),
-  redirectUrl: text("redirect_url").notNull().default(""),
-  iconEmoji: text("icon_emoji").notNull().default("🔗"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [uniqueIndex("payment_links_slug_unique").on(t.slug)]);
+  totalCollected: integer("total_collected").notNull().default(0),
+  paymentsCount: integer("payments_count").notNull().default(0),
+  expiresAt: timestamp("expires_at"),
+  imageUrl: text("image_url"),
+  pdfUrl: text("pdf_url"),
+  redirectUrl: text("redirect_url"),
+  allowedCountries: varchar("allowed_countries", { length: 200 }).notNull().default("ALL"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
-export const transactions = pgTable("transactions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  linkId: integer("link_id"),
-  type: text("type").notNull(),
-  direction: text("direction").notNull(),
+export const transactions = pgTable("sdkpay_transactions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  type: varchar("type", { length: 30 }).notNull(),
   amount: integer("amount").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull().default("XAF"),
   fee: integer("fee").notNull().default(0),
-  status: text("status").notNull().default("completed"),
-  method: text("method").notNull().default("Mobile Money"),
-  counterparty: text("counterparty").notNull().default(""),
-  reference: text("reference").notNull(),
-  note: text("note").notNull().default(""),
-  grossAmount: integer("gross_amount").notNull().default(0),
-  balanceBefore: integer("balance_before").notNull().default(0),
-  balanceAfter: integer("balance_after").notNull().default(0),
-  siteReference: text("site_reference").notNull().default(""),
-  recipientName: text("recipient_name").notNull().default(""),
-  countryName: text("country_name").notNull().default("Cameroun"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  currency: text("currency").notNull().default("XAF"),
-  amountDecimal: doublePrecision("amount_decimal").notNull().default(0),
-  feeDecimal: doublePrecision("fee_decimal").notNull().default(0),
-  grossDecimal: doublePrecision("gross_decimal").notNull().default(0),
-  balanceBeforeDecimal: doublePrecision("balance_before_decimal").notNull().default(0),
-  balanceAfterDecimal: doublePrecision("balance_after_decimal").notNull().default(0),
-  network: text("network").notNull().default(""),
-  walletAddress: text("wallet_address").notNull().default(""),
-  depositAddress: text("deposit_address").notNull().default(""),
-  providerReference: text("provider_reference").notNull().default(""),
-  feePayer: text("fee_payer").notNull().default(""),
-  flow: text("flow").notNull().default(""),
-  expiresAt: timestamp("expires_at", { withTimezone: true }),
-  provider: text("provider").notNull().default("ashtechpay"),
-  providerExternalId: text("provider_external_id").notNull().default(""),
-  providerCheckoutUrl: text("provider_checkout_url").notNull().default(""),
-  providerFallback: boolean("provider_fallback").notNull().default(false),
-  providerStatus: text("provider_status").notNull().default(""),
-}, (t) => [uniqueIndex("transactions_reference_unique").on(t.reference)]);
-
-export const supportMessages = pgTable("support_messages", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id"),
-  email: text("email").notNull(),
-  subject: text("subject").notNull().default("Support message"),
-  message: text("message").notNull(),
-  status: text("status").notNull().default("open"),
-  priority: text("priority").notNull().default("normal"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  status: varchar("status", { length: 20 }).notNull().default("success"),
+  operator: varchar("operator", { length: 60 }),
+  phone: varchar("phone", { length: 40 }),
+  reference: varchar("reference", { length: 60 }).notNull(),
+  label: varchar("label", { length: 200 }),
+  paymentLinkId: uuid("payment_link_id"),
+  counterparty: varchar("counterparty", { length: 120 }),
+  channel: varchar("channel", { length: 20 }).notNull().default("dashboard"),
+  provider: varchar("provider", { length: 20 }),
+  providerRef: varchar("provider_ref", { length: 120 }),
+  country: varchar("country", { length: 80 }),
+  balanceBefore: integer("balance_before"),
+  balanceAfter: integer("balance_after"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const wallets = pgTable("wallets", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  currency: text("currency").notNull(),
-  countryName: text("country_name").notNull(),
-  flag: text("flag").notNull().default("🇨🇲"),
-  balance: doublePrecision("balance").notNull().default(0),
-  isPrimary: boolean("is_primary").notNull().default(false),
-  status: text("status").notNull().default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [uniqueIndex("wallets_user_currency_unique").on(t.userId, t.currency)]);
-
-export const kycUpdates = pgTable("kyc_updates", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  fullName: text("full_name").notNull(),
-  documentType: text("document_type").notNull(),
-  documentNumber: text("document_number").notNull(),
-  status: text("status").notNull().default("pending"),
-  reviewNote: text("review_note").notNull().default(""),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
+export const notifications = pgTable("sdkpay_notifications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
   message: text("message").notNull(),
-  type: text("type").notNull().default("info"),
   isRead: boolean("is_read").notNull().default(false),
-  link: text("link").notNull().default(""),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const adminUsers = pgTable("admin_users", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull(),
-  fullName: text("full_name").notNull(),
-  role: text("role").notNull().default("super_admin"),
+export const referrals = pgTable("sdkpay_referrals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  referrerId: uuid("referrer_id").notNull(),
+  referredId: uuid("referred_id").notNull(),
+  reward: integer("reward").notNull().default(500),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const apiKeys = pgTable("sdkpay_api_keys", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  name: varchar("name", { length: 80 }).notNull().default("Clé principale"),
+  keyPrefix: varchar("key_prefix", { length: 20 }).notNull(),
+  keyHash: text("key_hash").notNull(),
+  isLive: boolean("is_live").notNull().default(false),
+  lastUsedAt: timestamp("last_used_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const payoutNumbers = pgTable("sdkpay_payout_numbers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  kind: varchar("kind", { length: 10 }).notNull().default("momo"),
+  label: varchar("label", { length: 80 }),
+  phone: varchar("phone", { length: 40 }),
+  address: text("address"),
+  operator: varchar("operator", { length: 60 }),
+  network: varchar("network", { length: 20 }),
+  country: varchar("country", { length: 80 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const wallets = pgTable("sdkpay_wallets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  walletCode: varchar("wallet_code", { length: 10 }).notNull(),
+  country: varchar("country", { length: 80 }).notNull(),
+  countryCode: varchar("country_code", { length: 10 }).notNull(),
+  flag: varchar("flag", { length: 10 }).notNull().default("🌍"),
+  isPrimary: boolean("is_primary").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const supportTickets = pgTable("sdkpay_support_tickets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  subject: varchar("subject", { length: 160 }).notNull(),
+  category: varchar("category", { length: 40 }).notNull().default("general"),
+  message: text("message").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("open"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const providerEvents = pgTable("sdkpay_provider_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  txId: uuid("tx_id"),
+  userId: uuid("user_id"),
+  provider: varchar("provider", { length: 20 }).notNull(),
+  action: varchar("action", { length: 40 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("ok"),
+  message: text("message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const conversionRules = pgTable("sdkpay_conversion_rules", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  sources: text("sources").notNull(),
+  destination: varchar("destination", { length: 10 }).notNull(),
+  threshold: integer("threshold").notNull().default(500),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const admins = pgTable("sdkpay_admins", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  email: varchar("email", { length: 160 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
-}, (t) => [uniqueIndex("admin_users_email_unique").on(t.email)]);
-
-export const adminSessions = pgTable("admin_sessions", {
-  token: text("token").primaryKey(),
-  adminUserId: integer("admin_user_id").notNull().references(() => adminUsers.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  role: varchar("role", { length: 20 }).notNull().default("support"),
+  isActive: boolean("is_active").notNull().default(true),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const adminSettings = pgTable("admin_settings", {
+export const adminSessions = pgTable("sdkpay_admin_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  adminId: uuid("admin_id").notNull(),
+  tokenId: varchar("token_id", { length: 64 }).notNull().unique(),
+  device: varchar("device", { length: 120 }),
+  ip: varchar("ip", { length: 45 }),
+  expiresAt: timestamp("expires_at").notNull(),
+  lastActiveAt: timestamp("last_active_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const adminAudit = pgTable("sdkpay_admin_audit", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  adminId: uuid("admin_id"),
+  adminEmail: varchar("admin_email", { length: 160 }),
+  action: varchar("action", { length: 80 }).notNull(),
+  target: varchar("target", { length: 200 }),
+  detail: text("detail"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const kycSubmissions = pgTable("sdkpay_kyc_submissions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  idType: varchar("id_type", { length: 40 }).notNull(),
+  idNumber: varchar("id_number", { length: 80 }).notNull(),
+  frontName: varchar("front_name", { length: 160 }),
+  backName: varchar("back_name", { length: 160 }),
+  frontUrl: text("front_url"),
+  backUrl: text("back_url"),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  reviewNote: text("review_note"),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const refunds = pgTable("sdkpay_refunds", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  kind: varchar("kind", { length: 20 }).notNull().default("refund"),
+  userId: uuid("user_id").notNull(),
+  txId: uuid("tx_id"),
+  reference: varchar("reference", { length: 60 }).notNull(),
+  amount: integer("amount").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull().default("XAF"),
+  reason: text("reason"),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  decidedBy: uuid("decided_by"),
+  decidedAt: timestamp("decided_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const announcements = pgTable("sdkpay_announcements", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 160 }).notNull(),
+  body: text("body").notNull(),
+  bullets: text("bullets"),
+  mediaUrl: text("media_url"),
+  status: varchar("status", { length: 20 }).notNull().default("draft"),
+  createdBy: uuid("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const ticketReplies = pgTable("sdkpay_ticket_replies", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  ticketId: uuid("ticket_id").notNull(),
+  author: varchar("author", { length: 10 }).notNull(),
+  adminId: uuid("admin_id"),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const platformSettings = pgTable("sdkpay_platform_settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const adminMembers = pgTable("admin_members", {
-  id: serial("id").primaryKey(),
-  fullName: text("full_name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull().default(""),
-  country: text("country").notNull().default("Cameroon"),
-  business: text("business").notNull().default(""),
-  role: text("role").notNull().default("user"),
-  status: text("status").notNull().default("active"),
-  accountStatus: text("account_status").notNull().default("Approved"),
-  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
-  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
-  activeSessions: integer("active_sessions").notNull().default(0),
-  webhookUrl: text("webhook_url").notNull().default(""),
-  balances: text("balances").notNull().default(""),
-  initials: text("initials").notNull().default(""),
-  avatarColor: text("avatar_color").notNull().default("#e11d48"),
+export const reviews = pgTable("sdkpay_reviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
-export const adminKycSubmissions = pgTable("admin_kyc_submissions", {
-  id: serial("id").primaryKey(),
-  memberId: integer("member_id"),
-  applicantName: text("applicant_name").notNull(),
-  email: text("email").notNull(),
-  documentType: text("document_type").notNull().default("National Id"),
-  documentNo: text("document_no").notNull().default(""),
-  dateOfBirth: text("date_of_birth").notNull().default(""),
-  country: text("country").notNull().default("Cameroon"),
-  business: text("business").notNull().default(""),
-  website: text("website").notNull().default(""),
-  status: text("status").notNull().default("pending"),
-  applicationText: text("application_text").notNull().default(""),
-  frontImageUrl: text("front_image_url").notNull().default(""),
-  backImageUrl: text("back_image_url").notNull().default(""),
-  decisionNote: text("decision_note").notNull().default(""),
-  submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
-});
-
-export const adminApiKeys = pgTable("admin_api_keys", {
-  id: serial("id").primaryKey(),
-  memberId: integer("member_id"),
-  name: text("name").notNull(),
-  environment: text("environment").notNull().default("live"),
-  keyMasked: text("key_masked").notNull(),
-  status: text("status").notNull().default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-});
-
-export const adminTransactions = pgTable("admin_transactions", {
-  id: serial("id").primaryKey(),
-  reference: text("reference").notNull(),
-  memberId: integer("member_id"),
-  memberName: text("member_name").notNull(),
-  amount: integer("amount").notNull(),
-  currency: text("currency").notNull().default("XAF"),
-  status: text("status").notNull().default("successful"),
-  provider: text("provider").notNull().default("Ashtechpay"),
-  method: text("method").notNull().default("Mobile Money"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [uniqueIndex("admin_transactions_reference_unique").on(t.reference)]);
-
-export const adminRefunds = pgTable("admin_refunds", {
-  id: serial("id").primaryKey(),
-  reference: text("reference").notNull(),
-  memberName: text("member_name").notNull(),
-  amount: integer("amount").notNull(),
-  currency: text("currency").notNull().default("XAF"),
-  reason: text("reason").notNull().default(""),
-  status: text("status").notNull().default("pending"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminApiRequests = pgTable("admin_api_requests", {
-  id: serial("id").primaryKey(),
-  statusCode: integer("status_code").notNull(),
-  endpoint: text("endpoint").notNull(),
-  env: text("env").notNull().default("live"),
-  latency: integer("latency").notNull().default(0),
-  error: text("error").notNull().default(""),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminWebhookDeliveries = pgTable("admin_webhook_deliveries", {
-  id: serial("id").primaryKey(),
-  event: text("event").notNull(),
-  url: text("url").notNull(),
-  httpStatus: integer("http_status").notNull().default(200),
-  attempts: integer("attempts").notNull().default(1),
-  status: text("status").notNull().default("delivered"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminAuditLogs = pgTable("admin_audit_logs", {
-  id: serial("id").primaryKey(),
-  actor: text("actor").notNull(),
-  action: text("action").notNull(),
-  target: text("target").notNull().default(""),
-  severity: text("severity").notNull().default("info"),
-  ip: text("ip").notNull().default("127.0.0.1"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminInternalNotes = pgTable("admin_internal_notes", {
-  id: serial("id").primaryKey(),
-  targetType: text("target_type").notNull(),
-  targetId: integer("target_id").notNull(),
-  body: text("body").notNull(),
-  author: text("author").notNull().default("Admin"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminNotifications = pgTable("admin_notifications", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  message: text("message").notNull(),
-  type: text("type").notNull().default("info"),
-  isRead: boolean("is_read").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminTickets = pgTable("admin_tickets", {
-  id: serial("id").primaryKey(),
-  subject: text("subject").notNull(),
-  requester: text("requester").notNull(),
-  priority: text("priority").notNull().default("normal"),
-  status: text("status").notNull().default("open"),
-  lastMessage: text("last_message").notNull().default(""),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminReviews = pgTable("admin_reviews", {
-  id: serial("id").primaryKey(),
-  author: text("author").notNull(),
-  rating: integer("rating").notNull().default(5),
-  comment: text("comment").notNull(),
-  status: text("status").notNull().default("published"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminUpdates = pgTable("admin_updates", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull().default("À venir"),
-  status: text("status").notNull().default("published"),
-  mediaCount: integer("media_count").notNull().default(1),
-  scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
-  body: text("body").notNull().default(""),
-  imageUrl: text("image_url").notNull().default("/images/hero-payments.png"),
-  pinned: boolean("pinned").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminConversations = pgTable("admin_conversations", {
-  id: serial("id").primaryKey(),
-  memberName: text("member_name").notNull(),
-  initials: text("initials").notNull(),
-  avatarColor: text("avatar_color").notNull().default("#ef4444"),
-  lastMessage: text("last_message").notNull().default(""),
-  unread: integer("unread").notNull().default(0),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminWithdrawals = pgTable("admin_withdrawals", {
-  id: serial("id").primaryKey(),
-  memberName: text("member_name").notNull(),
-  amount: integer("amount").notNull(),
-  currency: text("currency").notNull().default("XAF"),
-  method: text("method").notNull().default("MTN Money"),
-  status: text("status").notNull().default("pending"),
-  requestedAt: timestamp("requested_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminCampaigns = pgTable("admin_campaigns", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  status: text("status").notNull().default("pending"),
-  budget: integer("budget").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminCatalogItems = pgTable("admin_catalog_items", {
-  id: serial("id").primaryKey(),
-  section: text("section").notNull(),
-  title: text("title").notNull(),
-  subtitle: text("subtitle").notNull().default(""),
-  status: text("status").notNull().default("active"),
-  amount: integer("amount").notNull().default(0),
-  owner: text("owner").notNull().default("Admin"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminFeatureFlags = pgTable("admin_feature_flags", {
-  key: text("key").primaryKey(),
-  label: text("label").notNull(),
-  description: text("description").notNull().default(""),
-  enabled: boolean("enabled").notNull().default(true),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminFeeRules = pgTable("admin_fee_rules", {
-  id: serial("id").primaryKey(),
-  scope: text("scope").notNull(),
-  percent: integer("percent").notNull().default(0),
-  fixed: integer("fixed").notNull().default(0),
-  currency: text("currency").notNull().default("XAF"),
-  status: text("status").notNull().default("active"),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminTeamMembers = pgTable("admin_team_members", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  role: text("role").notNull().default("analyst"),
-  status: text("status").notNull().default("active"),
-  lastActiveAt: timestamp("last_active_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminProviderRoutes = pgTable("admin_provider_routes", {
-  id: serial("id").primaryKey(),
-  country: text("country").notNull(),
-  operator: text("operator").notNull(),
-  primaryProvider: text("primary_provider").notNull().default("ashtechpay"),
-  fallbackProvider: text("fallback_provider").notNull().default("saaspay"),
-  status: text("status").notNull().default("active"),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export type User = typeof users.$inferSelect;
-export type PaymentLink = typeof paymentLinks.$inferSelect;
-export type Transaction = typeof transactions.$inferSelect;
-export type AdminUser = typeof adminUsers.$inferSelect;
