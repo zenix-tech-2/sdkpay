@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Icon3D } from "@/components/Icon3D";
 
 /**
  * Country flag with a resilient online chain:
@@ -83,8 +84,6 @@ export default function CountryFlag({
   }
 
   return (
-    <span className={`shrink-0 leading-none ${className}`} style={{ fontSize: size }}>
-      {emoji || "🌍"}
-    </span>
+    <Icon3D name="globe" size={Math.round(size)} className={className} />
   );
 }

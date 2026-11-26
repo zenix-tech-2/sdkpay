@@ -96,7 +96,7 @@ export default function SendPage() {
   const momoBalance = base === "XAF" ? balances.xaf : balances.xof;
   const amt = Number(amount || 0);
   const rate = reduced ? MOMO_FEE / 2 : MOMO_FEE;
-  const feeLabel = reduced ? "2% 🎉" : "4%";
+  const feeLabel = reduced ? "2%" : "4%";
   const fee = Math.round(amt * rate);
   const intAmt = Number(intAmount || 0);
   const intBalance = currency === "XAF" ? balances.xaf : balances.xof;

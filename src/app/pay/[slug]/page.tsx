@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShieldCheck, CheckCircle2, Loader2, ArrowLeft, FileText, ExternalLink, Clock } from "lucide-react";
 import Logo from "@/components/Logo";
 import { OperatorSelect } from "@/components/dashboard/WalletForm";
+import { Icon3D } from "@/components/Icon3D";
 
 interface LinkData {
   link: {
@@ -103,7 +104,7 @@ export default function PayPage({ params }: { params: Promise<{ slug: string }> 
 
         {error && (
           <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-10 text-center">
-            <p className="text-[35px]">🔗</p>
+            <Icon3D name="payment" size={56} className="mx-auto" />
             <h1 className="mt-3 text-[16.5px] font-extrabold">{error}</h1>
             <p className="mt-1 text-[11.5px] font-medium text-slate-500">Vérifiez le lien avec le marchand.</p>
             <Link href="/" className="mt-4 inline-block rounded-full bg-yellow-400 px-6 py-3 text-[12px] font-extrabold">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { COUNTRIES } from "@/data/countries";
+import CountryFlag from "@/components/CountryFlag";
 
 export function OperatorSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const ops = ["MTN MoMo", "Orange Money", "Wave", "Airtel Money", "Moov Money", "Free Money", "M-Pesa", "VISA / Mastercard"];
@@ -34,7 +35,7 @@ export function CurrencyTabs({ value, onChange }: { value: string; onChange: (v:
           onClick={() => onChange(c)}
           className={`rounded-2xl border-2 py-3 text-[12.5px] font-extrabold ${value === c ? "border-yellow-400 bg-yellow-50" : "border-slate-200 bg-white text-slate-500"}`}
         >
-          {c} {c === "XAF" ? "🇨🇲" : "🇸🇳"}
+          <span className="inline-flex items-center gap-2">{c} <CountryFlag code={c === "XAF" ? "cm" : "sn"} emoji="" size={18} /></span>
         </button>
       ))}
     </div>

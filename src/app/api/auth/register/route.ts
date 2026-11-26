@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     await db.insert(notifications).values([
       {
         userId: user.id,
-        title: "Bienvenue sur SDK Pay 🎉",
+        title: "Bienvenue sur SDK Pay",
         message: "Votre compte a été créé avec succès. Complétez votre profil et créez votre premier lien de paiement.",
       },
       {

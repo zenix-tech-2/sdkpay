@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Search, ChevronDown, RefreshCw, Download, CodeXml } from "lucide-react";
+import { Icon3D, txIconName } from "@/components/Icon3D";
 
 interface Tx {
   id: string;
@@ -61,17 +62,9 @@ function txTitle(t: string, operator: string | null) {
   }
 }
 
-function txEmoji(t: string, operator: string | null) {
-  if ((operator ?? "").toUpperCase().includes("USDT")) return "₮";
-  switch (t) {
-    case "deposit": return "💳";
-    case "withdraw": return "🧮";
-    case "send_out": return "📤";
-    case "send_in": return "📥";
-    case "payment_received": return "🧾";
-    case "conversion": return "🔄";
-    default: return "💰";
-  }
+function TxGlyph({ type, operator }: { type: string; operator: string | null }) {
+  if ((operator ?? "").toUpperCase().includes("USDT")) return <span className="text-[20px] font-extrabold">₮</span>;
+  return <Icon3D name={txIconName(type)} size={30} />;
 }
 
 function txAmount(tx: { amount: number; currency: string }) {
@@ -170,17 +163,17 @@ export default function TransactionsPage() {
       <p className="mt-5 text-[12.5px] font-bold tracking-[0.22em] text-slate-500">SUMMARY</p>
       <div className="mt-3 space-y-3.5">
         <div className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white px-5 py-5">
-          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-emerald-50 text-[30px]">💳</span>
+          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-emerald-50 "><Icon3D name="card" size={36} /></span>
           <span className="text-[16.5px] font-medium text-slate-900">Total incoming</span>
           <span className="ml-auto text-[16.5px] font-bold text-green-500">+{totals.entries.toLocaleString("fr-FR")} FCFA</span>
         </div>
         <div className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white px-5 py-5">
-          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-red-50 text-[30px]">🧮</span>
+          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-red-50 "><Icon3D name="withdraw" size={36} /></span>
           <span className="text-[16.5px] font-medium text-slate-900">Total outgoing</span>
           <span className="ml-auto text-[16.5px] font-bold text-red-500">-{totals.exits.toLocaleString("fr-FR")} FCFA</span>
         </div>
         <div className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white px-5 py-5">
-          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-slate-100 text-[30px]">📊</span>
+          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-slate-100 "><Icon3D name="chart" size={36} /></span>
           <span className="text-[16.5px] font-medium text-slate-900">Results displayed</span>
           <span className="ml-auto text-[16.5px] font-bold text-slate-900">{txs.length}</span>
         </div>
@@ -271,7 +264,7 @@ export default function TransactionsPage() {
                   }`}
                 >
                   <span className="flex h-[49.5px] w-[49.5px] shrink-0 items-center justify-center rounded-full bg-white/80 text-[26.5px] shadow-sm">
-                    {txEmoji(tx.type, tx.operator)}
+                    <TxGlyph type={tx.type} operator={tx.operator} />
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[16px] font-medium text-slate-900">{txTitle(tx.type, tx.operator)}</p>

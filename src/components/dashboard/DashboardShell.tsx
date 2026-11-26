@@ -31,6 +31,7 @@ import Logo from "@/components/Logo";
 import { NavigationProgress } from "@/components/motion/motion";
 import { LanguageProvider, useDashLang } from "./LanguageContext";
 import { formatMoney } from "@/lib/format";
+import { Icon3D, txIconName } from "@/components/Icon3D";
 
 export interface ShellUser {
   id: string;
@@ -322,11 +323,11 @@ function ShellInner({ user, children }: { user: ShellUser; children: React.React
               Notre équipe est disponible 24/7 pour vous aider.
             </p>
             <div className="mt-4 space-y-2">
-              <a href="mailto:support@sdkpay.com" className="block rounded-2xl bg-slate-100 px-4 py-3 text-[12px] font-bold">
-                ✉️ support@sdkpay.com
+              <a href="mailto:support@sdkpay.com" className="flex items-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-[12px] font-bold">
+                <Icon3D name="mail" size={20} /> support@sdkpay.com
               </a>
-              <a href="tel:+237683677872" className="block rounded-2xl bg-slate-100 px-4 py-3 text-[12px] font-bold">
-                📞 +237 6 83 67 78 72
+              <a href="tel:+237683677872" className="flex items-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-[12px] font-bold">
+                <Icon3D name="phone" size={20} /> +237 6 83 67 78 72
               </a>
               <Link href="/contact" className="block rounded-2xl bg-yellow-400 px-4 py-3 text-center text-[12.5px] font-extrabold">
                 Nous contacter
@@ -536,7 +537,7 @@ export function BalanceCard({
             onClick={() => setConvOpen(true)}
             className="flex shrink-0 items-center gap-2 rounded-2xl border border-yellow-500/50 bg-yellow-500/15 px-4 sm:px-5 py-3 text-[13px] sm:text-[15px] font-extrabold text-yellow-400 hover:bg-yellow-500/25"
           >
-            <span className="text-[17.5px]">🔄</span> {t.conversion}
+            <Icon3D name="exchange" size={24} /> {t.conversion}
           </button>
         </div>
       </div>
@@ -583,19 +584,18 @@ export function BalanceCard({
 }
 
 export function TxIcon({ type }: { type: string }) {
-  const map: Record<string, { bg: string; label: string }> = {
-    deposit: { bg: "bg-emerald-100", label: "⬇️" },
-    withdraw: { bg: "bg-orange-100", label: "⬆️" },
-    send_out: { bg: "bg-red-100", label: "↗️" },
-    send_in: { bg: "bg-green-100", label: "↙️" },
-    payment_received: { bg: "bg-sky-100", label: "🧾" },
-    conversion: { bg: "bg-purple-100", label: "🔄" },
-    bonus: { bg: "bg-yellow-100", label: "🎁" },
+  const bgs: Record<string, string> = {
+    deposit: "bg-emerald-100",
+    withdraw: "bg-orange-100",
+    send_out: "bg-red-100",
+    send_in: "bg-green-100",
+    payment_received: "bg-sky-100",
+    conversion: "bg-purple-100",
+    bonus: "bg-yellow-100",
   };
-  const m = map[type] ?? map.bonus;
   return (
-    <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-[17.5px] ${m.bg}`}>
-      {m.label}
+    <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${bgs[type] ?? bgs.bonus}`}>
+      <Icon3D name={txIconName(type)} size={28} />
     </span>
   );
 }

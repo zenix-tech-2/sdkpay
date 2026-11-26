@@ -402,7 +402,7 @@ export default function NewLinkWizard() {
                   <option value="ALL">All countries allowed</option>
                   {COUNTRIES.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {c.flag} {c.name} only
+                      {c.name} only
                     </option>
                   ))}
                 </select>

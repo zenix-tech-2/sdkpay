@@ -123,7 +123,7 @@ export default function WithdrawPage() {
   const balance = base === "XAF" ? balances.xaf : balances.xof;
   const amt = Number(amount || 0);
   const rate = reduced ? FEE_RATE / 2 : FEE_RATE;
-  const feeLabel = reduced ? "2% 🎉" : "4%";
+  const feeLabel = reduced ? "2%" : "4%";
   const fee = Math.round(amt * rate);
   const net = amt - fee;
   const momoNumbers = numbers.filter((n) => n.kind === "momo");

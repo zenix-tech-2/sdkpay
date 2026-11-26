@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronRight, Phone, X, Send as SendIcon, ExternalLink, Plus, Loader2, MessageCircle, Star } from "lucide-react";
 import { timeAgo } from "@/lib/format";
+import { Icon3D } from "@/components/Icon3D";
 
 interface Ticket {
   id: string;
@@ -34,7 +35,7 @@ function botReply(q: string): string {
   if (s.includes("fee")) return "Our fees: 4% on Mobile Money operations, 2.5% on crypto deposits, 1 USDT flat on crypto withdrawals. Internal transfers are free!";
   if (s.includes("kyc") || s.includes("verif")) return "KYC verification takes under 24 business hours. You'll get a notification as soon as your documents are reviewed.";
   if (s.includes("link")) return "Create a payment link from My links → New link (4 steps), then share it on WhatsApp, Facebook or Instagram. Funds land in your wallet automatically.";
-  if (s.includes("thank")) return "You're welcome! 😊 Don't hesitate if you need anything else.";
+  if (s.includes("thank")) return "You're welcome! Don't hesitate if you need anything else.";
   return "Thanks for your message! An agent will reply in a few minutes. Meanwhile, you can browse the FAQ below or open a ticket with more details.";
 }
 
@@ -64,7 +65,7 @@ export default function SupportPage() {
   const [err, setErr] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
   const [chat, setChat] = useState<ChatMsg[]>([
-    { from: "bot", text: "Hello! 👋 Welcome to SDK Pay support. How can we help you today?" },
+    { from: "bot", text: "Hello! Welcome to SDK Pay support. How can we help you today?" },
   ]);
   const [chatInput, setChatInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -283,7 +284,7 @@ export default function SupportPage() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setChatOpen(false)} />
           <div className="relative flex h-[80vh] w-full flex-col overflow-hidden rounded-t-[28px] bg-white sm:h-[493px] sm:max-w-md sm:rounded-[28px]">
             <div className="flex items-center gap-3 bg-[#26247e] p-4 text-white">
-              <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-yellow-400 text-[17.5px]">💬
+              <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-yellow-400"><Icon3D name="chat" size={28} />
                 <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-400 ring-2 ring-[#26247e]" />
               </span>
               <div className="flex-1">

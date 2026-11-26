@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { TrendingUp, TrendingDown, X, Copy, Check, Clock } from "lucide-react";
 import { formatDetailDate } from "@/lib/format";
 import { microToUsdt } from "@/lib/crypto";
+import { Icon3D } from "@/components/Icon3D";
 
 interface Tx {
   id: string;
@@ -92,7 +93,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   if (error) {
     return (
       <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-10 text-center">
-        <p className="text-[35px]">🧾</p>
+        <Icon3D name="invoice" size={56} className="mx-auto" />
         <h1 className="mt-3 text-[16.5px] font-extrabold">{error}</h1>
         <button onClick={() => router.back()} className="mt-4 rounded-full bg-slate-900 px-6 py-3 text-[12px] font-extrabold text-white">
           Go back

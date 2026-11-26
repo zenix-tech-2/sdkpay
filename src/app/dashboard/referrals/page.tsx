@@ -103,7 +103,7 @@ export default function ReferralsPage() {
           </span>
         </div>
         <p className="mt-1 text-[23px] font-bold text-slate-900">
-          {unlocked ? "Active 🎉" : "Not unlocked"}
+          {unlocked ? "Active" : "Not unlocked"}
         </p>
         <p className="mt-3 text-[16px] font-medium leading-relaxed text-slate-500">
           {unlocked && feeUntil

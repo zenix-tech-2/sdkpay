@@ -20,7 +20,7 @@ export async function maybeRewardReferrer(referredUserId: string) {
     await db.update(users).set({ reducedFeeUntil: until }).where(eq(users.id, ref.referrerId));
     await db.insert(notifications).values({
       userId: ref.referrerId,
-      title: "Reduced-fee period unlocked! 🎉",
+      title: "Reduced-fee period unlocked!",
       message: `Your invitee is now active. Enjoy 50% off Mobile Money deposit & withdrawal fees for 5 days (until ${until.toLocaleDateString("en-US", { month: "short", day: "numeric" })}).`,
     });
   } catch (e) {

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import QrSheet from "@/components/dashboard/QrSheet";
 import { qrDataUrl, downloadDataUrl } from "@/lib/qr";
+import { Icon3D } from "@/components/Icon3D";
 
 interface PLink {
   id: string;
@@ -134,7 +135,7 @@ export default function LinksPage() {
 
       {!loading && links.length === 0 && (
         <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 text-[26.5px]">🔗</div>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100"><Icon3D name="payment" size={40} /></div>
           <h3 className="mt-4 text-[15px] font-extrabold">No links yet</h3>
           <p className="mt-1 text-[11.5px] font-medium text-slate-500">Create your first link in 4 simple steps.</p>
           <Link href="/dashboard/links/new" className="mt-4 inline-block rounded-full bg-[#f0a500] px-6 py-3 text-[12.5px] font-extrabold text-white">

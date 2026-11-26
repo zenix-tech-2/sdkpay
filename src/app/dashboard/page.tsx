@@ -6,6 +6,7 @@ import { ChevronRight, ChevronDown, Filter, Calendar, Copy, Check, Plus } from "
 import { BalanceCard, TxIcon } from "@/components/dashboard/DashboardShell";
 import { useDashLang } from "@/components/dashboard/LanguageContext";
 import { timeAgo } from "@/lib/format";
+import { Icon3D } from "@/components/Icon3D";
 
 interface Summary {
   user: { balanceXaf: number; balanceXof: number; balanceUsdt: number; fullName: string };
@@ -54,10 +55,10 @@ export default function DashboardPage() {
   }
 
   const quick = [
-    { href: "/dashboard/deposit", label: t.deposit, bg: "bg-emerald-50", emoji: "🫳", sub: "💳" },
-    { href: "/dashboard/send", label: t.send, bg: "bg-sky-50", emoji: "💰", sub: "" },
-    { href: "/dashboard/withdraw", label: t.withdraw, bg: "bg-orange-50", emoji: "🧮", sub: "" },
-    { href: "/dashboard/links", label: t.paymentLink, bg: "bg-purple-50", emoji: "👛", sub: "" },
+    { href: "/dashboard/deposit", label: t.deposit, bg: "bg-emerald-50", icon: "topup" as const },
+    { href: "/dashboard/send", label: t.send, bg: "bg-sky-50", icon: "send" as const },
+    { href: "/dashboard/withdraw", label: t.withdraw, bg: "bg-orange-50", icon: "withdraw" as const },
+    { href: "/dashboard/links", label: t.paymentLink, bg: "bg-purple-50", icon: "payment" as const },
   ];
 
   return (
@@ -76,8 +77,8 @@ export default function DashboardPage() {
             href={q.href}
             className="flex flex-col items-center rounded-[22px] border border-slate-200 bg-white px-4 py-7 shadow-sm hover:shadow-md hover:border-yellow-300 transition"
           >
-            <span className={`flex h-[75.5px] w-[75.5px] items-center justify-center rounded-[26px] text-[40.5px] ${q.bg} shadow-inner`}>
-              {q.emoji}
+            <span className={`flex h-[75.5px] w-[75.5px] items-center justify-center rounded-[26px] ${q.bg} shadow-inner`}>
+              <Icon3D name={q.icon} size={52} />
             </span>
             <span className="mt-3 text-[15px] font-bold text-slate-900">{q.label}</span>
           </Link>
@@ -169,7 +170,7 @@ export default function DashboardPage() {
           .filter((l) => (filter === "all" ? true : filter === "active" ? l.isActive : !l.isActive))
           .map((l) => (
             <div key={l.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-yellow-100 text-[17.5px]">🔗</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-yellow-100"><Icon3D name="payment" size={28} /></span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12.5px] font-extrabold">{l.title}</p>
                 <p className="text-[10.5px] font-semibold text-slate-400">
