@@ -32,6 +32,17 @@ export function settlementOf(code: string): "XAF" | "XOF" | "USDT" {
   return "XAF";
 }
 
+/** "XAF" | "XOF" | "USDT" for the stored balances, otherwise the currency code itself (NGN, GHS...). */
+export function balanceFamily(code: string): string {
+  if (code === "USDT") return "USDT";
+  if (code.startsWith("XOF")) return "XOF";
+  if (code.startsWith("XAF")) return "XAF";
+  return code;
+}
+
 export function displayUnit(code: string) {
-  return code === "USDT" ? "USDT" : "FCFA";
+  const f = balanceFamily(code);
+  if (f === "USDT") return "USDT";
+  if (f === "XAF" || f === "XOF") return "FCFA";
+  return f;
 }

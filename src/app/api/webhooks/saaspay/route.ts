@@ -10,23 +10,25 @@ import { logEvent } from "@/lib/providers/router";
  * Verified against SASPAY_WEBHOOK_SECRET when set (SasPay signs payloads;
  * both `t=...,v1=...` and plain-hex formats are accepted).
  */
-function verifySignature(raw: string, headers: Headers): boolean {
+/** Returns "valid" only for a cryptographically verified body; anything else must be re-checked with SasPay. */
+function verifySignature(raw: string, headers: Headers): "valid" | "unsigned" | "invalid" {
   const secret = process.env.SASPAY_WEBHOOK_SECRET || "";
-  if (!secret) return true; // not configured — accept (logged)
+  if (!secret) return "unsigned";
   const sig =
     headers.get("x-saspay-signature") ||
     headers.get("saspay-signature") ||
     headers.get("x-webhook-signature") ||
     "";
-  if (!sig) return true; // lenient: SasPay header name varies by version — accept & log
+  if (!sig) return "unsigned"; // header name varies by version — accepted but re-verified with SasPay
   const v1 = sig.includes("v1=") ? sig.split("v1=")[1].split(",")[0] : sig;
   const expected = createHmac("sha256", secret).update(raw).digest("hex");
-  return v1.trim() === expected;
+  return v1.trim() === expected ? "valid" : "invalid";
 }
 
 export async function POST(req: Request) {
   const raw = await req.text();
-  if (!verifySignature(raw, req.headers)) {
+  const sigState = verifySignature(raw, req.headers);
+  if (sigState === "invalid") {
     await logEvent({ provider: "saaspay", action: "webhook", status: "error", message: "invalid signature" });
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -46,6 +48,6 @@ export async function POST(req: Request) {
   const reference = (meta.reference as string) || (d.reference as string) || undefined;
 
   await logEvent({ provider: "saaspay", action: "webhook", message: `event=${event} ref=${providerRef || reference}` });
-  const tx = await settleTxFromProvider({ providerRef, reference, status: status as "success" | "failed" | "pending", provider: "SasPay" });
+  const tx = await settleTxFromProvider({ providerRef, reference, status: status as "success" | "failed" | "pending", provider: "SasPay", verify: sigState !== "valid" });
   return NextResponse.json({ ok: true, matched: !!tx });
 }

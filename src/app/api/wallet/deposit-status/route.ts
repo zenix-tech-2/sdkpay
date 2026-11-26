@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/db";
-import { users, transactions, notifications } from "@/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { transactions, notifications } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 import { DEPOSIT_AUTO_APPROVE_MS, DEPOSIT_EXPIRY_MS } from "../deposit/route";
-import { maybeRewardReferrer } from "@/lib/referrals";
-import { runAutoConversion } from "@/lib/auto-convert";
 import { queryProviderStatus } from "@/lib/providers/router";
+import { demoEnabled } from "@/lib/providers/types";
 import { settleTxFromProvider } from "@/lib/providers/settle";
 
 /**
  * Poll endpoint for the "Processing" screen.
  * - Live provider txs: queries AshTechPay/SasPay status (webhooks also update).
- * - Demo txs: auto-approves after 15s, expires after 8min.
+ * - Demo txs (PROVIDER_MODE=demo only): auto-approve after 15s. Otherwise a deposit is NEVER approved without the provider confirming it.
  */
 export async function GET(req: Request) {
   const user = await getSessionUser();
@@ -45,34 +44,28 @@ export async function GET(req: Request) {
     return NextResponse.json({ status: "pending", transaction: tx });
   }
 
-  // Demo simulation
+  // Anything else that is still pending expires after 8 minutes; it is never auto-approved.
   if (tx.type === "deposit") {
     const age = Date.now() - new Date(tx.createdAt).getTime();
-    if (age > DEPOSIT_EXPIRY_MS) {
-      await db.update(transactions).set({ status: "failed", updatedAt: new Date() }).where(eq(transactions.id, id));
-      await db.insert(notifications).values({
-        userId: user.id,
-        title: "Dépôt expiré",
-        message: `La demande ${tx.reference} a expiré sans approbation. Aucun montant débité.`,
-      });
-      return NextResponse.json({ status: "failed", transaction: { ...tx, status: "failed" } });
+    const simulated = demoEnabled() && tx.provider === "demo";
+    if (simulated && age > DEPOSIT_AUTO_APPROVE_MS) {
+      const settled = await settleTxFromProvider({ reference: tx.reference, status: "success", provider: "Demo" });
+      return NextResponse.json({ status: "success", transaction: settled || { ...tx, status: "success" } });
     }
-    if (age > DEPOSIT_AUTO_APPROVE_MS) {
-      const credited = tx.amount - tx.fee;
-      await db.update(transactions).set({ status: "success", updatedAt: new Date() }).where(eq(transactions.id, id));
-      if (tx.currency === "XOF") {
-        await db.update(users).set({ balanceXof: sql`${users.balanceXof} + ${credited}` }).where(eq(users.id, user.id));
-      } else {
-        await db.update(users).set({ balanceXaf: sql`${users.balanceXaf} + ${credited}` }).where(eq(users.id, user.id));
+    if (age > DEPOSIT_EXPIRY_MS) {
+      const expired = await db
+        .update(transactions)
+        .set({ status: "failed", updatedAt: new Date() })
+        .where(and(eq(transactions.id, id), eq(transactions.status, "pending")))
+        .returning({ id: transactions.id });
+      if (expired.length) {
+        await db.insert(notifications).values({
+          userId: user.id,
+          title: "Dépôt expiré",
+          message: `La demande ${tx.reference} a expiré sans approbation. Aucun montant débité.`,
+        });
       }
-      await db.insert(notifications).values({
-        userId: user.id,
-        title: "Dépôt confirmé",
-        message: `Dépôt de ${tx.amount.toLocaleString("fr-FR")} ${tx.currency} via ${tx.operator} confirmé. ${credited.toLocaleString("fr-FR")} crédités. Réf : ${tx.reference}`,
-      });
-      await maybeRewardReferrer(user.id);
-      await runAutoConversion(user.id).catch(() => {});
-      return NextResponse.json({ status: "success", transaction: { ...tx, status: "success" } });
+      return NextResponse.json({ status: "failed", transaction: { ...tx, status: "failed" } });
     }
   }
 

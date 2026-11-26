@@ -13,6 +13,7 @@ import { logEvent } from "@/lib/providers/router";
 export async function POST(req: Request) {
   const raw = await req.text();
   const secret = process.env.ASHTECHPAY_WEBHOOK_SECRET || "";
+  let signed = false;
   if (secret) {
     const sig = req.headers.get("x-ashtechpay-signature") || req.headers.get("x-sdk-signature") || "";
     const expected = createHmac("sha256", secret).update(raw).digest("hex");
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
+    signed = true;
   }
 
   let body: Record<string, unknown> = {};
@@ -45,6 +47,6 @@ export async function POST(req: Request) {
   const reference = (d.reference as string) || (body.reference as string) || undefined;
 
   await logEvent({ provider: "ashtechpay", action: "webhook", message: `status=${status} ref=${providerRef || reference}` });
-  const tx = await settleTxFromProvider({ providerRef, reference, status: status as "success" | "failed" | "pending", provider: "AshTechPay" });
+  const tx = await settleTxFromProvider({ providerRef, reference, status: status as "success" | "failed" | "pending", provider: "AshTechPay", verify: !signed });
   return NextResponse.json({ ok: true, matched: !!tx });
 }

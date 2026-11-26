@@ -103,7 +103,14 @@ export async function POST(req: Request) {
       if (!phone?.trim() || phone.trim().length < 4) return NextResponse.json({ error: "Valid phone number required." }, { status: 400 });
       if (!amt || amt < 100) return NextResponse.json({ error: "Minimum amount: 100." }, { status: 400 });
       if (!operator) return NextResponse.json({ error: "Operator required." }, { status: 400 });
-      const cur = currency === "XOF" ? "XOF" : "XAF";
+      const destCountry = COUNTRIES.find((c) => c.name === (country || user.country));
+      if (!destCountry || (destCountry.currency !== "XAF" && destCountry.currency !== "XOF")) {
+        return NextResponse.json(
+          { error: `Payments to ${destCountry?.name ?? "this country"} (${destCountry?.currency ?? "?"}) are not available yet. Use an XAF or XOF country.` },
+          { status: 400 }
+        );
+      }
+      const cur = destCountry.currency as "XAF" | "XOF";
       const balance = cur === "XOF" ? user.balanceXof : user.balanceXaf;
       const feeCfg = await getFeeConfig();
       const fee = Math.round(amt * num(feeCfg.momo_fee, 0.04) * (hasReducedFees(user) ? 0.5 : 1));

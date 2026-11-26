@@ -21,12 +21,19 @@ export async function POST(req: Request) {
     const minW = num(cfg.min_withdraw, 550);
     const maxW = num(cfg.max_withdraw, 2000000);
     const manual = cfg.manual_withdrawals === "true";
-    const { amount, operator, phone, currency, country } = await req.json();
+    const { amount, operator, phone, country } = await req.json();
     const amt = Number(amount);
     if (!amt || amt < minW) return NextResponse.json({ error: `Minimum withdrawal: ${minW}.` }, { status: 400 });
     if (amt > maxW) return NextResponse.json({ error: `Maximum withdrawal: ${maxW.toLocaleString("en-US")}.` }, { status: 400 });
     if (!operator || !phone) return NextResponse.json({ error: "Opérateur et numéro requis." }, { status: 400 });
-    const cur = currency === "XOF" ? "XOF" : "XAF";
+    const destCountry = COUNTRIES.find((c) => c.name === (country || user.country));
+    if (!destCountry || (destCountry.currency !== "XAF" && destCountry.currency !== "XOF")) {
+      return NextResponse.json(
+        { error: `Payments to ${destCountry?.name ?? "this country"} (${destCountry?.currency ?? "?"}) are not available yet. Use an XAF or XOF country.` },
+        { status: 400 }
+      );
+    }
+    const cur = destCountry.currency as "XAF" | "XOF";
     const balance = cur === "XOF" ? user.balanceXof : user.balanceXaf;
     const fee = Math.round(amt * num(cfg.momo_fee, WITHDRAW_FEE_RATE) * (hasReducedFees(user) ? 0.5 : 1));
     if (amt + fee > balance) {

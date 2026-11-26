@@ -82,9 +82,27 @@ export default function DepositPage() {
   const [reduced, setReduced] = useState(false);
   const [balances, setBalances] = useState({ xaf: 0, xof: 0, usdt: 0 });
   const [copied, setCopied] = useState("");
+  const [foreignBal, setForeignBal] = useState(0);
   const dropRef = useRef<HTMLDivElement>(null);
   const cryptoDropRef = useRef<HTMLDivElement>(null);
   const netRef = useRef<HTMLDivElement>(null);
+
+  // Balance of non-FCFA wallets (NGN, GHS, KES...) comes from the ledger.
+  useEffect(() => {
+    if (country.currency === "XAF" || country.currency === "XOF") return;
+    let off = false;
+    fetch("/api/wallets")
+      .then((r) => r.json())
+      .then((d) => {
+        if (off) return;
+        const w = (d.wallets ?? []).find((x: { walletCode: string }) => x.walletCode === country.wallet);
+        setForeignBal(w?.balance ?? 0);
+      })
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [country.wallet, country.currency]);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -152,7 +170,9 @@ export default function DepositPage() {
   }, [order]);
 
   const base = baseWallet(country.wallet);
-  const balance = base === "XAF" ? balances.xaf : balances.xof;
+  const isFcfa = country.currency === "XAF" || country.currency === "XOF";
+  const unit = isFcfa ? "FCFA" : country.currency;
+  const balance = isFcfa ? (base === "XAF" ? balances.xaf : balances.xof) : foreignBal;
   const amt = Number(amount || 0);
   const rate = reduced ? FEE_RATE / 2 : FEE_RATE;
   const feeLabel = reduced ? "2%" : "4%";
@@ -186,7 +206,6 @@ export default function DepositPage() {
           amount: amt,
           operator,
           phone: `${country.dial} ${phone}`.trim(),
-          currency: base,
           country: country.name,
         }),
       });
@@ -209,7 +228,7 @@ export default function DepositPage() {
         operator,
         phone: `${country.dial} ${phone}`.trim(),
         country: country.name,
-        currency: base,
+        currency: country.currency,
         startedAt: Date.now(),
       });
       setSecondsLeft(MOMO_EXPIRY);
@@ -387,7 +406,7 @@ export default function DepositPage() {
           ) : (
             <>
               <p className="text-[15px] font-medium text-white/80">Current balance ({country.wallet})</p>
-              <p className="text-[24px] font-extrabold text-white">{balance.toLocaleString("fr-FR")} FCFA</p>
+              <p className="text-[24px] font-extrabold text-white">{balance.toLocaleString("fr-FR")} {isFcfa ? "FCFA" : country.currency}</p>
             </>
           )}
         </div>
@@ -422,7 +441,7 @@ export default function DepositPage() {
             </p>
             <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-5">
               <p className="text-[24px] font-extrabold" style={{ color: GOLD }}>
-                {processing.amount.toLocaleString("fr-FR")} FCFA
+                {processing.amount.toLocaleString("fr-FR")} {processing.currency === "XAF" || processing.currency === "XOF" ? "FCFA" : processing.currency}
               </p>
               <p className="text-[12.5px] font-medium text-slate-500">via {processing.operator}</p>
             </div>
@@ -479,7 +498,7 @@ export default function DepositPage() {
             {amt > 0 && (
               <p className="mt-2 text-right text-[10.5px] font-bold text-slate-400">
                 Fees ({feeLabel}) : -{fee.toLocaleString("fr-FR")} • You receive :{" "}
-                <span className="text-green-600">{credited.toLocaleString("fr-FR")} FCFA</span>
+                <span className="text-green-600">{credited.toLocaleString("fr-FR")} {unit}</span>
               </p>
             )}
 
@@ -548,7 +567,7 @@ export default function DepositPage() {
               <CreditCard size={17.1} /> Confirm
             </button>
             <p className="mt-2.5 text-center text-[10px] font-medium text-slate-400">
-              Settled in {base} wallet • Demo: approve simulated on your phone.
+              Credited to your {country.currency} wallet after you approve the payment on your phone.
             </p>
           </div>
         )
@@ -763,8 +782,8 @@ export default function DepositPage() {
                 ["Mobile Money number", `${country.dial} ${phone}`.trim(), "text-slate-900"],
                 ["Country", country.name, "text-slate-900"],
                 ["Operator", operator, "text-slate-900"],
-                ["Amount entered", `${amt.toLocaleString("fr-FR")} FCFA`, "text-slate-900"],
-                [`Fees (${feeLabel})`, `-${fee.toLocaleString("fr-FR")} FCFA`, "text-red-500"],
+                ["Amount entered", `${amt.toLocaleString("fr-FR")} ${unit}`, "text-slate-900"],
+                [`Fees (${feeLabel})`, `-${fee.toLocaleString("fr-FR")} ${unit}`, "text-red-500"],
               ].map(([k, v, cls]) => (
                 <div key={k} className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-[13.5px]">
                   <span className="text-[13.5px] font-medium text-slate-500">{k}</span>
@@ -773,7 +792,7 @@ export default function DepositPage() {
               ))}
               <div className="flex items-center justify-between gap-3 bg-green-50/70 px-5 py-[15px]">
                 <span className="text-[14.5px] font-bold text-slate-900">Credited amount</span>
-                <span className="text-[16px] font-extrabold text-green-500">{credited.toLocaleString("fr-FR")} FCFA</span>
+                <span className="text-[16px] font-extrabold text-green-500">{credited.toLocaleString("fr-FR")} {unit}</span>
               </div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">

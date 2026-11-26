@@ -13,7 +13,7 @@ import type {
   RouteDecision,
   RouteInput,
 } from "./types";
-import { providerMode } from "./types";
+import { providerMode, demoEnabled } from "./types";
 
 /**
  * Routing policy:
@@ -94,6 +94,9 @@ export async function logEvent(e: {
   }
 }
 
+const UNAVAILABLE =
+  "Mobile Money is not available for this country or operator right now. Please try another option. No amount was debited.";
+
 function demoRef(prefix: string) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s = "";
@@ -141,6 +144,10 @@ export async function executeCollect(
     return { ...res, provider: name, live: true, reason: decision.reason };
   }
 
+  if (!demoEnabled()) {
+    await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "collect", status: "error", message: decision.reason });
+    return { ok: false, status: "failed", error: UNAVAILABLE, provider: "demo", live: true, reason: decision.reason };
+  }
   await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "collect", message: decision.reason });
   return {
     ok: true,
@@ -190,6 +197,10 @@ export async function executeDisburse(
     return { ...res, provider: name, live: true, reason: decision.reason };
   }
 
+  if (!demoEnabled()) {
+    await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "disburse", status: "error", message: decision.reason });
+    return { ok: false, status: "failed", error: UNAVAILABLE, provider: "demo", live: true, reason: decision.reason };
+  }
   await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "disburse", message: decision.reason });
   return {
     ok: true,
@@ -219,6 +230,10 @@ export async function executeCryptoCharge(
     if (res.ok) return { ...res, provider: "ashtechpay" as ProviderName, live: true, reason: decision.reason };
     return { ...res, provider: "ashtechpay" as ProviderName, live: true, reason: decision.reason };
   }
+  if (!demoEnabled()) {
+    await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "crypto_charge", status: "error", message: decision.reason });
+    return { ok: false, error: "Crypto deposits are not available right now. Please try again later.", provider: "demo", live: true, reason: decision.reason };
+  }
   await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "crypto_charge", message: decision.reason });
   return { ok: true, provider: "demo", live: false, reason: decision.reason };
 }
@@ -239,6 +254,10 @@ export async function executeCryptoDisburse(
       message: res.ok ? `ref=${res.providerRef} status=${res.status}` : res.error,
     });
     return { ...res, provider: "ashtechpay" as ProviderName, live: true, reason: decision.reason };
+  }
+  if (!demoEnabled()) {
+    await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "crypto_disburse", status: "error", message: decision.reason });
+    return { ok: false, status: "failed", error: "Crypto withdrawals are not available right now. No amount debited.", provider: "demo", live: true, reason: decision.reason };
   }
   await logEvent({ txId: ctx.txId, userId: ctx.userId, provider: "demo", action: "crypto_disburse", message: decision.reason });
   return { ok: true, provider: "demo", live: false, reason: decision.reason, providerRef: `ASH-DEMO-CP${Date.now().toString(36).toUpperCase()}`, status: "success" };

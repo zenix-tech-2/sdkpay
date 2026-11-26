@@ -6,7 +6,9 @@ import { eq, and, sql } from "drizzle-orm";
 import { randomRef } from "@/lib/format";
 import { USDT_UNIT, microToUsdt } from "@/lib/crypto";
 import { getFeeConfig, num } from "@/lib/platform";
-import { executeCryptoCharge } from "@/lib/providers/router";
+import { executeCryptoCharge, queryProviderStatus } from "@/lib/providers/router";
+import { settleTxFromProvider } from "@/lib/providers/settle";
+import { demoEnabled } from "@/lib/providers/types";
 import { COUNTRIES } from "@/data/countries";
 import { runAutoConversion } from "@/lib/auto-convert";
 
@@ -54,6 +56,10 @@ export async function POST(req: Request) {
       { amountUsdt: amt, network: net, countryCode: cc, reference: ref },
       { txId, userId: user.id }
     );
+    if (prov.live && !prov.ok) {
+      await db.update(transactions).set({ status: "failed", provider: prov.provider, updatedAt: new Date() }).where(eq(transactions.id, txId));
+      return NextResponse.json({ error: prov.error || "Crypto deposits are unavailable right now." }, { status: 502 });
+    }
     const { demoTronAddress } = await import("@/lib/crypto");
     const address = prov.live && prov.ok && prov.address ? prov.address : demoTronAddress(ref);
     await db
@@ -79,7 +85,7 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  // "I sent the funds" -> verify (demo) and credit
+  // "I sent the funds" -> the PROVIDER must confirm the payment. The user's click alone never credits anything.
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   try {
@@ -92,16 +98,20 @@ export async function PUT(req: Request) {
     if (!rows.length) return NextResponse.json({ error: "Introuvable." }, { status: 404 });
     const tx = rows[0];
     if (tx.status !== "pending") return NextResponse.json({ error: "Already processed.", status: tx.status }, { status: 400 });
-    const credited = tx.amount - tx.fee;
-    await db.update(transactions).set({ status: "success", updatedAt: new Date() }).where(eq(transactions.id, id));
-    await db.update(users).set({ balanceUsdt: sql`${users.balanceUsdt} + ${credited}` }).where(eq(users.id, user.id));
-    await db.insert(notifications).values({
-      userId: user.id,
-      title: "Dépôt crypto confirmé",
-      message: `Dépôt de ${microToUsdt(tx.amount).toFixed(4)} USDT confirmé. ${microToUsdt(credited).toFixed(4)} USDT crédités. Réf : ${tx.reference}`,
-    });
-    await runAutoConversion(user.id).catch(() => {});
-    return NextResponse.json({ ok: true, id });
+
+    if (tx.provider === "ashtechpay" && tx.providerRef && !tx.providerRef.includes("DEMO")) {
+      const live = await queryProviderStatus("ashtechpay", tx.providerRef);
+      if (live.status === "pending") {
+        return NextResponse.json({ error: "Payment not detected yet. Your balance is credited automatically once the network confirms it.", status: "pending" }, { status: 409 });
+      }
+      const settled = await settleTxFromProvider({ reference: tx.reference, status: live.status, provider: "AshTechPay" });
+      return NextResponse.json({ ok: live.status === "success", id, status: settled?.status ?? live.status });
+    }
+    if (demoEnabled() && tx.provider === "demo") {
+      await settleTxFromProvider({ reference: tx.reference, status: "success", provider: "Demo" });
+      return NextResponse.json({ ok: true, id });
+    }
+    return NextResponse.json({ error: "This deposit cannot be verified. Nothing was credited." }, { status: 400 });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });

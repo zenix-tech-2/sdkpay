@@ -16,7 +16,7 @@ interface Wallet {
   countryCode: string;
   flag: string;
   isPrimary: boolean;
-  family: "XAF" | "XOF" | "USDT";
+  family: string;
   balance: number;
 }
 
@@ -145,7 +145,7 @@ export default function AccountsPage() {
             </div>
             <button
               onClick={() => {
-                if (w.family !== "USDT") setFrom(w.family);
+                if (w.family === "XAF" || w.family === "XOF") setFrom(w.family);
                 setConvOpen(true);
               }}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-yellow-50 text-[#f0a500] hover:bg-yellow-100"

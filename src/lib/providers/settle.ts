@@ -1,15 +1,34 @@
 import { db } from "@/db";
-import { users, transactions, notifications } from "@/db/schema";
-import { eq, or, sql } from "drizzle-orm";
+import { users, transactions, notifications, paymentLinks } from "@/db/schema";
+import { eq, or, and, sql } from "drizzle-orm";
 import { maybeRewardReferrer } from "@/lib/referrals";
 import { runAutoConversion } from "@/lib/auto-convert";
+import { queryProviderStatus } from "./router";
+import type { ProviderName } from "./types";
 
-/** Apply a provider-side status change to one of our transactions. */
+const FAMILIES = ["XAF", "XOF", "USDT"];
+
+/** Move money on the stored balance columns. Other currencies (NGN, GHS...) are derived from the ledger. */
+async function adjustBalance(userId: string, currency: string, delta: number) {
+  if (currency === "USDT") await db.update(users).set({ balanceUsdt: sql`${users.balanceUsdt} + ${delta}` }).where(eq(users.id, userId));
+  else if (currency === "XOF") await db.update(users).set({ balanceXof: sql`${users.balanceXof} + ${delta}` }).where(eq(users.id, userId));
+  else if (currency === "XAF") await db.update(users).set({ balanceXaf: sql`${users.balanceXaf} + ${delta}` }).where(eq(users.id, userId));
+}
+
+/**
+ * Apply a provider-side status change to one of our transactions.
+ *
+ * - `verify: true`  -> the claimed status is NOT trusted (e.g. an unsigned webhook): we ask the
+ *   provider directly and only act on what the provider itself reports.
+ * - The pending -> success/failed transition is claimed atomically, so a deposit can never be
+ *   credited twice (webhook + polling racing each other).
+ */
 export async function settleTxFromProvider(opts: {
   providerRef?: string;
   reference?: string;
   status: "success" | "failed" | "pending";
   provider: string;
+  verify?: boolean;
 }) {
   if (!opts.providerRef && !opts.reference) return null;
   const conds = [];
@@ -23,22 +42,32 @@ export async function settleTxFromProvider(opts: {
   if (!rows.length) return null;
   const tx = rows[0];
   if (tx.status !== "pending") return tx;
-  if (opts.status === "pending") return tx;
 
-  if (opts.status === "failed") {
-    await db.update(transactions).set({ status: "failed", updatedAt: new Date() }).where(eq(transactions.id, tx.id));
+  let status = opts.status;
+  if (opts.verify) {
+    const live = tx.provider === "ashtechpay" || tx.provider === "saaspay";
+    if (!live || !tx.providerRef || tx.providerRef.includes("DEMO")) return tx; // cannot verify -> never trust
+    status = (await queryProviderStatus(tx.provider as ProviderName, tx.providerRef)).status;
+  }
+  if (status === "pending") return tx;
+
+  // Atomic claim: only one caller wins the pending -> final transition.
+  const claimed = await db
+    .update(transactions)
+    .set({ status, updatedAt: new Date() })
+    .where(and(eq(transactions.id, tx.id), eq(transactions.status, "pending")))
+    .returning({ id: transactions.id });
+  if (!claimed.length) {
+    const fresh = await db.select().from(transactions).where(eq(transactions.id, tx.id)).limit(1);
+    return fresh[0] ?? tx;
+  }
+
+  if (status === "failed") {
     let refunded = false;
     // Only refund if the wallet was actually debited (manual holds are not)
     const held = tx.balanceBefore !== null && tx.balanceAfter !== null && tx.balanceBefore === tx.balanceAfter;
-    if (["withdraw", "send_out", "payout"].includes(tx.type) && !held) {
-      const back = tx.amount + tx.fee;
-      if (tx.currency === "USDT") {
-        await db.update(users).set({ balanceUsdt: sql`${users.balanceUsdt} + ${back}` }).where(eq(users.id, tx.userId));
-      } else if (tx.currency === "XOF") {
-        await db.update(users).set({ balanceXof: sql`${users.balanceXof} + ${back}` }).where(eq(users.id, tx.userId));
-      } else {
-        await db.update(users).set({ balanceXaf: sql`${users.balanceXaf} + ${back}` }).where(eq(users.id, tx.userId));
-      }
+    if (["withdraw", "send_out", "payout"].includes(tx.type) && !held && FAMILIES.includes(tx.currency)) {
+      await adjustBalance(tx.userId, tx.currency, tx.amount + tx.fee);
       refunded = true;
     }
     await db.insert(notifications).values({
@@ -51,15 +80,17 @@ export async function settleTxFromProvider(opts: {
 
   // success
   const credited = tx.amount - tx.fee;
-  await db.update(transactions).set({ status: "success", updatedAt: new Date() }).where(eq(transactions.id, tx.id));
   if (tx.type === "deposit" || tx.type === "payment_received" || tx.type === "send_in") {
-    if (tx.currency === "USDT") {
-      await db.update(users).set({ balanceUsdt: sql`${users.balanceUsdt} + ${credited}` }).where(eq(users.id, tx.userId));
-    } else if (tx.currency === "XOF") {
-      await db.update(users).set({ balanceXof: sql`${users.balanceXof} + ${credited}` }).where(eq(users.id, tx.userId));
-    } else {
-      await db.update(users).set({ balanceXaf: sql`${users.balanceXaf} + ${credited}` }).where(eq(users.id, tx.userId));
-    }
+    await adjustBalance(tx.userId, tx.currency, credited);
+  }
+  if (tx.type === "payment_received" && tx.paymentLinkId) {
+    await db
+      .update(paymentLinks)
+      .set({
+        totalCollected: sql`${paymentLinks.totalCollected} + ${credited}`,
+        paymentsCount: sql`${paymentLinks.paymentsCount} + 1`,
+      })
+      .where(eq(paymentLinks.id, tx.paymentLinkId));
   }
   const unit = tx.currency === "USDT" ? `${(credited / 10000).toFixed(4)} USDT` : `${credited.toLocaleString("fr-FR")} ${tx.currency}`;
   await db.insert(notifications).values({
@@ -67,10 +98,10 @@ export async function settleTxFromProvider(opts: {
     title: `${txTitle(tx.type)} confirmed`,
     message: `${txTitle(tx.type)} of ${unit} via ${opts.provider} confirmed. Réf : ${tx.reference}`,
   });
-  if ((tx.type === "deposit" || tx.type === "withdraw") && tx.currency !== "USDT") {
+  if ((tx.type === "deposit" || tx.type === "withdraw") && (tx.currency === "XAF" || tx.currency === "XOF")) {
     await maybeRewardReferrer(tx.userId);
   }
-  if (tx.type === "deposit" || tx.type === "payment_received") {
+  if ((tx.type === "deposit" || tx.type === "payment_received") && FAMILIES.includes(tx.currency)) {
     await runAutoConversion(tx.userId).catch(() => {});
   }
   return { ...tx, status: "success" };

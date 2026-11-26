@@ -37,6 +37,7 @@ export default function PayPage({ params }: { params: Promise<{ slug: string }> 
   const [payErr, setPayErr] = useState("");
   const [done, setDone] = useState<{ reference: string; amount: number; pdfUrl: string | null; redirectUrl: string | null } | null>(null);
   const [countdown, setCountdown] = useState(0);
+  const [waiting, setWaiting] = useState<{ reference: string; amount: number; startedAt: number } | null>(null);
 
   useEffect(() => {
     fetch(`/api/pay/${slug}`)
@@ -65,6 +66,33 @@ export default function PayPage({ params }: { params: Promise<{ slug: string }> 
     }
   }, [done]);
 
+  // After the payment request is sent, wait for the customer to approve it on their phone.
+  useEffect(() => {
+    if (!waiting) return;
+    let stopped = false;
+    const tick = async () => {
+      try {
+        const r = await fetch(`/api/pay/${slug}/status?ref=${encodeURIComponent(waiting.reference)}`);
+        const d = await r.json();
+        if (stopped) return;
+        if (d.status === "success") {
+          setWaiting(null);
+          setDone({ reference: d.reference, amount: d.amount, pdfUrl: d.pdfUrl ?? null, redirectUrl: d.redirectUrl ?? null });
+        } else if (d.status === "failed") {
+          setWaiting(null);
+          setPayErr("Le paiement n'a pas été approuvé ou a expiré. Aucun montant n'a été débité.");
+        }
+      } catch {
+        /* keep polling */
+      }
+    };
+    const id = setInterval(tick, 3000);
+    return () => {
+      stopped = true;
+      clearInterval(id);
+    };
+  }, [waiting, slug]);
+
   async function pay(e: React.FormEvent) {
     e.preventDefault();
     setPayErr("");
@@ -80,7 +108,11 @@ export default function PayPage({ params }: { params: Promise<{ slug: string }> 
         setPayErr(d.error);
         return;
       }
-      setDone(d);
+      if (d.checkoutUrl) {
+        window.location.href = d.checkoutUrl;
+        return;
+      }
+      setWaiting({ reference: d.reference, amount: d.amount, startedAt: Date.now() });
     } catch {
       setPayErr("Erreur réseau.");
     } finally {
@@ -119,7 +151,21 @@ export default function PayPage({ params }: { params: Promise<{ slug: string }> 
           </div>
         )}
 
-        {data && !done && (
+        {data && waiting && !done && (
+          <div className="mt-6 rounded-[26px] border border-slate-200 bg-white p-8 text-center shadow-xl">
+            <Loader2 size={32} className="mx-auto animate-spin text-yellow-500" />
+            <h2 className="mt-4 text-[15px] font-extrabold">Approuvez le paiement sur votre téléphone</h2>
+            <p className="mt-2 text-[11px] font-medium text-slate-500">
+              {waiting.amount.toLocaleString("fr-FR")} {data.link.currency} — saisissez votre code PIN pour confirmer. Cette page se met à jour automatiquement.
+            </p>
+            <p className="mt-3 text-[10px] font-bold text-slate-400">Réf : {waiting.reference}</p>
+            <button onClick={() => setWaiting(null)} className="mt-5 rounded-full border border-slate-300 px-5 py-2 text-[11px] font-bold text-slate-600">
+              Annuler
+            </button>
+          </div>
+        )}
+
+        {data && !done && !waiting && (
           <div className="mt-6 overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-xl">
             {data.link.imageUrl && (
               <img src={data.link.imageUrl} alt={data.link.title} className="h-52 w-full object-cover" />

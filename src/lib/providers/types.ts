@@ -81,3 +81,8 @@ export function providerMode(): "auto" | "ashtechpay" | "saaspay" | "demo" {
   if (m === "ashtechpay" || m === "saaspay" || m === "demo") return m;
   return "auto";
 }
+
+/** Simulation is only ever allowed when PROVIDER_MODE=demo is set explicitly. */
+export function demoEnabled(): boolean {
+  return providerMode() === "demo";
+}

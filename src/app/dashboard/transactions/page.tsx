@@ -69,7 +69,8 @@ function TxGlyph({ type, operator }: { type: string; operator: string | null }) 
 
 function txAmount(tx: { amount: number; currency: string }) {
   if (tx.currency === "USDT") return `${(tx.amount / 10000).toFixed(4)} USDT`;
-  return `${tx.amount.toLocaleString("fr-FR")} FCFA`;
+  const unit = tx.currency === "XAF" || tx.currency === "XOF" || tx.currency.includes("→") ? "FCFA" : tx.currency;
+  return `${tx.amount.toLocaleString("fr-FR")} ${unit}`;
 }
 
 const INCOMING = ["deposit", "send_in", "payment_received", "bonus"];

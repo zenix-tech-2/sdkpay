@@ -4,7 +4,8 @@ import { db } from "@/db";
 import { wallets } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { COUNTRIES } from "@/data/countries";
-import { WALLET_CATALOG, settlementOf } from "@/lib/wallets";
+import { WALLET_CATALOG, balanceFamily } from "@/lib/wallets";
+import { foreignBalance } from "@/lib/foreign-balance";
 
 async function ensurePrimary(userId: string, countryName: string) {
   const existing = await db.select().from(wallets).where(eq(wallets.userId, userId)).limit(1);
@@ -29,11 +30,14 @@ export async function GET() {
     .from(wallets)
     .where(eq(wallets.userId, user.id))
     .orderBy(desc(wallets.isPrimary), desc(wallets.createdAt));
-  const withBalances = rows.map((w) => {
-    const fam = settlementOf(w.walletCode);
-    const balance = fam === "USDT" ? user.balanceUsdt : fam === "XOF" ? user.balanceXof : user.balanceXaf;
-    return { ...w, family: fam, balance };
-  });
+  const withBalances = await Promise.all(
+    rows.map(async (w) => {
+      const fam = balanceFamily(w.walletCode);
+      const balance =
+        fam === "USDT" ? user.balanceUsdt : fam === "XOF" ? user.balanceXof : fam === "XAF" ? user.balanceXaf : await foreignBalance(user.id, fam);
+      return { ...w, family: fam, balance };
+    })
+  );
   return NextResponse.json({ wallets: withBalances, catalog: WALLET_CATALOG });
 }
 

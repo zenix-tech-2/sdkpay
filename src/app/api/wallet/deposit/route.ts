@@ -8,11 +8,12 @@ import { hasReducedFees } from "@/lib/fees";
 import { getFeeConfig, num } from "@/lib/platform";
 import { executeCollect } from "@/lib/providers/router";
 import { COUNTRIES } from "@/data/countries";
+import { foreignBalance } from "@/lib/foreign-balance";
 
 export const DEPOSIT_FEE_RATE = 0.04;
-/** Demo: request expires after 8 minutes without approval. */
+/** A pending request expires after 8 minutes without approval. */
 export const DEPOSIT_EXPIRY_MS = 8 * 60 * 1000;
-/** Demo: auto-approve after 15s to simulate the phone approval. */
+/** Only used when PROVIDER_MODE=demo (simulation). Never used for real payments. */
 export const DEPOSIT_AUTO_APPROVE_MS = 15 * 1000;
 
 export async function POST(req: Request) {
@@ -21,18 +22,28 @@ export async function POST(req: Request) {
   if (user.status === "suspended") return NextResponse.json({ error: "Account suspended." }, { status: 403 });
   try {
     const cfg = await getFeeConfig();
-    const { amount, operator, phone, currency, country, channel } = await req.json();
+    const { amount, operator, phone, country, channel } = await req.json();
     const amt = Number(amount);
     const minDep = num(cfg.min_deposit, 100);
     if (!amt || amt < minDep) return NextResponse.json({ error: `Montant minimum : ${minDep}.` }, { status: 400 });
     if (!operator || !phone) return NextResponse.json({ error: "Opérateur et numéro requis." }, { status: 400 });
-    const cur = currency === "XOF" ? "XOF" : "XAF";
+    // The currency ALWAYS comes from the selected country (Nigeria -> NGN, Ghana -> GHS...), never from the client.
+    const countryObj =
+      COUNTRIES.find((c) => c.name === country) ??
+      COUNTRIES.find((c) => c.code === String(country || "").toUpperCase()) ??
+      COUNTRIES.find((c) => c.name === user.country);
+    if (!countryObj) return NextResponse.json({ error: "Country not supported." }, { status: 400 });
+    if (!countryObj.operators.includes(operator)) {
+      return NextResponse.json({ error: `${operator} is not available in ${countryObj.name}.` }, { status: 400 });
+    }
+    const cur = countryObj.currency;
     const rate = num(cfg.momo_fee, DEPOSIT_FEE_RATE) * (hasReducedFees(user) ? 0.5 : 1);
     const fee = Math.round(amt * rate);
     const credited = amt - fee;
-    const before = cur === "XOF" ? user.balanceXof : user.balanceXaf;
-    const countryName = country || user.country;
-    const cc = COUNTRIES.find((c) => c.name === countryName)?.code ?? "CM";
+    const before =
+      cur === "XOF" ? user.balanceXof : cur === "XAF" ? user.balanceXaf : await foreignBalance(user.id, cur);
+    const countryName = countryObj.name;
+    const cc = countryObj.code;
 
     const ref = randomRef("SDK-D");
     const inserted = await db
@@ -56,7 +67,7 @@ export async function POST(req: Request) {
       .returning({ id: transactions.id });
     const txId = inserted[0].id;
 
-    // Route to AshTechPay (primary) or SasPay (backup) — demo-simulated without keys
+    // Route to AshTechPay (primary) or SasPay (backup). Without a configured provider the request is refused (no simulation).
     const prov = await executeCollect(
       {
         amount: amt,
