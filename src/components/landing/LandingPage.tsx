@@ -340,9 +340,9 @@ export default function LandingPage() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-[54.5px] items-center justify-between gap-3">
+          <div className="flex h-[49px] items-center justify-between gap-3">
             <Logo />
-            <nav className="hidden lg:flex items-center gap-7 text-[12px] font-semibold text-slate-600">
+            <nav className="hidden lg:flex items-center gap-7 text-[11px] font-semibold text-slate-600">
               <a href="#solutions" className="hover:text-slate-900">Solutions</a>
               <a href="#pays" className="hover:text-slate-900">{lang === "fr" ? "Pays" : "Countries"}</a>
               <a href="#wallet" className="hover:text-slate-900">Wallet</a>
@@ -352,22 +352,22 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-[11.5px] font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-[10.5px] font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
               >
-                <LogIn size={12} /> {t.login}
+                <LogIn size={10.8} /> {t.login}
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-4 py-2 text-[11.5px] font-extrabold text-slate-900 hover:bg-yellow-300 shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-4 py-2 text-[10.5px] font-extrabold text-slate-900 hover:bg-yellow-300 shadow-sm"
               >
-                <Mail size={12} /> {t.contact}
+                <Mail size={10.8} /> {t.contact}
               </Link>
               <div className="relative">
                 <button
                   onClick={() => setLangOpen(!langOpen)}
-                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-2 text-[10.5px] font-extrabold text-slate-700 hover:bg-slate-50"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-2 text-[10px] font-extrabold text-slate-700 hover:bg-slate-50"
                 >
-                  <Globe size={12} /> {lang.toUpperCase()} <ChevronDown size={11} />
+                  <Globe size={10.8} /> {lang.toUpperCase()} <ChevronDown size={10} />
                 </button>
                 {langOpen && (
                   <div className="absolute right-0 mt-2 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
@@ -378,10 +378,10 @@ export default function LandingPage() {
                           setLang(l);
                           setLangOpen(false);
                         }}
-                        className={`flex w-full items-center justify-between px-4 py-2.5 text-[11.5px] font-bold hover:bg-slate-50 ${lang === l ? "text-yellow-600 bg-yellow-50" : "text-slate-700"}`}
+                        className={`flex w-full items-center justify-between px-4 py-2.5 text-[10.5px] font-bold hover:bg-slate-50 ${lang === l ? "text-yellow-600 bg-yellow-50" : "text-slate-700"}`}
                       >
                         {l === "fr" ? "Français" : "English"}
-                        {lang === l && <Check size={12} />}
+                        {lang === l && <Check size={10.8} />}
                       </button>
                     ))}
                   </div>
@@ -392,7 +392,7 @@ export default function LandingPage() {
                 className="lg:hidden rounded-full border border-slate-200 p-2 text-slate-700"
                 aria-label="menu"
               >
-                {menuOpen ? <X size={16} /> : <Menu size={16} />}
+                {menuOpen ? <X size={14.4} /> : <Menu size={14.4} />}
               </button>
             </div>
           </div>
@@ -410,7 +410,7 @@ export default function LandingPage() {
                 key={label as string}
                 href={href as string}
                 onClick={() => setMenuOpen(false)}
-                className="block rounded-xl px-4 py-3 text-[12.5px] font-bold text-slate-700 hover:bg-slate-50"
+                className="block rounded-xl px-4 py-3 text-[11px] font-bold text-slate-700 hover:bg-slate-50"
               >
                 {label}
               </a>
@@ -423,17 +423,17 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 pb-8 lg:pt-16 lg:pb-14 grid lg:grid-cols-2 gap-10 items-center">
           <div className="hero-anim">
-            <h1 className="text-[30px] leading-[1.08] sm:text-[40.5px] lg:text-[47.5px] font-extrabold tracking-tight text-slate-900">
+            <h1 className="text-[27px] leading-[1.08] sm:text-[36.5px] lg:text-[43px] font-extrabold tracking-tight text-slate-900">
               {t.heroA}{" "}
               <span className="text-yellow-500">{t.heroB}</span>
             </h1>
-            <p className="mt-4 max-w-xl text-[12.5px] sm:text-[13px] leading-relaxed text-slate-500 font-medium">
+            <p className="mt-4 max-w-xl text-[11px] sm:text-[11.5px] leading-relaxed text-slate-500 font-medium">
               <span className="font-extrabold text-slate-700">SDK PAY</span>{" "}
               {t.heroDesc.replace(/^SDK PAY\s?/, "")}
             </p>
             <ul className="mt-5 space-y-2">
               {[t.c1, t.c2, t.c3].map((c) => (
-                <li key={c} className="flex items-center gap-2 text-[11.5px] font-semibold text-slate-600">
+                <li key={c} className="flex items-center gap-2 text-[10.5px] font-semibold text-slate-600">
                   <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500/15 text-green-600">
                     <Check size={10} strokeWidth={3} />
                   </span>
@@ -444,13 +444,13 @@ export default function LandingPage() {
             <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-md">
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-7 py-3.5 text-[12.5px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 transition"
+                className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-7 py-3.5 text-[11px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 transition"
               >
                 {t.start}
               </Link>
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-7 py-3.5 text-[12.5px] font-extrabold text-slate-800 hover:bg-slate-50 transition"
+                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-7 py-3.5 text-[11px] font-extrabold text-slate-800 hover:bg-slate-50 transition"
               >
                 {t.login}
               </Link>
@@ -465,21 +465,21 @@ export default function LandingPage() {
                 <img
                   src="/images/hero-main.jpg"
                   alt="Marchande africaine"
-                  className="h-[264px] sm:h-[317px] w-full object-cover opacity-90"
+                  className="h-[237.5px] sm:h-[285.5px] w-full object-cover opacity-90"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0b1030]/90 via-[#0b1030]/30 to-transparent" />
                 {/* floating operator chips */}
                 <div className="absolute left-4 top-4 bottom-4 flex flex-col justify-between py-1">
                   {["MTN MoMo", "Orange Money", "Wave", "VISA", "Airtel Money"].map((label, i) => (
                     <div key={label} className="animate-floaty" style={{ animationDelay: `${i * 0.5}s` }}>
-                      <OperatorLogo name={label} size={39} radius={999} />
+                      <OperatorLogo name={label} size={35.1} radius={999} />
                     </div>
                   ))}
                 </div>
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-2xl ring-4 ring-yellow-400/60">
                     <div className="text-center leading-none">
-                      <div className="text-[13px] font-extrabold">SDK<span className="text-sky-500">Pay</span></div>
+                      <div className="text-[11.5px] font-extrabold">SDK<span className="text-sky-500">Pay</span></div>
                       <div className="text-[10px] font-extrabold text-yellow-500 tracking-widest">PAY</div>
                     </div>
                   </div>
@@ -487,7 +487,7 @@ export default function LandingPage() {
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-2xl bg-white/10 backdrop-blur px-4 py-2.5 border border-white/15">
                   <div className="text-white">
                     <div className="text-[10px] font-bold opacity-70">Total encaissé</div>
-                    <div className="text-[14px] font-extrabold">2 450 000 XAF</div>
+                    <div className="text-[12.5px] font-extrabold">2 450 000 XAF</div>
                   </div>
                   <div className="rounded-full bg-green-400 px-3 py-1 text-[10px] font-extrabold text-slate-900">+12,4%</div>
                 </div>
@@ -500,8 +500,8 @@ export default function LandingPage() {
       {/* STATS */}
       <section className="py-10 lg:py-14">
         <div className="mx-auto max-w-5xl px-4 text-center">
-          <h2 className="text-[24.5px] sm:text-[31.5px] font-extrabold tracking-tight">{t.ready}</h2>
-          <p className="mt-2 text-[12px] text-slate-500 font-medium max-w-xl mx-auto">{t.readySub}</p>
+          <h2 className="text-[22px] sm:text-[28.5px] font-extrabold tracking-tight">{t.ready}</h2>
+          <p className="mt-2 text-[11px] text-slate-500 font-medium max-w-xl mx-auto">{t.readySub}</p>
           <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               [50000, t.merchants],
@@ -510,11 +510,11 @@ export default function LandingPage() {
               [22, t.countries],
             ].map(([n, label]) => (
               <div key={label as string}>
-                <div className="text-[26.5px] sm:text-[33.5px] font-extrabold tracking-tight text-slate-900">
+                <div className="text-[24px] sm:text-[30px] font-extrabold tracking-tight text-slate-900">
                   <CountUp to={n as number} />
                   <span className="text-yellow-500">+</span>
                 </div>
-                <div className="text-[10.5px] font-semibold text-slate-500">{label}</div>
+                <div className="text-[10px] font-semibold text-slate-500">{label}</div>
               </div>
             ))}
           </div>
@@ -524,14 +524,14 @@ export default function LandingPage() {
       {/* COUNTRIES BAR */}
       <section id="pays" className="border-y border-slate-100 bg-slate-50/60 py-6">
         <div className="mx-auto max-w-7xl px-4">
-          <p className="text-center text-[11px] font-bold text-slate-700">{t.availableIn}</p>
+          <p className="text-center text-[10px] font-bold text-slate-700">{t.availableIn}</p>
           <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto pb-1 justify-start lg:justify-center">
             {COUNTRIES.slice(0, 14).map((c) => (
               <span
                 key={c.code}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10.5px] font-semibold text-slate-700"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-slate-700"
               >
-                <CountryFlag code={c.code} emoji={c.flag} size={16} /> {c.name}
+                <CountryFlag code={c.code} emoji={c.flag} size={14.4} /> {c.name}
               </span>
             ))}
           </div>
@@ -541,8 +541,8 @@ export default function LandingPage() {
       {/* SOLUTIONS */}
       <section id="solutions" className="py-12 lg:py-16">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-[23px] sm:text-[28px] font-extrabold tracking-tight">{t.solutions}</h2>
-          <p className="mt-1.5 text-[12px] text-slate-500 font-medium">{t.solutionsSub}</p>
+          <h2 className="text-[20.5px] sm:text-[25px] font-extrabold tracking-tight">{t.solutions}</h2>
+          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">{t.solutionsSub}</p>
           <div className="mt-8 space-y-4 text-left">
             {solutions.map((s) => (
               <div key={s.title} className="relative rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm hover:shadow-md transition">
@@ -551,11 +551,11 @@ export default function LandingPage() {
                     {s.badge}
                   </span>
                 )}
-                <s.icon size={23} className="text-slate-800" strokeWidth={1.8} />
-                <h3 className="mt-3 text-[13px] font-extrabold">{s.title}</h3>
-                <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500 font-medium max-w-xl">{s.desc}</p>
-                <a href="#api" className="mt-3 inline-flex items-center gap-1 text-[10.5px] font-extrabold text-yellow-500 underline underline-offset-4 hover:text-yellow-600">
-                  {t.learnMore} <ArrowUpRight size={11} />
+                <s.icon size={20.7} className="text-slate-800" strokeWidth={1.8} />
+                <h3 className="mt-3 text-[11.5px] font-extrabold">{s.title}</h3>
+                <p className="mt-1.5 text-[10px] leading-relaxed text-slate-500 font-medium max-w-xl">{s.desc}</p>
+                <a href="#api" className="mt-3 inline-flex items-center gap-1 text-[10px] font-extrabold text-yellow-500 underline underline-offset-4 hover:text-yellow-600">
+                  {t.learnMore} <ArrowUpRight size={10} />
                 </a>
               </div>
             ))}
@@ -570,12 +570,12 @@ export default function LandingPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-3 py-1 text-[10px] font-bold text-yellow-700">
               <span className="h-1.5 w-1.5 rounded-full bg-yellow-500" /> {t.commerce}
             </span>
-            <h2 className="mt-3 text-[23px] sm:text-[30px] leading-tight font-extrabold tracking-tight max-w-md">
+            <h2 className="mt-3 text-[20.5px] sm:text-[27px] leading-tight font-extrabold tracking-tight max-w-md">
               {t.proposeTitle}
             </h2>
-            <p className="mt-3 text-[12px] text-slate-500 font-medium max-w-md leading-relaxed">{t.proposeDesc}</p>
-            <Link href="/register" className="mt-5 inline-flex items-center gap-2 text-[11.5px] font-extrabold text-slate-900">
-              {t.start} <span className="flex h-7 w-7 items-center justify-center rounded-full bg-yellow-400"><ArrowRight size={12} /></span>
+            <p className="mt-3 text-[11px] text-slate-500 font-medium max-w-md leading-relaxed">{t.proposeDesc}</p>
+            <Link href="/register" className="mt-5 inline-flex items-center gap-2 text-[10.5px] font-extrabold text-slate-900">
+              {t.start} <span className="flex h-7 w-7 items-center justify-center rounded-full bg-yellow-400"><ArrowRight size={10.8} /></span>
             </Link>
           </div>
           <div className="relative">
@@ -583,7 +583,7 @@ export default function LandingPage() {
               <img
                 src="/images/hero-commerce.jpg"
                 alt="E-commerce Afrique"
-                className="h-[246.5px] sm:h-[299px] w-full object-cover"
+                className="h-[222px] sm:h-[269px] w-full object-cover"
               />
               <div className="absolute right-4 top-4 flex gap-1.5">
                 {["VISA", "MTN", "Wave"].map((b) => (
@@ -591,9 +591,9 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 rounded-2xl bg-white/95 backdrop-blur px-4 py-3 shadow-xl">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-green-600"><Check size={16} strokeWidth={3} /></span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-green-600"><Check size={14.4} strokeWidth={3} /></span>
                 <div>
-                  <div className="text-[11.5px] font-extrabold">{lang === "fr" ? "Paiement confirmé" : "Payment confirmed"}</div>
+                  <div className="text-[10.5px] font-extrabold">{lang === "fr" ? "Paiement confirmé" : "Payment confirmed"}</div>
                   <div className="text-[10px] font-semibold text-slate-500">15 000 XAF • MTN MoMo</div>
                 </div>
                 <span className="ml-auto text-[10px] font-bold text-green-600">✓✓</span>
@@ -609,9 +609,9 @@ export default function LandingPage() {
         <div className="relative mt-6">
           <div className="animate-marquee flex w-max gap-8 px-4">
             {[...OPERATORS, ...OPERATORS].map((op, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5 w-[67px] shrink-0">
+              <div key={i} className="flex flex-col items-center gap-1.5 w-[60.5px] shrink-0">
                 <span className="rounded-full ring-2 ring-slate-100">
-                  <OperatorLogo name={op.name} size={46} radius={999} />
+                  <OperatorLogo name={op.name} size={41.4} radius={999} />
                 </span>
                 <span className="text-[10px] font-semibold text-slate-500 text-center leading-tight">{op.name}</span>
               </div>
@@ -625,29 +625,29 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-3 py-1 text-[10px] font-bold text-yellow-700">
-              <Wallet size={11} /> {t.walletBadge}
+              <Wallet size={10} /> {t.walletBadge}
             </span>
-            <h2 className="mt-3 text-[23px] sm:text-[28px] font-extrabold tracking-tight">{t.walletTitle}</h2>
-            <p className="mt-1.5 text-[12px] text-slate-500 font-medium">{t.walletSub}</p>
+            <h2 className="mt-3 text-[20.5px] sm:text-[25px] font-extrabold tracking-tight">{t.walletTitle}</h2>
+            <p className="mt-1.5 text-[11px] text-slate-500 font-medium">{t.walletSub}</p>
           </div>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {walletCards.map((c) => (
               <div key={c.title} className="rounded-2xl border border-slate-200 bg-white p-6 hover:shadow-md hover:border-yellow-300 transition">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full border border-yellow-300 bg-yellow-50 text-yellow-600">
-                  <c.icon size={17} />
+                  <c.icon size={15.3} />
                 </span>
-                <h3 className="mt-4 text-[13px] font-extrabold">{c.title}</h3>
-                <p className="mt-1.5 text-[11px] text-slate-500 font-medium leading-relaxed">{c.desc}</p>
+                <h3 className="mt-4 text-[11.5px] font-extrabold">{c.title}</h3>
+                <p className="mt-1.5 text-[10px] text-slate-500 font-medium leading-relaxed">{c.desc}</p>
               </div>
             ))}
             <div className="rounded-2xl bg-slate-900 p-6 text-white flex flex-col justify-between overflow-hidden relative">
               <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-yellow-400/20 blur-2xl" />
               <div>
-                <p className="text-[10.5px] font-bold text-white/60">SDK Pay Wallet</p>
-                <p className="mt-1 text-[23px] font-extrabold">1 250 500 <span className="text-[12.5px] text-yellow-400">XAF</span></p>
+                <p className="text-[10px] font-bold text-white/60">SDK Pay Wallet</p>
+                <p className="mt-1 text-[20.5px] font-extrabold">1 250 500 <span className="text-[11px] text-yellow-400">XAF</span></p>
               </div>
-              <Link href="/register" className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-5 py-2.5 text-[11.5px] font-extrabold text-slate-900 hover:bg-yellow-300">
-                {lang === "fr" ? "Créer mon wallet" : "Create my wallet"} <ArrowRight size={13} />
+              <Link href="/register" className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-5 py-2.5 text-[10.5px] font-extrabold text-slate-900 hover:bg-yellow-300">
+                {lang === "fr" ? "Créer mon wallet" : "Create my wallet"} <ArrowRight size={11.7} />
               </Link>
             </div>
           </div>
@@ -658,28 +658,28 @@ export default function LandingPage() {
       <section className="py-10 lg:py-14 bg-slate-50/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-3 py-1 text-[10px] font-bold text-yellow-700">
-            <Users size={11} /> {t.whoBadge}
+            <Users size={10} /> {t.whoBadge}
           </span>
-          <h2 className="mt-3 text-[23px] sm:text-[28px] font-extrabold tracking-tight">{t.whoTitle}</h2>
-          <p className="mt-1.5 text-[12px] text-slate-500 font-medium">{t.whoSub}</p>
+          <h2 className="mt-3 text-[20.5px] sm:text-[25px] font-extrabold tracking-tight">{t.whoTitle}</h2>
+          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">{t.whoSub}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-2.5">
             {whoPills.map((p) => (
-              <span key={p.label} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10.5px] font-bold text-slate-700 shadow-sm">
-                <p.icon size={11} className="text-yellow-500" /> {p.label}
+              <span key={p.label} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-bold text-slate-700 shadow-sm">
+                <p.icon size={10} className="text-yellow-500" /> {p.label}
               </span>
             ))}
           </div>
 
-          <h3 className="mt-12 text-[17.5px] font-extrabold">{t.whyTitle}</h3>
+          <h3 className="mt-12 text-[16px] font-extrabold">{t.whyTitle}</h3>
           <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6 text-left max-w-6xl mx-auto">
             {whyItems.map((w) => (
               <div key={w.title} className="flex gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-yellow-500 shadow-sm">
-                  <w.icon size={14} />
+                  <w.icon size={12.6} />
                 </span>
                 <div>
-                  <div className="text-[12px] font-extrabold">{w.title}</div>
-                  <div className="text-[10.5px] text-slate-500 font-medium leading-relaxed">{w.desc}</div>
+                  <div className="text-[11px] font-extrabold">{w.title}</div>
+                  <div className="text-[10px] text-slate-500 font-medium leading-relaxed">{w.desc}</div>
                 </div>
               </div>
             ))}
@@ -690,20 +690,20 @@ export default function LandingPage() {
       {/* HOW */}
       <section id="comment" className="py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4 text-center">
-          <h2 className="text-[23px] sm:text-[28px] font-extrabold tracking-tight">
+          <h2 className="text-[20.5px] sm:text-[25px] font-extrabold tracking-tight">
             <span className="text-yellow-500">{t.howA}</span> {t.howB}
           </h2>
-          <p className="mt-1.5 text-[11.5px] text-slate-500 font-medium">
+          <p className="mt-1.5 text-[10.5px] text-slate-500 font-medium">
             {lang === "fr" ? <>Commencez à utiliser <b className="text-slate-700">SDK PAY</b> en 4 étapes simples</> : <>Start using <b className="text-slate-700">SDK PAY</b> in 4 simple steps</>}
           </p>
           <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
             <div className="hidden lg:block absolute top-6 left-[12%] right-[12%] h-px bg-yellow-200" />
             {steps.map((s) => (
               <div key={s.n} className="relative">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-yellow-400 bg-white text-[13px] font-extrabold text-yellow-500 relative z-10">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-yellow-400 bg-white text-[11.5px] font-extrabold text-yellow-500 relative z-10">
                   {s.n}
                 </div>
-                <div className="mt-3 text-[11.5px] font-extrabold">{s.title}</div>
+                <div className="mt-3 text-[10.5px] font-extrabold">{s.title}</div>
                 <div className="mt-1 text-[10px] text-slate-500 font-medium leading-relaxed">{s.desc}</div>
               </div>
             ))}
@@ -718,11 +718,11 @@ export default function LandingPage() {
             <img
               src="/images/hero-mobile.jpg"
               alt="Paiement mobile"
-              className="h-[281.5px] sm:h-[352px] w-full object-cover"
+              className="h-[253.5px] sm:h-[317px] w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/70 to-transparent" />
             <div className="absolute left-5 top-5 max-w-[220px]">
-              <p className="text-white text-[17.5px] font-extrabold leading-snug">
+              <p className="text-white text-[16px] font-extrabold leading-snug">
                 In a competitive market, every <span className="text-yellow-400">transaction counts</span>
               </p>
               <div className="mt-4 space-y-1.5">
@@ -734,13 +734,13 @@ export default function LandingPage() {
           </div>
           <div className="order-1 lg:order-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-3 py-1 text-[10px] font-bold text-yellow-700">
-              <Smartphone size={11} /> {t.mobileBadge}
+              <Smartphone size={10} /> {t.mobileBadge}
             </span>
-            <h2 className="mt-3 text-[23px] sm:text-[30px] font-extrabold tracking-tight">{t.mobileTitle}</h2>
-            <p className="mt-2 text-[12px] text-slate-500 font-medium">{t.mobileSub}</p>
+            <h2 className="mt-3 text-[20.5px] sm:text-[27px] font-extrabold tracking-tight">{t.mobileTitle}</h2>
+            <p className="mt-2 text-[11px] text-slate-500 font-medium">{t.mobileSub}</p>
             <div className="mt-5 flex flex-wrap gap-2">
               {["MTN MoMo", "Orange Money", "Wave", "Airtel Money", "VISA", "Mastercard"].map((m) => (
-                <span key={m} className="rounded-full bg-slate-100 px-3.5 py-1.5 text-[10.5px] font-bold text-slate-700">{m}</span>
+                <span key={m} className="rounded-full bg-slate-100 px-3.5 py-1.5 text-[10px] font-bold text-slate-700">{m}</span>
               ))}
             </div>
           </div>
@@ -752,23 +752,23 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/40 bg-yellow-500/10 px-3 py-1 text-[10px] font-bold text-yellow-400">
-              <ShieldCheck size={11} /> {t.secBadge}
+              <ShieldCheck size={10} /> {t.secBadge}
             </span>
-            <h2 className="mt-3 text-[21px] sm:text-[26.5px] font-extrabold tracking-tight text-white">
+            <h2 className="mt-3 text-[19px] sm:text-[24px] font-extrabold tracking-tight text-white">
               <span className="text-yellow-400">{t.secTitle.split("&")[0]}</span>
               <span className="text-white">&</span>
               <span className="text-yellow-400">{t.secTitle.split("&")[1]}</span>
             </h2>
-            <p className="mt-2 mx-auto max-w-2xl text-[11px] text-white/60 font-medium"><b className="text-white">SDK PAY</b> {t.secSub.replace(/^SDK PAY\s?/, "")}</p>
+            <p className="mt-2 mx-auto max-w-2xl text-[10px] text-white/60 font-medium"><b className="text-white">SDK PAY</b> {t.secSub.replace(/^SDK PAY\s?/, "")}</p>
           </div>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {secCards.map((c) => (
               <div key={c.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 hover:border-yellow-500/40 transition">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/15 text-yellow-400">
-                  <c.icon size={16} />
+                  <c.icon size={14.4} />
                 </span>
-                <h3 className="mt-3 text-[12.5px] font-extrabold text-white">{c.title}</h3>
-                <p className="mt-1.5 text-[10.5px] leading-relaxed text-white/55 font-medium">{c.desc}</p>
+                <h3 className="mt-3 text-[11px] font-extrabold text-white">{c.title}</h3>
+                <p className="mt-1.5 text-[10px] leading-relaxed text-white/55 font-medium">{c.desc}</p>
               </div>
             ))}
           </div>
@@ -788,29 +788,29 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-start">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-3 py-1 text-[10px] font-bold text-yellow-700">
-              <Code2 size={11} /> {t.devBadge}
+              <Code2 size={10} /> {t.devBadge}
             </span>
-            <h2 className="mt-3 text-[24.5px] sm:text-[31.5px] leading-tight font-extrabold tracking-tight">
+            <h2 className="mt-3 text-[22px] sm:text-[28.5px] leading-tight font-extrabold tracking-tight">
               <span className="text-yellow-500">{t.apiA}</span> {t.apiB}
             </h2>
-            <p className="mt-3 text-[12px] text-slate-500 font-medium leading-relaxed max-w-lg">{t.apiDesc}</p>
+            <p className="mt-3 text-[11px] text-slate-500 font-medium leading-relaxed max-w-lg">{t.apiDesc}</p>
             <ul className="mt-5 space-y-2.5">
               {apiChecks.map((c) => (
-                <li key={c} className="flex items-start gap-2 text-[11px] font-semibold text-slate-600">
+                <li key={c} className="flex items-start gap-2 text-[10px] font-semibold text-slate-600">
                   <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-yellow-600"><Check size={10} strokeWidth={3} /></span>
                   {c}
                 </li>
               ))}
             </ul>
             <div className="mt-6 flex flex-wrap gap-2.5">
-              <Link href="/docs" className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-400 px-4 py-2.5 text-[11px] font-extrabold text-slate-900 hover:bg-yellow-300">
-                <BookOpen size={12} /> {t.docApi}
+              <Link href="/docs" className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-400 px-4 py-2.5 text-[10px] font-extrabold text-slate-900 hover:bg-yellow-300">
+                <BookOpen size={10.8} /> {t.docApi}
               </Link>
-              <Link href="/register" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[11px] font-extrabold text-slate-700 hover:bg-slate-50">
-                <Globe size={12} /> {t.checkout}
+              <Link href="/register" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[10px] font-extrabold text-slate-700 hover:bg-slate-50">
+                <Globe size={10.8} /> {t.checkout}
               </Link>
-              <Link href="/docs" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[11px] font-extrabold text-slate-700 hover:bg-slate-50">
-                <Send size={12} /> {t.docPayout}
+              <Link href="/docs" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-[10px] font-extrabold text-slate-700 hover:bg-slate-50">
+                <Send size={10.8} /> {t.docPayout}
               </Link>
             </div>
           </div>
@@ -879,7 +879,7 @@ export default function LandingPage() {
                 ["Webhooks", t.realtime],
               ].map(([a, b]) => (
                 <div key={a} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
-                  <div className="text-[12.5px] font-extrabold">{a}</div>
+                  <div className="text-[11px] font-extrabold">{a}</div>
                   <div className="text-[10px] font-semibold text-slate-400">{b}</div>
                 </div>
               ))}
@@ -900,7 +900,7 @@ export default function LandingPage() {
           <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
             <div>
               <p className="text-[10px] font-extrabold tracking-[0.14em] text-slate-500">ENTREPRISE</p>
-              <ul className="mt-3 space-y-2.5 text-[10.5px] font-semibold text-slate-500">
+              <ul className="mt-3 space-y-2.5 text-[10px] font-semibold text-slate-500">
                 <li><a href="#" className="hover:text-slate-900">À propos</a></li>
                 <li><a href="#" className="hover:text-slate-900">Carrières</a></li>
                 <li><a href="#" className="hover:text-slate-900">Blog</a></li>
@@ -908,7 +908,7 @@ export default function LandingPage() {
             </div>
             <div>
               <p className="text-[10px] font-extrabold tracking-[0.14em] text-slate-500">SUPPORT</p>
-              <ul className="mt-3 space-y-2.5 text-[10.5px] font-semibold text-slate-500">
+              <ul className="mt-3 space-y-2.5 text-[10px] font-semibold text-slate-500">
                 <li><a href="#" className="hover:text-slate-900">{lang === "fr" ? "Centre d'aide" : "Help center"}</a></li>
                 <li><Link href="/contact" className="hover:text-slate-900">Contact</Link></li>
                 <li><a href="#" className="hover:text-slate-900">FAQ</a></li>
@@ -916,7 +916,7 @@ export default function LandingPage() {
             </div>
             <div>
               <p className="text-[10px] font-extrabold tracking-[0.14em] text-slate-500">LÉGAL</p>
-              <ul className="mt-3 space-y-2.5 text-[10.5px] font-semibold text-slate-500">
+              <ul className="mt-3 space-y-2.5 text-[10px] font-semibold text-slate-500">
                 <li><a href="#" className="hover:text-slate-900">{lang === "fr" ? "Conditions d'utilisation" : "Terms of use"}</a></li>
                 <li><a href="#" className="hover:text-slate-900">{lang === "fr" ? "Politique de confidentialité" : "Privacy policy"}</a></li>
                 <li><a href="#" className="hover:text-slate-900">{lang === "fr" ? "Mentions légales" : "Legal notice"}</a></li>
@@ -926,9 +926,9 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 flex items-center justify-center gap-3 border-t border-slate-100 pt-6">
-            <a href="#" className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-yellow-100 hover:text-yellow-700"><Share2 size={12} /></a>
-            <a href="#" className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-yellow-100 hover:text-yellow-700"><AtSign size={12} /></a>
-            <a href="#" className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-yellow-100 hover:text-yellow-700"><MessageCircle size={12} /></a>
+            <a href="#" className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-yellow-100 hover:text-yellow-700"><Share2 size={10.8} /></a>
+            <a href="#" className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-yellow-100 hover:text-yellow-700"><AtSign size={10.8} /></a>
+            <a href="#" className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-yellow-100 hover:text-yellow-700"><MessageCircle size={10.8} /></a>
           </div>
           <p className="mt-4 text-center text-[10px] font-semibold text-slate-400">© 2026 SDK Pay. {lang === "fr" ? "Tous droits réservés." : "All rights reserved."}</p>
         </div>

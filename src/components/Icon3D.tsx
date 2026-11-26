@@ -1,7 +1,8 @@
 /** 3D illustrated icon served from /public/icons3d/<name>.webp (replaces emojis). */
 export type Icon3DName =
-  | "topup" | "receive" | "send" | "withdraw" | "payment" | "invoice" | "exchange"
-  | "card" | "chart" | "wallet" | "mail" | "phone" | "chat" | "globe";
+  | "topup" | "receive" | "send" | "withdraw" | "payment" | "invoice" | "transactions"
+  | "chart" | "wallet" | "mail" | "phone" | "chat" | "globe" | "home" | "gains" | "profile"
+  | "support" | "project" | "users" | "social" | "news" | "bell" | "history" | "gauge" | "bag";
 
 export function Icon3D({ name, size = 32, className = "" }: { name: Icon3DName; size?: number; className?: string }) {
   return (
@@ -29,8 +30,8 @@ export function txIconName(type: string): Icon3DName {
     case "send_out": return "send";
     case "send_in": return "receive";
     case "payment_received": return "invoice";
-    case "conversion": return "exchange";
-    case "bonus": return "topup";
+    case "conversion": return "transactions";
+    case "bonus": return "gains";
     default: return "wallet";
   }
 }

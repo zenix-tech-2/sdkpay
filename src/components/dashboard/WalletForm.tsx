@@ -14,7 +14,7 @@ export function OperatorSelect({ value, onChange }: { value: string; onChange: (
           key={op}
           type="button"
           onClick={() => onChange(op)}
-          className={`rounded-2xl border-2 px-3 py-3 text-[11.5px] font-extrabold transition ${
+          className={`rounded-2xl border-2 px-3 py-3 text-[10.5px] font-extrabold transition ${
             value === op ? "border-yellow-400 bg-yellow-50 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
           }`}
         >
@@ -33,9 +33,9 @@ export function CurrencyTabs({ value, onChange }: { value: string; onChange: (v:
           key={c}
           type="button"
           onClick={() => onChange(c)}
-          className={`rounded-2xl border-2 py-3 text-[12.5px] font-extrabold ${value === c ? "border-yellow-400 bg-yellow-50" : "border-slate-200 bg-white text-slate-500"}`}
+          className={`rounded-2xl border-2 py-3 text-[11px] font-extrabold ${value === c ? "border-yellow-400 bg-yellow-50" : "border-slate-200 bg-white text-slate-500"}`}
         >
-          <span className="inline-flex items-center gap-2">{c} <CountryFlag code={c === "XAF" ? "cm" : "sn"} emoji="" size={18} /></span>
+          <span className="inline-flex items-center gap-2">{c} <CountryFlag code={c === "XAF" ? "cm" : "sn"} emoji="" size={16.2} /></span>
         </button>
       ))}
     </div>
@@ -45,12 +45,12 @@ export function CurrencyTabs({ value, onChange }: { value: string; onChange: (v:
 export function ResultCard({ title, detail, reference, onReset }: { title: string; detail: string; reference: string; onReset: () => void }) {
   return (
     <div className="rounded-3xl border border-green-200 bg-green-50 p-8 text-center">
-      <CheckCircle2 size={46} className="mx-auto text-green-500" />
-      <h3 className="mt-3 text-[16.5px] font-extrabold text-green-800">{title}</h3>
-      <p className="mt-1 text-[12px] font-semibold text-green-700">{detail}</p>
-      <p className="mt-2 inline-block rounded-full bg-white px-4 py-1.5 font-mono text-[11px] font-bold text-slate-700">Réf : {reference}</p>
+      <CheckCircle2 size={41.4} className="mx-auto text-green-500" />
+      <h3 className="mt-3 text-[15px] font-extrabold text-green-800">{title}</h3>
+      <p className="mt-1 text-[11px] font-semibold text-green-700">{detail}</p>
+      <p className="mt-2 inline-block rounded-full bg-white px-4 py-1.5 font-mono text-[10px] font-bold text-slate-700">Réf : {reference}</p>
       <div>
-        <button onClick={onReset} className="mt-4 rounded-full bg-slate-900 px-6 py-2.5 text-[12px] font-extrabold text-white">
+        <button onClick={onReset} className="mt-4 rounded-full bg-slate-900 px-6 py-2.5 text-[11px] font-extrabold text-white">
           Nouvelle opération
         </button>
       </div>
@@ -63,9 +63,9 @@ export function SubmitButton({ loading, label }: { loading: boolean; label: stri
     <button
       type="submit"
       disabled={loading}
-      className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[13px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[11.5px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60"
     >
-      {loading && <Loader2 size={16} className="animate-spin" />}
+      {loading && <Loader2 size={14.4} className="animate-spin" />}
       {loading ? "Traitement..." : label}
     </button>
   );

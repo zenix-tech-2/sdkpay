@@ -67,8 +67,8 @@ html.dark .sdk-sidebar .hover\:bg-red-50:hover {
 
 html {
   scroll-behavior: smooth;
-  /* Compact UI: scales all rem-based Tailwind spacing/text (16px -> 14px) */
-  font-size: 14px;
+  /* Compact UI: scales all rem-based Tailwind spacing/text (16px -> 13px) */
+  font-size: 13px;
 }
 
 body {

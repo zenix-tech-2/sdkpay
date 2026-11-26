@@ -93,9 +93,9 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   if (error) {
     return (
       <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-10 text-center">
-        <Icon3D name="invoice" size={56} className="mx-auto" />
-        <h1 className="mt-3 text-[16.5px] font-extrabold">{error}</h1>
-        <button onClick={() => router.back()} className="mt-4 rounded-full bg-slate-900 px-6 py-3 text-[12px] font-extrabold text-white">
+        <Icon3D name="invoice" size={50.4} className="mx-auto" />
+        <h1 className="mt-3 text-[15px] font-extrabold">{error}</h1>
+        <button onClick={() => router.back()} className="mt-4 rounded-full bg-slate-900 px-6 py-3 text-[11px] font-extrabold text-white">
           Go back
         </button>
       </div>
@@ -103,7 +103,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   }
 
   if (!tx) {
-    return <p className="py-16 text-center text-[12.5px] font-bold text-slate-400">Loading...</p>;
+    return <p className="py-16 text-center text-[11px] font-bold text-slate-400">Loading...</p>;
   }
 
   const failed = tx.status === "failed";
@@ -117,21 +117,21 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
 
   function Row({ label, value, bold = true }: { label: string; value: string; bold?: boolean }) {
     return (
-      <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[16px] last:border-0">
-        <span className="shrink-0 text-[16.5px] font-medium text-slate-500">{label}</span>
-        <span className={`break-all text-right text-[16.5px] ${bold ? "font-bold text-slate-900" : "font-medium text-slate-700"}`}>{value}</span>
+      <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[14.5px] last:border-0">
+        <span className="shrink-0 text-[15px] font-medium text-slate-500">{label}</span>
+        <span className={`break-all text-right text-[15px] ${bold ? "font-bold text-slate-900" : "font-medium text-slate-700"}`}>{value}</span>
       </div>
     );
   }
 
   function RefRow({ label, value, k }: { label: string; value: string; k: string }) {
     return (
-      <div className="flex items-center justify-between gap-3 border-b border-slate-200 py-[14px] last:border-0">
-        <span className="max-w-[130px] shrink-0 text-[16.5px] font-medium leading-snug text-slate-500">{label}</span>
-        <span className="flex min-w-0 items-center justify-end gap-2 text-right text-[16px] font-medium text-slate-900">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 py-[12.5px] last:border-0">
+        <span className="max-w-[130px] shrink-0 text-[15px] font-medium leading-snug text-slate-500">{label}</span>
+        <span className="flex min-w-0 items-center justify-end gap-2 text-right text-[14.5px] font-medium text-slate-900">
           <span className="break-all">{value}</span>
           <button onClick={() => copy(value, k)} className="shrink-0 text-slate-400 hover:text-slate-700" aria-label="copy">
-            {copied === k ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+            {copied === k ? <Check size={16.2} className="text-green-500" /> : <Copy size={16.2} />}
           </button>
         </span>
       </div>
@@ -142,50 +142,50 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
     <div className="mx-auto max-w-xl">
       <div className="rounded-[28px] p-6 pb-8 text-white" style={{ background: bg }}>
         <div className="flex items-center gap-3">
-          <span className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-white/20">
-            {pending ? <Clock size={23} /> : incoming ? <TrendingUp size={23} /> : <TrendingDown size={23} />}
+          <span className="flex h-[41.5px] w-[41.5px] items-center justify-center rounded-full bg-white/20">
+            {pending ? <Clock size={20.7} /> : incoming ? <TrendingUp size={20.7} /> : <TrendingDown size={20.7} />}
           </span>
-          <p className="flex-1 text-[18.5px] font-bold">{title}</p>
+          <p className="flex-1 text-[16.5px] font-bold">{title}</p>
           <button
             onClick={() => router.back()}
-            className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
+            className="flex h-[41.5px] w-[41.5px] items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
             aria-label="close"
           >
-            <X size={21} strokeWidth={3} className="text-red-500" />
+            <X size={18.9} strokeWidth={3} className="text-red-500" />
           </button>
         </div>
         <div className="mt-3 text-center">
-          <span className="inline-block rounded-xl border-[1.5px] border-white/70 bg-white/15 px-5 py-1.5 text-[15px] font-bold">
+          <span className="inline-block rounded-xl border-[1.5px] border-white/70 bg-white/15 px-5 py-1.5 text-[13.5px] font-bold">
             {statusLabel(tx.status)}
           </span>
         </div>
-        <p className="mt-2 text-center text-[38.5px] font-extrabold leading-none tracking-tight">
+        <p className="mt-2 text-center text-[34.5px] font-extrabold leading-none tracking-tight">
           {incoming ? "+" : "-"}{money(tx.amount, tx.currency)}
         </p>
-        <p className="mt-3 text-center text-[16.5px] font-medium text-white/85">{formatDetailDate(tx.createdAt)}</p>
+        <p className="mt-3 text-center text-[15px] font-medium text-white/85">{formatDetailDate(tx.createdAt)}</p>
       </div>
 
       <div className="mt-4 rounded-[28px] border border-slate-200 bg-white px-6 py-2">
-        <p className="pt-5 text-[13px] font-bold tracking-[0.14em] text-slate-500">REFERENCES</p>
+        <p className="pt-5 text-[11.5px] font-bold tracking-[0.14em] text-slate-500">REFERENCES</p>
         <RefRow label="SDK Pay Ref." value={tx.reference} k="ref" />
         <RefRow label="Your site reference" value={tx.counterparty || "—"} k="site" />
         {tx.providerRef && <RefRow label="Provider ref" value={tx.providerRef} k="prov" />}
 
-        <p className="pt-6 text-[13px] font-bold tracking-[0.14em] text-slate-500">FINANCIAL DETAILS</p>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[16px]">
-          <span className="text-[16.5px] font-medium text-slate-500">Amount debited</span>
-          <span className="text-right text-[16.5px] font-bold text-slate-900">{money(tx.amount, tx.currency)}</span>
+        <p className="pt-6 text-[11.5px] font-bold tracking-[0.14em] text-slate-500">FINANCIAL DETAILS</p>
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[14.5px]">
+          <span className="text-[15px] font-medium text-slate-500">Amount debited</span>
+          <span className="text-right text-[15px] font-bold text-slate-900">{money(tx.amount, tx.currency)}</span>
         </div>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[16px]">
-          <span className="text-[16.5px] font-medium text-slate-500">Fees ({feePct}%)</span>
-          <span className="text-right text-[16.5px] font-bold text-[#f59e0b]">{money(tx.fee, tx.currency)}</span>
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[14.5px]">
+          <span className="text-[15px] font-medium text-slate-500">Fees ({feePct}%)</span>
+          <span className="text-right text-[15px] font-bold text-[#f59e0b]">{money(tx.fee, tx.currency)}</span>
         </div>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[16px]">
-          <span className="text-[16.5px] font-medium text-slate-500">{incoming ? "Amount received" : "Sent to recipient"}</span>
-          <span className="text-right text-[16.5px] font-bold text-green-500">{money(net, tx.currency)}</span>
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[14.5px]">
+          <span className="text-[15px] font-medium text-slate-500">{incoming ? "Amount received" : "Sent to recipient"}</span>
+          <span className="text-right text-[15px] font-bold text-green-500">{money(net, tx.currency)}</span>
         </div>
 
-        <p className="pt-6 text-[13px] font-bold tracking-[0.14em] text-slate-500">INFORMATION</p>
+        <p className="pt-6 text-[11.5px] font-bold tracking-[0.14em] text-slate-500">INFORMATION</p>
         <Row label="Type" value={title} />
         <Row label="Currency" value={cur} />
         <Row label="Operator" value={(tx.operator ?? "SDK Pay").toUpperCase()} />
@@ -207,16 +207,16 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
         <Row label="Recipient phone" value={tx.phone || "—"} />
         {tx.channel === "api" && <Row label="Channel" value="API" />}
 
-        <p className="pt-6 text-[13px] font-bold tracking-[0.14em] text-slate-500">BALANCE HISTORY</p>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[16px]">
-          <span className="text-[16.5px] font-medium text-slate-500">Solde avant ({cur})</span>
-          <span className="text-right text-[16.5px] font-bold text-slate-900">
+        <p className="pt-6 text-[11.5px] font-bold tracking-[0.14em] text-slate-500">BALANCE HISTORY</p>
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[14.5px]">
+          <span className="text-[15px] font-medium text-slate-500">Solde avant ({cur})</span>
+          <span className="text-right text-[15px] font-bold text-slate-900">
             {tx.balanceBefore !== null ? money(tx.balanceBefore, tx.currency) : "—"}
           </span>
         </div>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[16px]">
-          <span className="text-[16.5px] font-medium text-slate-500">Solde après ({cur})</span>
-          <span className="text-right text-[16.5px] font-bold text-slate-900">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 py-[14.5px]">
+          <span className="text-[15px] font-medium text-slate-500">Solde après ({cur})</span>
+          <span className="text-right text-[15px] font-bold text-slate-900">
             {tx.balanceAfter !== null ? money(tx.balanceAfter, tx.currency) : "—"}
           </span>
         </div>

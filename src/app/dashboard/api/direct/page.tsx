@@ -23,15 +23,15 @@ function ProvidersCard() {
   if (!data) return null;
   return (
     <div className="mt-4 rounded-[24px] border border-slate-200 bg-white p-6">
-      <p className="text-[19.5px] font-bold text-slate-900">Payment providers</p>
-      <p className="text-[12.5px] font-medium text-slate-500">Routing mode: <span className="font-extrabold text-slate-700">{data.mode}</span></p>
+      <p className="text-[17.5px] font-bold text-slate-900">Payment providers</p>
+      <p className="text-[11px] font-medium text-slate-500">Routing mode: <span className="font-extrabold text-slate-700">{data.mode}</span></p>
       <div className="mt-3 space-y-2.5">
         {data.providers.map((p) => (
           <div key={p.name} className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3.5">
             <span className={`h-3 w-3 shrink-0 rounded-full ${p.configured ? "bg-green-500" : "bg-slate-300"}`} />
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-extrabold">{p.label}</p>
-              <p className="truncate text-[10.5px] font-medium text-slate-400">{p.role} • {p.coverage.countries.length} countries</p>
+              <p className="text-[11.5px] font-extrabold">{p.label}</p>
+              <p className="truncate text-[10px] font-medium text-slate-400">{p.role} • {p.coverage.countries.length} countries</p>
             </div>
             <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-extrabold ${p.configured ? (p.sandbox ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700") : "bg-slate-100 text-slate-500"}`}>
               {p.configured ? (p.sandbox ? "SANDBOX" : "LIVE") : "DEMO"}
@@ -41,8 +41,8 @@ function ProvidersCard() {
       </div>
       <ul className="mt-3 space-y-1.5">
         {data.rules.map((r) => (
-          <li key={r} className="flex items-start gap-2 text-[11px] font-medium text-slate-500">
-            <Check size={12} className="mt-0.5 shrink-0 text-green-500" /> {r}
+          <li key={r} className="flex items-start gap-2 text-[10px] font-medium text-slate-500">
+            <Check size={10.8} className="mt-0.5 shrink-0 text-green-500" /> {r}
           </li>
         ))}
       </ul>
@@ -141,17 +141,17 @@ export default function DirectApiPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <Link href="/dashboard/api" className="flex items-center gap-1.5 text-[16px] font-medium text-slate-500">
-        <ArrowLeft size={18} /> Back
+      <Link href="/dashboard/api" className="flex items-center gap-1.5 text-[14.5px] font-medium text-slate-500">
+        <ArrowLeft size={16.2} /> Back
       </Link>
 
       <div className="mt-3 flex items-center gap-4">
-        <span className="flex h-[74px] w-[84.5px] shrink-0 items-center justify-center rounded-[28px] bg-blue-50">
-          <CodeXml size={39} className="text-[#f0a500]" strokeWidth={1.6} />
+        <span className="flex h-[66.5px] w-[76px] shrink-0 items-center justify-center rounded-[28px] bg-blue-50">
+          <CodeXml size={35.1} className="text-[#f0a500]" strokeWidth={1.6} />
         </span>
         <div>
-          <h1 className="text-[28px] font-extrabold tracking-tight text-slate-900">Direct API</h1>
-          <p className="text-[16px] font-medium leading-snug text-slate-500">
+          <h1 className="text-[25px] font-extrabold tracking-tight text-slate-900">Direct API</h1>
+          <p className="text-[14.5px] font-medium leading-snug text-slate-500">
             Integrate SDK Pay directly into your application
           </p>
         </div>
@@ -159,11 +159,11 @@ export default function DirectApiPage() {
 
       {/* API key */}
       <div className="mt-5 rounded-[24px] border border-slate-200 bg-white p-6">
-        <p className="flex items-center gap-2.5 text-[21px] font-bold text-slate-900">
-          <KeyRound size={21} className="text-[#f0a500]" /> Your API key
+        <p className="flex items-center gap-2.5 text-[19px] font-bold text-slate-900">
+          <KeyRound size={18.9} className="text-[#f0a500]" /> Your API key
         </p>
-        <div className="mt-4 flex items-center gap-2 rounded-[18px] border border-slate-300 px-5 py-[16px]">
-          <span className="min-w-0 flex-1 truncate font-mono text-[16.5px] font-medium text-slate-900">{keyDisplay}</span>
+        <div className="mt-4 flex items-center gap-2 rounded-[18px] border border-slate-300 px-5 py-[14.5px]">
+          <span className="min-w-0 flex-1 truncate font-mono text-[15px] font-medium text-slate-900">{keyDisplay}</span>
           <button
             onClick={() => {
               if (!fullKey) {
@@ -175,7 +175,7 @@ export default function DirectApiPage() {
             className="shrink-0 p-1 text-slate-900"
             aria-label="toggle visibility"
           >
-            {showKey && fullKey ? <EyeOff size={21} /> : <Eye size={21} />}
+            {showKey && fullKey ? <EyeOff size={18.9} /> : <Eye size={18.9} />}
           </button>
           <button
             onClick={() => {
@@ -185,45 +185,45 @@ export default function DirectApiPage() {
             className="shrink-0 p-1 text-slate-900"
             aria-label="copy"
           >
-            {copied === "key" ? <Check size={21} className="text-green-500" /> : <Copy size={21} />}
+            {copied === "key" ? <Check size={18.9} className="text-green-500" /> : <Copy size={18.9} />}
           </button>
         </div>
-        {keyMsg && <p className="mt-2.5 text-[12.5px] font-bold text-slate-600">{keyMsg}</p>}
+        {keyMsg && <p className="mt-2.5 text-[11px] font-bold text-slate-600">{keyMsg}</p>}
         <div className="my-4 border-t border-slate-200" />
-        <p className="text-[16px] font-medium leading-snug text-slate-500">
+        <p className="text-[14.5px] font-medium leading-snug text-slate-500">
           If you regenerate the key, the old one will be immediately invalidated.
         </p>
         <button
           onClick={regenerate}
           disabled={regenLoading}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] border border-slate-300 bg-white py-3.5 text-[16.5px] font-medium text-red-700 disabled:opacity-60"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] border border-slate-300 bg-white py-3.5 text-[15px] font-medium text-red-700 disabled:opacity-60"
         >
-          {regenLoading ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+          {regenLoading ? <Loader2 size={16.2} className="animate-spin" /> : <RefreshCw size={16.2} />}
           Regenerate
         </button>
       </div>
 
       {/* webhook secret */}
       <div className="mt-4 rounded-[24px] border border-slate-200 bg-white p-6">
-        <p className="flex items-center gap-2.5 text-[21px] font-bold text-slate-900">
-          <KeyRound size={21} className="text-[#f0a500]" /> Webhook secret
+        <p className="flex items-center gap-2.5 text-[19px] font-bold text-slate-900">
+          <KeyRound size={18.9} className="text-[#f0a500]" /> Webhook secret
         </p>
         {whShow && whFull ? (
           <div className="mt-4">
-            <div className="flex items-center gap-2 rounded-[18px] border border-slate-300 px-5 py-[14px]">
-              <span className="min-w-0 flex-1 truncate font-mono text-[14px] font-medium">{whFull}</span>
+            <div className="flex items-center gap-2 rounded-[18px] border border-slate-300 px-5 py-[12.5px]">
+              <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] font-medium">{whFull}</span>
               <button onClick={() => copy(whFull, "wh")} className="shrink-0">
-                {copied === "wh" ? <Check size={19} className="text-green-500" /> : <Copy size={19} />}
+                {copied === "wh" ? <Check size={17.1} className="text-green-500" /> : <Copy size={17.1} />}
               </button>
             </div>
-            <p className="mt-2 text-[12px] font-bold text-slate-600">Copy it now — shown only once. Use it to verify X-SDK-Signature headers.</p>
+            <p className="mt-2 text-[11px] font-bold text-slate-600">Copy it now — shown only once. Use it to verify X-SDK-Signature headers.</p>
           </div>
         ) : whMasked ? (
           <div className="mt-4">
-            <div className="flex items-center gap-2 rounded-[18px] bg-slate-100 px-5 py-[14px]">
-              <span className="min-w-0 flex-1 truncate font-mono text-[14px] font-medium text-slate-500">{whMasked}</span>
+            <div className="flex items-center gap-2 rounded-[18px] bg-slate-100 px-5 py-[12.5px]">
+              <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] font-medium text-slate-500">{whMasked}</span>
             </div>
-            <button onClick={genSecret} disabled={whLoading} className="mt-3 text-[13px] font-extrabold text-red-600 hover:underline disabled:opacity-60">
+            <button onClick={genSecret} disabled={whLoading} className="mt-3 text-[11.5px] font-extrabold text-red-600 hover:underline disabled:opacity-60">
               {whLoading ? "Generating..." : "Generate a new secret"}
             </button>
           </div>
@@ -231,10 +231,10 @@ export default function DirectApiPage() {
           <button
             onClick={genSecret}
             disabled={whLoading}
-            className="mt-4 flex items-center gap-2.5 rounded-[14px] px-6 py-3.5 text-[16.5px] font-bold text-white disabled:opacity-60"
+            className="mt-4 flex items-center gap-2.5 rounded-[14px] px-6 py-3.5 text-[15px] font-bold text-white disabled:opacity-60"
             style={{ background: GOLD }}
           >
-            {whLoading ? <Loader2 size={18} className="animate-spin" /> : <Eye size={18} />}
+            {whLoading ? <Loader2 size={16.2} className="animate-spin" /> : <Eye size={16.2} />}
             Show or generate secret
           </button>
         )}
@@ -242,18 +242,18 @@ export default function DirectApiPage() {
 
       {/* webhook url */}
       <div className="mt-4 rounded-[24px] border border-slate-200 bg-white p-6">
-        <p className="flex items-center gap-2.5 text-[21px] font-bold text-slate-900">
-          <Webhook size={21} className="text-[#f0a500]" /> Webhook URL
+        <p className="flex items-center gap-2.5 text-[19px] font-bold text-slate-900">
+          <Webhook size={18.9} className="text-[#f0a500]" /> Webhook URL
         </p>
-        <p className="mt-1 text-[13px] font-medium text-slate-500">Receive payment.success / payment.failed events in real time.</p>
+        <p className="mt-1 text-[11.5px] font-medium text-slate-500">Receive payment.success / payment.failed events in real time.</p>
         <div className="mt-3 flex gap-2">
           <input
             value={whUrl}
             onChange={(e) => setWhUrl(e.target.value)}
             placeholder="https://monsite.com/webhooks/sdkpay"
-            className="min-w-0 flex-1 rounded-2xl border border-slate-200 px-4 py-3 font-mono text-[11.5px] font-bold"
+            className="min-w-0 flex-1 rounded-2xl border border-slate-200 px-4 py-3 font-mono text-[10.5px] font-bold"
           />
-          <button onClick={saveUrl} className="shrink-0 rounded-full bg-slate-900 px-5 py-3 text-[12px] font-extrabold text-white">
+          <button onClick={saveUrl} className="shrink-0 rounded-full bg-slate-900 px-5 py-3 text-[11px] font-extrabold text-white">
             {whUrlSaved ? "Saved!" : "Save"}
           </button>
         </div>
@@ -264,11 +264,11 @@ export default function DirectApiPage() {
 
       {/* quick example */}
       <div className="mt-4 rounded-[24px] border border-slate-200 bg-[#eef4ff] p-6">
-        <p className="text-[19.5px] font-bold text-slate-900">Quick example</p>
-        <p className="mt-1 text-[14px] font-medium text-slate-500">
+        <p className="text-[17.5px] font-bold text-slate-900">Quick example</p>
+        <p className="mt-1 text-[12.5px] font-medium text-slate-500">
           Use your key only from your server, in the Authorization header.
         </p>
-        <div className="mt-3 overflow-hidden rounded-2xl bg-[#0d1117] p-4 font-mono text-[11px] leading-relaxed">
+        <div className="mt-3 overflow-hidden rounded-2xl bg-[#0d1117] p-4 font-mono text-[10px] leading-relaxed">
           <p><span className="text-sky-300">POST</span> <span className="text-green-300">https://sdkpay.com/v1/collect</span></p>
           <pre className="mt-1 whitespace-pre-wrap text-slate-300">{`Authorization: Bearer ak_••••••
 
@@ -281,9 +281,9 @@ export default function DirectApiPage() {
         </div>
         <Link
           href="/docs"
-          className="mt-4 inline-flex items-center gap-2.5 rounded-[14px] border border-slate-300 bg-white px-6 py-3 text-[16.5px] font-medium text-slate-900"
+          className="mt-4 inline-flex items-center gap-2.5 rounded-[14px] border border-slate-300 bg-white px-6 py-3 text-[15px] font-medium text-slate-900"
         >
-          <BookOpen size={19} /> Integration documentation
+          <BookOpen size={17.1} /> Integration documentation
         </Link>
       </div>
     </div>

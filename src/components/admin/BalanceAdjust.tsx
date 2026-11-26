@@ -35,13 +35,13 @@ export default function BalanceAdjust({ userId, onDone }: { userId: string; onDo
 
   return (
     <div className="mt-4 rounded-2xl bg-white p-5 shadow-sm">
-      <p className="text-[12.5px] font-extrabold">Balance adjustment</p>
+      <p className="text-[11px] font-extrabold">Balance adjustment</p>
       <div className="mt-2.5 grid grid-cols-3 gap-2">
         {(["XAF", "XOF", "USDT"] as const).map((w) => (
           <button
             key={w}
             onClick={() => setWallet(w)}
-            className={`rounded-xl border-2 py-2 text-[11.5px] font-extrabold ${wallet === w ? "border-yellow-400 bg-yellow-50" : "border-slate-200 text-slate-400"}`}
+            className={`rounded-xl border-2 py-2 text-[10.5px] font-extrabold ${wallet === w ? "border-yellow-400 bg-yellow-50" : "border-slate-200 text-slate-400"}`}
           >
             {w}
           </button>
@@ -52,7 +52,7 @@ export default function BalanceAdjust({ userId, onDone }: { userId: string; onDo
           <button
             key={d}
             onClick={() => setDir(d)}
-            className={`rounded-xl border-2 py-2 text-[11.5px] font-extrabold capitalize ${dir === d ? (d === "credit" ? "border-green-500 bg-green-50 text-green-700" : "border-red-400 bg-red-50 text-red-600") : "border-slate-200 text-slate-400"}`}
+            className={`rounded-xl border-2 py-2 text-[10.5px] font-extrabold capitalize ${dir === d ? (d === "credit" ? "border-green-500 bg-green-50 text-green-700" : "border-red-400 bg-red-50 text-red-600") : "border-slate-200 text-slate-400"}`}
           >
             {d}
           </button>
@@ -62,19 +62,19 @@ export default function BalanceAdjust({ userId, onDone }: { userId: string; onDo
         value={amount}
         onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
         placeholder={`Amount (${wallet === "USDT" ? "USDT" : "FCFA"})`}
-        className="mt-2 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[12px] font-bold"
+        className="mt-2 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[11px] font-bold"
       />
       <input
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="Reason (required, shown to merchant)"
-        className="mt-2 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[12px] font-medium"
+        className="mt-2 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[11px] font-medium"
       />
-      {msg && <p className="mt-2 text-[11px] font-bold text-slate-600">{msg}</p>}
+      {msg && <p className="mt-2 text-[10px] font-bold text-slate-600">{msg}</p>}
       <button
         onClick={submit}
         disabled={busy || !amount || !reason.trim()}
-        className="mt-2.5 w-full rounded-xl bg-[#10132e] py-2.5 text-[12px] font-bold text-white disabled:opacity-50"
+        className="mt-2.5 w-full rounded-xl bg-[#10132e] py-2.5 text-[11px] font-bold text-white disabled:opacity-50"
       >
         {busy ? "Processing..." : `${dir === "credit" ? "Credit" : "Debit"} wallet`}
       </button>

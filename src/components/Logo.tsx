@@ -34,7 +34,7 @@ export default function Logo({ dark = false }: { dark?: boolean }) {
     <Link href="/" className="flex items-center gap-1.5 shrink-0">
       <LogoMark />
       <span className="leading-none">
-        <span className={`block text-[16.5px] font-extrabold tracking-tight ${dark ? "text-white" : "text-slate-900"}`}>
+        <span className={`block text-[15px] font-extrabold tracking-tight ${dark ? "text-white" : "text-slate-900"}`}>
           SDK<span className="text-sky-500">Pay</span>
         </span>
         <span className="block text-[10px] font-bold tracking-[0.18em] text-yellow-500 -mt-0.5 ml-[1px]">
@@ -48,12 +48,12 @@ export default function Logo({ dark = false }: { dark?: boolean }) {
 export function LogoLarge() {
   return (
     <div className="flex items-center justify-center gap-1">
-      <LogoMark size={46} />
+      <LogoMark size={41.4} />
       <span className="leading-none text-left">
-        <span className="block text-[30px] font-extrabold tracking-tight text-slate-900">
+        <span className="block text-[27px] font-extrabold tracking-tight text-slate-900">
           SDK<span className="text-sky-400">Pay</span>
         </span>
-        <span className="block text-right text-[14px] font-extrabold text-yellow-400 -mt-1">Pay</span>
+        <span className="block text-right text-[12.5px] font-extrabold text-yellow-400 -mt-1">Pay</span>
       </span>
     </div>
   );

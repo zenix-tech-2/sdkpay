@@ -60,9 +60,9 @@ export default function AdminSettings() {
       <PageTitle title="Platform settings" sub="Fees, limits and payout mode — live immediately" />
       {forbidden ? (
         <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
-          <Lock size={28} className="mx-auto text-slate-300" />
-          <p className="mt-3 text-[14px] font-extrabold">Super admin only</p>
-          <p className="text-[11.5px] font-medium text-slate-500">Only super admins can change platform settings.</p>
+          <Lock size={25.2} className="mx-auto text-slate-300" />
+          <p className="mt-3 text-[12.5px] font-extrabold">Super admin only</p>
+          <p className="text-[10.5px] font-medium text-slate-500">Only super admins can change platform settings.</p>
         </div>
       ) : (
         <>
@@ -71,41 +71,41 @@ export default function AdminSettings() {
               {FIELDS.map((f) => (
                 <div key={f.key} className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-extrabold">{f.label}</p>
-                    <p className="text-[10.5px] font-medium text-slate-400">{f.hint}</p>
+                    <p className="text-[11.5px] font-extrabold">{f.label}</p>
+                    <p className="text-[10px] font-medium text-slate-400">{f.hint}</p>
                   </div>
                   <input
                     value={values[f.key] ?? ""}
                     onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
                     inputMode="decimal"
-                    className="w-32 shrink-0 rounded-2xl border border-slate-200 px-4 py-2.5 text-right font-mono text-[12.5px] font-bold"
+                    className="w-32 shrink-0 rounded-2xl border border-slate-200 px-4 py-2.5 text-right font-mono text-[11px] font-bold"
                   />
                 </div>
               ))}
               <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-extrabold">Manual withdrawals</p>
-                  <p className="text-[10.5px] font-medium text-slate-400">Hold MoMo withdrawals for admin approval</p>
+                  <p className="text-[11.5px] font-extrabold">Manual withdrawals</p>
+                  <p className="text-[10px] font-medium text-slate-400">Hold MoMo withdrawals for admin approval</p>
                 </div>
                 <button
                   onClick={() => setValues({ ...values, manual_withdrawals: values.manual_withdrawals === "true" ? "false" : "true" })}
-                  className={`relative h-[30px] w-[54.5px] shrink-0 rounded-full transition ${values.manual_withdrawals === "true" ? "bg-[#f0a500]" : "bg-slate-200"}`}
+                  className={`relative h-[27px] w-[49px] shrink-0 rounded-full transition ${values.manual_withdrawals === "true" ? "bg-[#f0a500]" : "bg-slate-200"}`}
                 >
-                  <span className={`absolute top-[4px] h-[23px] w-[23px] rounded-full bg-white shadow transition-all ${values.manual_withdrawals === "true" ? "right-[4px]" : "left-[4px]"}`} />
+                  <span className={`absolute top-[4px] h-[20.5px] w-[20.5px] rounded-full bg-white shadow transition-all ${values.manual_withdrawals === "true" ? "right-[4px]" : "left-[4px]"}`} />
                 </button>
               </div>
             </div>
-            {msg && <p className={`mt-3 rounded-xl px-3 py-2 text-[11px] font-bold ${msg.includes("saved") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>{msg}</p>}
+            {msg && <p className={`mt-3 rounded-xl px-3 py-2 text-[10px] font-bold ${msg.includes("saved") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>{msg}</p>}
             <button
               onClick={save}
               disabled={saving}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#f0a500] py-3.5 text-[13px] font-extrabold text-white disabled:opacity-60"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#f0a500] py-3.5 text-[11.5px] font-extrabold text-white disabled:opacity-60"
             >
-              {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+              {saving ? <Loader2 size={13.5} className="animate-spin" /> : <Save size={13.5} />}
               Save settings
             </button>
           </Card>
-          <p className="mt-3 rounded-2xl bg-yellow-50 px-4 py-3 text-[11px] font-semibold text-yellow-800">
+          <p className="mt-3 rounded-2xl bg-yellow-50 px-4 py-3 text-[10px] font-semibold text-yellow-800">
             Referral reduced-fee periods still halve the configured Mobile Money rate. Provider keys stay in
             environment variables — never in the database.
           </p>

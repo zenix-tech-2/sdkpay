@@ -43,12 +43,12 @@ export default function AdminLinks() {
     <div>
       <PageTitle title="Payment links" sub="All merchant checkout links" />
       <div className="relative">
-        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={13.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search title, slug, merchant..."
-          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[12.5px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
+          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[11px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
         />
       </div>
       <div className="mt-3 overflow-x-auto rounded-2xl bg-white shadow-sm">
@@ -63,7 +63,7 @@ export default function AdminLinks() {
               <tr key={l.id} className="border-b border-slate-50 last:border-0">
                 <Td>
                   <span className="block font-bold">{l.title}</span>
-                  <span className="block font-mono text-[10.5px] text-slate-400">/pay/{l.slug} · {l.paymentsCount} pmts · {agoShort(l.createdAt)}</span>
+                  <span className="block font-mono text-[10px] text-slate-400">/pay/{l.slug} · {l.paymentsCount} pmts · {agoShort(l.createdAt)}</span>
                 </Td>
                 <Td>{l.email || "—"}</Td>
                 <Td>{l.amount ? `${l.amount.toLocaleString("en-US")} ${l.currency}` : "Free"}</Td>
@@ -72,13 +72,13 @@ export default function AdminLinks() {
                 <Td right>
                   <span className="inline-flex gap-1.5">
                     <a href={`/pay/${l.slug}`} target="_blank" className="rounded-lg bg-slate-100 p-2 text-slate-600" title="Open">
-                      <ExternalLink size={12} />
+                      <ExternalLink size={10.8} />
                     </a>
                     <button onClick={() => toggle(l)} className="rounded-lg bg-slate-100 p-2 text-slate-600" title="Toggle">
-                      <Power size={12} />
+                      <Power size={10.8} />
                     </button>
                     <button onClick={() => remove(l.id)} className="rounded-lg bg-red-50 p-2 text-red-500" title="Delete">
-                      <Trash2 size={12} />
+                      <Trash2 size={10.8} />
                     </button>
                   </span>
                 </Td>
