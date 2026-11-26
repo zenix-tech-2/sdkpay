@@ -1,10 +1,13 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
+const adminOnly = process.env.ADMIN_ONLY_DEPLOYMENT === "1";
+const databaseUrl = adminOnly
+  ? (process.env.ADMIN_DATABASE_URL ?? process.env.DATABASE_URL)
+  : process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
+  throw new Error("DATABASE_URL is required (or ADMIN_DATABASE_URL for an admin-only deployment)");
 }
 
 const globalForDb = globalThis as typeof globalThis & {

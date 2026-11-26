@@ -1,23 +1,17 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import "./motion.css";
 
 export const metadata: Metadata = {
-  title: "SDK Pay — Integrate · Pay · Grow",
-  description:
-    "SDK Pay is the payment infrastructure for African businesses: Mobile Money, crypto, payment links, payouts and a developer-first API.",
-  icons: { icon: "/logo-icon.svg" },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#f6c21a",
-  width: "device-width",
-  initialScale: 1,
+  title: "SDK Pay | Paiements en ligne pour l'Afrique",
+  description: "SDK Pay permet aux créateurs, entrepreneurs et commerçants de vendre en ligne et de recevoir leurs paiements via Mobile Money, cartes bancaires et liens de paiement.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body className="antialiased">{children}</body>
     </html>
   );

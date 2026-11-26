@@ -1,58 +1,106 @@
-/**
- * Ledger helpers shared by server actions and webhook handlers.
- * All balance mutations are idempotent — a transaction settles exactly once.
- */
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { accounts, notifications, transactions, paymentLinks } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { transactions, users } from "@/db/schema";
+import { randomCode } from "@/lib/format";
 
-export type TxRow = typeof transactions.$inferSelect;
+type LedgerInput = {
+  userId: number;
+  type: string;
+  direction: "in" | "out";
+  amount: number;
+  fee?: number;
+  grossAmount?: number;
+  balanceDelta?: number;
+  method?: string;
+  counterparty?: string;
+  note?: string;
+  linkId?: number | null;
+  status?: string;
+  siteReference?: string;
+  recipientName?: string;
+  countryName?: string;
+  currency?: string;
+  amountDecimal?: number;
+  feeDecimal?: number;
+  grossDecimal?: number;
+  network?: string;
+  walletAddress?: string;
+  depositAddress?: string;
+  providerReference?: string;
+  feePayer?: string;
+  flow?: string;
+  expiresAt?: Date | null;
+  provider?: string;
+  providerExternalId?: string;
+  providerCheckoutUrl?: string;
+  providerFallback?: boolean;
+  providerStatus?: string;
+};
 
-async function primaryAccountId(userId: string) {
-  const [acc] = await db.select().from(accounts).where(and(eq(accounts.userId, userId), eq(accounts.isPrimary, true))).limit(1);
-  return acc ?? null;
-}
+export async function applyTransaction(input: LedgerInput) {
+  const amount = Math.round(input.amount);
+  const fee = Math.round(input.fee ?? 0);
+  const grossAmount = Math.round(input.grossAmount ?? amount + fee);
+  const delta = Math.round(input.balanceDelta ?? (input.direction === "in" ? amount : -(amount + fee)));
+  const currency = input.currency ?? "XAF";
+  const amountDecimal = input.amountDecimal ?? amount;
+  const feeDecimal = input.feeDecimal ?? fee;
+  const grossDecimal = input.grossDecimal ?? grossAmount;
+  const now = new Date();
 
-/** Mark a pending deposit/payment as completed and credit the wallet. Returns true if it transitioned. */
-export async function settleCredit(tx: TxRow, opts?: { creditedAmount?: number | null }): Promise<boolean> {
-  if (tx.status === "completed") return false; // already settled — idempotent
-  const credit = opts?.creditedAmount && opts.creditedAmount > 0 ? opts.creditedAmount : Number(tx.net);
-  await db.transaction(async (trx) => {
-    const [current] = await trx.select().from(transactions).where(eq(transactions.id, tx.id)).limit(1);
-    if (!current || current.status === "completed") return;
-    const [acc] = await trx.select().from(accounts).where(and(eq(accounts.userId, tx.userId), eq(accounts.isPrimary, true))).limit(1);
-    const before = acc ? Number(acc.balance) : 0;
-    if (acc) {
-      await trx.update(accounts).set({ balance: sql`${accounts.balance} + ${credit}` }).where(eq(accounts.id, acc.id));
+  return db.transaction(async (tx) => {
+    const [current] = await tx.select({ balance: users.balance }).from(users).where(eq(users.id, input.userId)).limit(1);
+    const balanceBefore = current?.balance ?? 0;
+    if (delta < 0 && balanceBefore < Math.abs(delta)) {
+      throw new Error("Solde insuffisant pour cette opération");
     }
-    await trx.update(transactions)
-      .set({ status: "completed", providerStatus: "completed", balanceBefore: String(before), balanceAfter: String(before + credit) })
-      .where(eq(transactions.id, tx.id));
-    // if this payment came through a payment link, bump its counters
-    if (tx.paymentLinkId) {
-      await trx.update(paymentLinks)
-        .set({ paymentsCount: sql`${paymentLinks.paymentsCount} + 1`, collected: sql`${paymentLinks.collected} + ${credit}` })
-        .where(eq(paymentLinks.id, tx.paymentLinkId));
-    }
-    await trx.insert(notifications).values({
-      userId: tx.userId,
-      title: "Deposit confirmed",
-      body: `${credit.toLocaleString("fr-FR")} ${tx.currency} from your Mobile Money top-up has been credited to your balance.`,
-      kind: "info",
-    });
-  });
-  return true;
-}
+    const [updated] = await tx
+      .update(users)
+      .set({ balance: sql`${users.balance} + ${delta}` })
+      .where(eq(users.id, input.userId))
+      .returning({ balance: users.balance });
+    const balanceAfter = updated?.balance ?? balanceBefore + delta;
 
-/** Mark a pending deposit/payment as failed. Returns true if it transitioned. */
-export async function settleFailure(tx: TxRow, reason?: string): Promise<boolean> {
-  if (tx.status === "failed") return false;
-  await db.update(transactions).set({ status: "failed", providerStatus: "failed" }).where(eq(transactions.id, tx.id));
-  await db.insert(notifications).values({
-    userId: tx.userId,
-    title: "Deposit failed",
-    body: reason ? `Your top-up failed: ${reason}. No amount was debited.` : "Your top-up failed or was rejected. No amount was debited.",
-    kind: "deposit_rejected",
+    const [record] = await tx.insert(transactions).values({
+      userId: input.userId,
+      linkId: input.linkId ?? null,
+      type: input.type,
+      direction: input.direction,
+      amount,
+      fee,
+      status: input.status ?? "completed",
+      method: input.method ?? "Mobile Money",
+      counterparty: input.counterparty ?? "",
+      reference: `SDK-${Date.now().toString(36).toUpperCase()}-${randomCode(5).toUpperCase()}`,
+      note: input.note ?? "",
+      grossAmount,
+      balanceBefore,
+      balanceAfter,
+      siteReference: input.siteReference ?? `IB-${randomCode(8).toUpperCase()}-${randomCode(4).toUpperCase()}`,
+      recipientName: input.recipientName ?? "",
+      countryName: input.countryName ?? "Cameroun",
+      currency,
+      amountDecimal,
+      feeDecimal,
+      grossDecimal,
+      balanceBeforeDecimal: balanceBefore,
+      balanceAfterDecimal: balanceAfter,
+      network: input.network ?? "",
+      walletAddress: input.walletAddress ?? "",
+      depositAddress: input.depositAddress ?? "",
+      providerReference: input.providerReference ?? "",
+      feePayer: input.feePayer ?? "",
+      flow: input.flow ?? "",
+      expiresAt: input.expiresAt ?? null,
+      provider: input.provider ?? "ashtechpay",
+      providerExternalId: input.providerExternalId ?? "",
+      providerCheckoutUrl: input.providerCheckoutUrl ?? "",
+      providerFallback: input.providerFallback ?? false,
+      providerStatus: input.providerStatus ?? "",
+      createdAt: now,
+      updatedAt: now,
+    }).returning();
+
+    return { transaction: record, balance: balanceAfter, balanceBefore };
   });
-  return true;
 }

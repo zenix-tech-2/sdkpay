@@ -1,68 +1,66 @@
-import { redirect } from "next/navigation";
-import { getSessionUser } from "@/lib/session";
-import LoginForm from "./login-form";
-import { CheckCircle2 } from "lucide-react";
+"use client";
 
-export default async function LoginPage() {
-  const user = await getSessionUser();
-  if (user) redirect("/dashboard");
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Logo } from "@/components/Logo";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? "Connexion impossible"); return; }
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError("Impossible de contacter le serveur");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* brand panel */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-navy2 p-10 text-white lg:flex xl:p-14">
-        <div className="pointer-events-none absolute -left-24 top-1/4 h-96 w-96 rounded-full bg-violet-700/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-10 h-96 w-96 rounded-full bg-sky-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "26px 26px" }} />
+    <main className="min-h-screen bg-[#f4f8ff]">
+      <div className="h-8 bg-[#ffb800]" />
+      <div className="mx-auto flex max-w-[560px] flex-col items-center px-4 pb-16 pt-9">
+        <div className="scale-[1.45] origin-center"><Logo size="lg" /></div>
+        <h1 className="font-display mt-10 text-center text-[30px] font-extrabold text-[#111b36] sm:text-[38px]">Welcome back</h1>
+        <p className="mt-2 text-center text-[13px] text-[#7b869f]">Connectez-vous à votre wallet SDK Pay.</p>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.svg" alt="SDK Pay" className="relative h-24 w-auto self-start rounded-2xl bg-white/95 p-3 object-contain" />
-
-        <div className="relative max-w-lg">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.3em] text-gold">Integrate · Pay · Grow</p>
-          <h1 className="mt-4 text-[44px] font-black leading-[1.08] tracking-tight xl:text-[52px]">
-            The payment rail built for{" "}
-            <span className="bg-gradient-to-r from-sky-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">Africa&apos;s</span>{" "}
-            boldest businesses.
-          </h1>
-          <p className="mt-5 text-[15px] leading-relaxed text-white/70">
-            Accept Mobile Money and crypto, collect with payment links, automate payouts — all from one dashboard, with transparent fees and a developer-first API.
-          </p>
-
-          <ul className="mt-8 space-y-3.5 text-[14px] font-medium text-white/85">
-            {["Mobile Money & USDT in 15+ African countries", "Hosted checkout, payment links and direct REST API", "Instant settlement & same-day payouts"].map((t) => (
-              <li key={t} className="flex items-start gap-2.5">
-                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-gold" /> {t}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-10 flex items-center gap-8 border-t border-white/10 pt-6">
-            {[["2,400+", "businesses"], ["98%", "success rate"], ["15", "countries"]].map(([n, l]) => (
-              <div key={l}>
-                <p className="text-[26px] font-black text-white">{n}</p>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-white/50">{l}</p>
-              </div>
-            ))}
+        <form onSubmit={submit} className="mt-8 w-full rounded-[22px] border border-[#e8edf7] bg-white px-5 py-8 shadow-[0_12px_40px_rgba(30,45,90,.05)] sm:px-8">
+          <label className="label">Email ou nom d&apos;utilisateur</label>
+          <div className="relative"><Mail size={18} className="field-icon" /><input required value={identifier} onChange={(e) => setIdentifier(e.target.value)} placeholder="votreemail@exemple.com" className="field" /></div>
+          <div className="mt-5"><label className="label">Password</label>
+            <div className="relative"><Lock size={18} className="field-icon" /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="field pr-12" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7d8aa9]">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+            </div>
           </div>
-        </div>
-
-        <p className="relative text-[11px] text-white/40">© 2026 SDK Pay Inc. · Licensed payment service provider · Cameroun</p>
-      </div>
-
-      {/* form panel */}
-      <div className="flex items-center justify-center bg-mist px-5 py-12 sm:px-10" style={{ backgroundImage: "radial-gradient(#d8dbe4 1.1px, transparent 1.1px)", backgroundSize: "22px 22px" }}>
-        <div className="flex w-full max-w-md flex-col items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-icon.svg" alt="SDK Pay" className="mb-6 h-16 w-auto lg:hidden" />
-          <div className="w-full rounded-3xl border border-slate-200/80 bg-white p-7 shadow-xl shadow-slate-200/50 sm:p-8">
-            <LoginForm />
+          {error && <p className="mt-5 rounded-lg bg-[#fff0f0] px-3 py-2.5 text-[13px] font-medium text-[#c83c3c]">{error}</p>}
+          <button type="submit" disabled={loading} className="brand-btn mt-7 h-[54px] w-full rounded-xl text-[15px] disabled:opacity-60">{loading ? "Connexion..." : "Se connecter"}</button>
+          <div className="mt-5 rounded-xl border border-dashed border-[#e4c982] bg-[#fffbf0] px-4 py-3 text-center text-[12px] text-[#6c758d]">
+            Compte démo : <strong className="text-[#26324d]">demo@sdkpay.com</strong> / <strong className="text-[#26324d]">demo1234</strong>
+            <button type="button" onClick={() => { setIdentifier("demo@sdkpay.com"); setPassword("demo1234"); }} className="ml-2 font-bold text-[#e5a300] hover:underline">Remplir</button>
           </div>
-          <p className="mt-6 text-center text-[12px] text-slate-400">
-            Don&apos;t have an account? <a href="/signup" className="font-bold text-navy2 hover:underline">Create one</a> · <a href="mailto:onboarding@sdkpay.com" className="font-bold text-slate-600 hover:text-navy2">Talk to sales</a>
-          </p>
-        </div>
+          <p className="mt-6 text-center text-[13px] text-[#5f6b86]">Pas encore de compte ? <Link href="/signup" className="font-bold text-[#e5a300] hover:underline">Créer un compte</Link></p>
+        </form>
+        <Link href="/" className="mt-7 text-[12px] font-semibold text-[#7b869f] hover:text-[#e5a300]">← Retour à l&apos;accueil</Link>
       </div>
-    </div>
+    </main>
   );
 }
