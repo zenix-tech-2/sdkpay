@@ -46,18 +46,18 @@ export default function AdminAudit() {
         title="Audit log"
         sub="Every admin action, tracked"
         right={
-          <button onClick={purge} className="flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[12px] font-bold text-slate-600 shadow-sm">
-            <Trash2 size={14} /> Purge &gt; 90 days
+          <button onClick={purge} className="flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[10.5px] font-bold text-slate-600 shadow-sm">
+            <Trash2 size={12} /> Purge &gt; 90 days
           </button>
         }
       />
       <div className="relative">
-        <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search action, admin, target..."
-          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[14px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
+          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[12.5px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
         />
       </div>
       <div className="mt-3 overflow-x-auto rounded-2xl bg-white shadow-sm">
@@ -73,8 +73,8 @@ export default function AdminAudit() {
                 <Td mono>{a.action}</Td>
                 <Td>{a.adminEmail || "—"}</Td>
                 <Td>
-                  <span className="block font-mono text-[12px]">{a.target || "—"}</span>
-                  {a.detail && <span className="block max-w-[260px] truncate text-[12px] text-slate-400">{a.detail}</span>}
+                  <span className="block font-mono text-[10.5px]">{a.target || "—"}</span>
+                  {a.detail && <span className="block max-w-[260px] truncate text-[10.5px] text-slate-400">{a.detail}</span>}
                 </Td>
                 <Td>{agoShort(a.createdAt)}</Td>
               </tr>
@@ -83,14 +83,14 @@ export default function AdminAudit() {
         </table>
         {rows.length === 0 && <Empty>No audit entries.</Empty>}
       </div>
-      <div className="mt-3 flex items-center justify-between text-[13px] font-bold text-slate-500">
+      <div className="mt-3 flex items-center justify-between text-[11.5px] font-bold text-slate-500">
         <span>Showing {rows.length} of {total}</span>
         <span className="flex gap-2">
           <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))} className="rounded-xl bg-white p-2.5 shadow-sm disabled:opacity-40">
-            <ChevronLeft size={17} />
+            <ChevronLeft size={15} />
           </button>
           <button disabled={offset + limit >= total} onClick={() => setOffset(offset + limit)} className="rounded-xl bg-white p-2.5 shadow-sm disabled:opacity-40">
-            <ChevronRight size={17} />
+            <ChevronRight size={15} />
           </button>
         </span>
       </div>

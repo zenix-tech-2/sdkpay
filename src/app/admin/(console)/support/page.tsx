@@ -57,24 +57,24 @@ export default function AdminSupport() {
     const t = thread.ticket;
     return (
       <div>
-        <button onClick={() => { setOpenId(null); setThread(null); }} className="flex items-center gap-1 text-[13px] font-bold text-slate-500">
-          <ArrowLeft size={16} /> Tickets
+        <button onClick={() => { setOpenId(null); setThread(null); }} className="flex items-center gap-1 text-[11.5px] font-bold text-slate-500">
+          <ArrowLeft size={14} /> Tickets
         </button>
         <div className="mt-2 flex items-start justify-between gap-2">
           <div>
-            <h1 className="text-[20px] font-extrabold">{t.subject}</h1>
-            <p className="text-[12.5px] font-medium text-slate-500">{thread.user?.email} · {t.category} · {agoShort(t.createdAt)}</p>
+            <h1 className="text-[17.5px] font-extrabold">{t.subject}</h1>
+            <p className="text-[11px] font-medium text-slate-500">{thread.user?.email} · {t.category} · {agoShort(t.createdAt)}</p>
           </div>
           {statusPill(t.status)}
         </div>
         <div className="mt-3 rounded-2xl bg-white p-4 shadow-sm">
-          <p className="text-[14px] font-medium leading-relaxed">{t.message}</p>
+          <p className="text-[12.5px] font-medium leading-relaxed">{t.message}</p>
         </div>
         <div className="mt-3 space-y-2">
           {(thread.replies ?? []).map((m: any) => (
-            <div key={m.id} className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13.5px] font-medium ${m.author === "admin" ? "ml-auto bg-[#10132e] text-white" : "bg-white shadow-sm"}`}>
+            <div key={m.id} className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[12px] font-medium ${m.author === "admin" ? "ml-auto bg-[#10132e] text-white" : "bg-white shadow-sm"}`}>
               {m.message}
-              <span className="mt-1 block text-[11px] opacity-60">{agoShort(m.createdAt)} · {m.author}</span>
+              <span className="mt-1 block text-[10px] opacity-60">{agoShort(m.createdAt)} · {m.author}</span>
             </div>
           ))}
         </div>
@@ -84,15 +84,15 @@ export default function AdminSupport() {
             onChange={(e) => setReply(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendReply()}
             placeholder="Write a reply..."
-            className="flex-1 rounded-2xl bg-white px-4 py-3 text-[14px] font-medium shadow-sm"
+            className="flex-1 rounded-2xl bg-white px-4 py-3 text-[12.5px] font-medium shadow-sm"
           />
           <button onClick={sendReply} disabled={sending || !reply.trim()} className="rounded-2xl bg-[#f0a500] px-5 text-white disabled:opacity-50">
-            {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+            {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </button>
         </div>
         <div className="mt-3 flex gap-2">
-          <button onClick={() => setStatus("open")} className="rounded-xl bg-white px-4 py-2 text-[12.5px] font-bold shadow-sm">Reopen</button>
-          <button onClick={() => setStatus("closed")} className="rounded-xl bg-white px-4 py-2 text-[12.5px] font-bold shadow-sm">Close ticket</button>
+          <button onClick={() => setStatus("open")} className="rounded-xl bg-white px-4 py-2 text-[11px] font-bold shadow-sm">Reopen</button>
+          <button onClick={() => setStatus("closed")} className="rounded-xl bg-white px-4 py-2 text-[11px] font-bold shadow-sm">Close ticket</button>
         </div>
       </div>
     );
@@ -106,7 +106,7 @@ export default function AdminSupport() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-full px-4 py-1.5 text-[13px] font-bold capitalize ${tab === t ? "bg-[#10132e] text-white" : "bg-white text-slate-600 shadow-sm"}`}
+            className={`rounded-full px-4 py-1.5 text-[11.5px] font-bold capitalize ${tab === t ? "bg-[#10132e] text-white" : "bg-white text-slate-600 shadow-sm"}`}
           >
             {t}
           </button>
@@ -122,12 +122,12 @@ export default function AdminSupport() {
           <tbody>
             {rows.map((t) => (
               <tr key={t.id} className="border-b border-slate-50 last:border-0">
-                <Td><span className="block font-bold">{t.subject}</span><span className="block text-[12px] text-slate-400">{t.category}</span></Td>
+                <Td><span className="block font-bold">{t.subject}</span><span className="block text-[10.5px] text-slate-400">{t.category}</span></Td>
                 <Td>{t.email || "—"}</Td>
                 <Td>{statusPill(t.status)}</Td>
                 <Td>{agoShort(t.createdAt)}</Td>
                 <Td right>
-                  <button onClick={() => open(t.id)} className="rounded-lg bg-[#10132e] px-3.5 py-1.5 text-[12.5px] font-bold text-white">
+                  <button onClick={() => open(t.id)} className="rounded-lg bg-[#10132e] px-3.5 py-1.5 text-[11px] font-bold text-white">
                     Open
                   </button>
                 </Td>

@@ -56,22 +56,22 @@ export default function AdminTransactions() {
         title="Transactions"
         sub={`${total} record${total === 1 ? "" : "s"}`}
         right={
-          <button onClick={exportCsv} className="rounded-full bg-white px-4 py-2.5 text-[13px] font-extrabold text-slate-700 shadow-sm">
+          <button onClick={exportCsv} className="rounded-full bg-white px-4 py-2.5 text-[11.5px] font-extrabold text-slate-700 shadow-sm">
             Export CSV
           </button>
         }
       />
       <div className="relative">
-        <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search reference, phone, operator, email..."
-          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[14px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
+          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[12.5px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
         />
       </div>
       <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-        <select value={type} onChange={(e) => setType(e.target.value)} className="rounded-2xl bg-white px-4 py-2.5 text-[13px] font-bold shadow-sm">
+        <select value={type} onChange={(e) => setType(e.target.value)} className="rounded-2xl bg-white px-4 py-2.5 text-[11.5px] font-bold shadow-sm">
           <option value="all">All types</option>
           <option value="deposit">Deposits</option>
           <option value="withdraw">Withdrawals</option>
@@ -79,13 +79,13 @@ export default function AdminTransactions() {
           <option value="payment_received">Collections</option>
           <option value="conversion">Conversions</option>
         </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-2xl bg-white px-4 py-2.5 text-[13px] font-bold shadow-sm">
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-2xl bg-white px-4 py-2.5 text-[11.5px] font-bold shadow-sm">
           <option value="all">All statuses</option>
           <option value="success">Successful</option>
           <option value="pending">Pending</option>
           <option value="failed">Failed</option>
         </select>
-        <select value={provider} onChange={(e) => setProvider(e.target.value)} className="rounded-2xl bg-white px-4 py-2.5 text-[13px] font-bold shadow-sm">
+        <select value={provider} onChange={(e) => setProvider(e.target.value)} className="rounded-2xl bg-white px-4 py-2.5 text-[11.5px] font-bold shadow-sm">
           <option value="all">All providers</option>
           <option value="ashtechpay">AshTechPay</option>
           <option value="saaspay">SasPay</option>
@@ -105,11 +105,11 @@ export default function AdminTransactions() {
               <tr key={t.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
                 <Td mono>
                   <Link href={`/admin/transactions/${t.id}`} className="hover:text-yellow-600">{t.reference}</Link>
-                  <span className="block font-sans text-[12px] text-slate-400">{t.type}</span>
+                  <span className="block font-sans text-[10.5px] text-slate-400">{t.type}</span>
                 </Td>
                 <Td>{t.email || "—"}</Td>
                 <Td>{fmtTx(t.amount, t.currency)}</Td>
-                <Td><span className="text-[12.5px] font-bold text-slate-500">{t.provider || "—"}</span></Td>
+                <Td><span className="text-[11px] font-bold text-slate-500">{t.provider || "—"}</span></Td>
                 <Td>{statusPill(t.status === "success" ? "Successful" : t.status)}</Td>
                 <Td>{agoShort(t.createdAt)}</Td>
               </tr>
@@ -119,14 +119,14 @@ export default function AdminTransactions() {
         {rows.length === 0 && <Empty>No transactions found.</Empty>}
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-[13px] font-bold text-slate-500">
+      <div className="mt-3 flex items-center justify-between text-[11.5px] font-bold text-slate-500">
         <span>Showing {rows.length} of {total}</span>
         <span className="flex gap-2">
           <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))} className="rounded-xl bg-white p-2.5 shadow-sm disabled:opacity-40">
-            <ChevronLeft size={17} />
+            <ChevronLeft size={15} />
           </button>
           <button disabled={offset + limit >= total} onClick={() => setOffset(offset + limit)} className="rounded-xl bg-white p-2.5 shadow-sm disabled:opacity-40">
-            <ChevronRight size={17} />
+            <ChevronRight size={15} />
           </button>
         </span>
       </div>

@@ -38,7 +38,7 @@ export default function AdminRefunds() {
           <button
             key={t}
             onClick={() => setStatus(t)}
-            className={`rounded-full px-4 py-1.5 text-[13px] font-bold capitalize ${status === t ? "bg-[#10132e] text-white" : "bg-white text-slate-600 shadow-sm"}`}
+            className={`rounded-full px-4 py-1.5 text-[11.5px] font-bold capitalize ${status === t ? "bg-[#10132e] text-white" : "bg-white text-slate-600 shadow-sm"}`}
           >
             {t}
           </button>
@@ -48,7 +48,7 @@ export default function AdminRefunds() {
           <button
             key={t}
             onClick={() => setKind(t)}
-            className={`rounded-full px-4 py-1.5 text-[13px] font-bold capitalize ${kind === t ? "bg-yellow-400 text-slate-900" : "bg-white text-slate-600 shadow-sm"}`}
+            className={`rounded-full px-4 py-1.5 text-[11.5px] font-bold capitalize ${kind === t ? "bg-yellow-400 text-slate-900" : "bg-white text-slate-600 shadow-sm"}`}
           >
             {t}
           </button>
@@ -69,12 +69,12 @@ export default function AdminRefunds() {
                   <span className="mt-0.5 block">
                     <Pill color={r.kind === "dispute" ? "yellow" : "blue"}>{r.kind}</Pill>
                   </span>
-                  {r.reason && <span className="mt-1 block font-sans text-[12px] text-slate-400">{r.reason}</span>}
+                  {r.reason && <span className="mt-1 block font-sans text-[10.5px] text-slate-400">{r.reason}</span>}
                 </Td>
                 <Td>
                   <span className="block font-bold">{r.fullName}</span>
-                  <span className="block text-[12px] text-slate-400">{r.email}</span>
-                  <span className="block font-mono text-[11.5px] text-slate-400">tx: {r.txRef || "—"}</span>
+                  <span className="block text-[10.5px] text-slate-400">{r.email}</span>
+                  <span className="block font-mono text-[10px] text-slate-400">tx: {r.txRef || "—"}</span>
                 </Td>
                 <Td>{fmtTx(r.amount, r.currency)}</Td>
                 <Td>{statusPill(r.status)}</Td>
@@ -82,15 +82,15 @@ export default function AdminRefunds() {
                 <Td right>
                   {r.status === "pending" ? (
                     <span className="inline-flex gap-1.5">
-                      <button onClick={() => decide(r.id, "approve")} className="rounded-lg bg-green-500 px-3 py-1.5 text-[12px] font-extrabold text-white">
+                      <button onClick={() => decide(r.id, "approve")} className="rounded-lg bg-green-500 px-3 py-1.5 text-[10.5px] font-extrabold text-white">
                         Execute
                       </button>
-                      <button onClick={() => decide(r.id, "reject")} className="rounded-lg bg-rose-50 px-3 py-1.5 text-[12px] font-extrabold text-rose-600">
+                      <button onClick={() => decide(r.id, "reject")} className="rounded-lg bg-rose-50 px-3 py-1.5 text-[10.5px] font-extrabold text-rose-600">
                         Reject
                       </button>
                     </span>
                   ) : (
-                    <span className="text-[11.5px] font-semibold text-slate-400">
+                    <span className="text-[10px] font-semibold text-slate-400">
                       {r.decidedAt ? agoShort(r.decidedAt) : "—"}
                     </span>
                   )}

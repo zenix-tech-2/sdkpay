@@ -80,9 +80,9 @@ export default function AdminShell({
   const drawer = (
     <div className="flex h-full flex-col p-4" style={{ background: NAVY }}>
       <div className="flex items-center justify-between px-2 py-2">
-        <p className="text-[15px] font-bold text-white">Admin menu</p>
+        <p className="text-[13px] font-bold text-white">Admin menu</p>
         <button onClick={() => setOpen(false)} className="rounded-full bg-white/10 p-1.5 text-white lg:hidden" aria-label="close">
-          <X size={16} />
+          <X size={14} />
         </button>
       </div>
       <nav className="mt-2 flex-1 space-y-1 overflow-y-auto">
@@ -94,13 +94,13 @@ export default function AdminShell({
               key={m.href}
               href={m.href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14.5px] font-semibold transition"
+              className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold transition"
               style={active ? { background: GOLD, color: NAVY } : { color: "#aab0c5" }}
             >
-              <m.icon size={19} />
+              <m.icon size={17} />
               {m.label}
               {!!count && (
-                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-extrabold text-white">
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-extrabold text-white">
                   {count > 99 ? "99+" : count}
                 </span>
               )}
@@ -108,17 +108,17 @@ export default function AdminShell({
           );
         })}
         <div className="my-3 border-t border-white/10" />
-        <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14.5px] font-semibold text-[#aab0c5] hover:bg-white/5">
-          <Smartphone size={19} /> Merchant app
+        <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold text-[#aab0c5] hover:bg-white/5">
+          <Smartphone size={17} /> Merchant app
         </Link>
-        <Link href="/docs" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14.5px] font-semibold text-[#aab0c5] hover:bg-white/5">
-          <BookOpen size={19} /> Docs
+        <Link href="/docs" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold text-[#aab0c5] hover:bg-white/5">
+          <BookOpen size={17} /> Docs
         </Link>
-        <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[14.5px] font-semibold text-rose-300 hover:bg-white/5">
-          <LogOut size={19} /> Log out
+        <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[13px] font-semibold text-rose-300 hover:bg-white/5">
+          <LogOut size={17} /> Log out
         </button>
       </nav>
-      <p className="truncate px-3.5 pb-1 pt-3 text-[12px] font-medium text-slate-500">
+      <p className="truncate px-3.5 pb-1 pt-3 text-[10.5px] font-medium text-slate-500">
         {admin.email} · {admin.role}
       </p>
     </div>
@@ -127,13 +127,13 @@ export default function AdminShell({
   return (
     <div className="min-h-screen" style={{ background: "#edf0f7" }}>
       {/* topbar */}
-      <header className="sticky top-0 z-40 flex h-[52px] items-center gap-3 px-4" style={{ background: NAVY }}>
+      <header className="sticky top-0 z-40 flex h-[46px] items-center gap-3 px-4" style={{ background: NAVY }}>
         <button onClick={() => setOpen(true)} className="rounded-lg bg-white/10 p-1.5 text-white lg:hidden" aria-label="menu">
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
-        <p className="mx-auto text-[15px] font-extrabold text-white lg:mx-0">SDK Pay Admin</p>
+        <p className="mx-auto text-[13px] font-extrabold text-white lg:mx-0">SDK Pay Admin</p>
         <Link href="/admin/support" className="relative rounded-lg bg-white/10 p-1.5 text-white" aria-label="tickets">
-          <Bell size={18} />
+          <Bell size={16} />
           {!!badges.tickets && (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-extrabold text-white">
               {badges.tickets > 9 ? "9+" : badges.tickets}

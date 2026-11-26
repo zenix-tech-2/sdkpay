@@ -27,9 +27,9 @@ export default function AdminMonitoring() {
   function Stat({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
     return (
       <div className="rounded-2xl bg-white p-4 shadow-sm">
-        <p className="text-[12px] font-medium text-slate-500">{label}</p>
-        <p className={`text-[19px] font-extrabold ${color}`}>{value}</p>
-        {sub && <p className="text-[11.5px] font-medium text-slate-400">{sub}</p>}
+        <p className="text-[10.5px] font-medium text-slate-500">{label}</p>
+        <p className={`text-[16.5px] font-extrabold ${color}`}>{value}</p>
+        {sub && <p className="text-[10px] font-medium text-slate-400">{sub}</p>}
       </div>
     );
   }
@@ -40,12 +40,12 @@ export default function AdminMonitoring() {
         title="Monitoring"
         sub="System health, provider traffic and webhook delivery"
         right={
-          <button onClick={purge} className="flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[12px] font-bold text-slate-600 shadow-sm">
-            <Trash2 size={14} /> Purge logs &gt; 30 days
+          <button onClick={purge} className="flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[10.5px] font-bold text-slate-600 shadow-sm">
+            <Trash2 size={12} /> Purge logs &gt; 30 days
           </button>
         }
       />
-      {!d && <p className="py-10 text-center text-[13px] font-bold text-slate-400">Checking systems...</p>}
+      {!d && <p className="py-10 text-center text-[11.5px] font-bold text-slate-400">Checking systems...</p>}
       {d && (
         <>
           <div className="grid grid-cols-2 gap-3">
@@ -59,7 +59,7 @@ export default function AdminMonitoring() {
             <Stat label="Transactions · 24h" value={`${d.stats.tx24h} (${d.stats.txFailed24h} failed)`} color="text-slate-900" />
           </div>
 
-          <p className="mb-2 mt-5 text-[14px] font-extrabold">Top provider actions · 24h</p>
+          <p className="mb-2 mt-5 text-[12.5px] font-extrabold">Top provider actions · 24h</p>
           <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full">
               <thead><tr className="border-b border-slate-100"><Th>Action</Th><Th>Provider</Th><Th right>Requests</Th></tr></thead>
@@ -71,10 +71,10 @@ export default function AdminMonitoring() {
                 ))}
               </tbody>
             </table>
-            {d.topActions.length === 0 && <p className="py-6 text-center text-[12.5px] font-semibold text-slate-400">No traffic yet.</p>}
+            {d.topActions.length === 0 && <p className="py-6 text-center text-[11px] font-semibold text-slate-400">No traffic yet.</p>}
           </div>
 
-          <p className="mb-2 mt-5 text-[14px] font-extrabold">Failed deliveries</p>
+          <p className="mb-2 mt-5 text-[12.5px] font-extrabold">Failed deliveries</p>
           <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full min-w-[560px]">
               <thead><tr className="border-b border-slate-100"><Th>Event</Th><Th>Provider</Th><Th>Message</Th><Th>When</Th></tr></thead>
@@ -82,16 +82,16 @@ export default function AdminMonitoring() {
                 {d.failedDeliveries.map((e: any) => (
                   <tr key={e.id} className="border-b border-slate-50 last:border-0">
                     <Td mono>{e.action}</Td><Td>{e.provider}</Td>
-                    <Td><span className="line-clamp-2 block max-w-[280px] text-[12.5px]">{e.message || "—"}</span></Td>
+                    <Td><span className="line-clamp-2 block max-w-[280px] text-[11px]">{e.message || "—"}</span></Td>
                     <Td>{agoShort(e.createdAt)}</Td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {d.failedDeliveries.length === 0 && <p className="py-6 text-center text-[12.5px] font-semibold text-slate-400">All webhooks delivered ✓</p>}
+            {d.failedDeliveries.length === 0 && <p className="py-6 text-center text-[11px] font-semibold text-slate-400">All webhooks delivered ✓</p>}
           </div>
 
-          <p className="mb-2 mt-5 text-[14px] font-extrabold">Latest provider events</p>
+          <p className="mb-2 mt-5 text-[12.5px] font-extrabold">Latest provider events</p>
           <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full min-w-[560px]">
               <thead><tr className="border-b border-slate-100"><Th>Status</Th><Th>Action</Th><Th>Provider</Th><Th>When</Th></tr></thead>
@@ -104,7 +104,7 @@ export default function AdminMonitoring() {
                 ))}
               </tbody>
             </table>
-            {d.latest.length === 0 && <p className="py-6 text-center text-[12.5px] font-semibold text-slate-400">No events logged yet.</p>}
+            {d.latest.length === 0 && <p className="py-6 text-center text-[11px] font-semibold text-slate-400">No events logged yet.</p>}
           </div>
         </>
       )}

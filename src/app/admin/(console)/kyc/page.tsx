@@ -25,7 +25,7 @@ export default function AdminKyc() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-full px-4 py-1.5 text-[13px] font-bold capitalize ${
+            className={`rounded-full px-4 py-1.5 text-[11.5px] font-bold capitalize ${
               tab === t ? "bg-[#10132e] text-white" : "bg-white text-slate-600 shadow-sm"
             }`}
           >
@@ -45,14 +45,14 @@ export default function AdminKyc() {
               <tr key={k.id} className="border-b border-slate-50 last:border-0">
                 <Td>
                   <span className="block font-bold">{k.fullName}</span>
-                  <span className="block text-[12px] text-slate-400">{k.email}</span>
+                  <span className="block text-[10.5px] text-slate-400">{k.email}</span>
                 </Td>
                 <Td>{k.idType}</Td>
                 <Td>{k.country}</Td>
                 <Td>{agoShort(k.createdAt)}</Td>
                 <Td>{statusPill(k.status)}</Td>
                 <Td right>
-                  <Link href={`/admin/kyc/${k.id}`} className="rounded-lg bg-[#10132e] px-3.5 py-1.5 text-[12.5px] font-bold text-white">
+                  <Link href={`/admin/kyc/${k.id}`} className="rounded-lg bg-[#10132e] px-3.5 py-1.5 text-[11px] font-bold text-white">
                     Review
                   </Link>
                 </Td>

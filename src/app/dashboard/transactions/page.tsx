@@ -165,93 +165,93 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <h1 className="text-[30px] font-extrabold tracking-tight text-slate-900">Transactions</h1>
+      <h1 className="text-[26.5px] font-extrabold tracking-tight text-slate-900">Transactions</h1>
 
-      <p className="mt-5 text-[14px] font-bold tracking-[0.22em] text-slate-500">SUMMARY</p>
+      <p className="mt-5 text-[12.5px] font-bold tracking-[0.22em] text-slate-500">SUMMARY</p>
       <div className="mt-3 space-y-3.5">
         <div className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white px-5 py-5">
-          <span className="flex h-[60px] w-[60px] items-center justify-center rounded-2xl bg-emerald-50 text-[34px]">💳</span>
-          <span className="text-[19px] font-medium text-slate-900">Total incoming</span>
-          <span className="ml-auto text-[19px] font-bold text-green-500">+{totals.entries.toLocaleString("fr-FR")} FCFA</span>
+          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-emerald-50 text-[30px]">💳</span>
+          <span className="text-[16.5px] font-medium text-slate-900">Total incoming</span>
+          <span className="ml-auto text-[16.5px] font-bold text-green-500">+{totals.entries.toLocaleString("fr-FR")} FCFA</span>
         </div>
         <div className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white px-5 py-5">
-          <span className="flex h-[60px] w-[60px] items-center justify-center rounded-2xl bg-red-50 text-[34px]">🧮</span>
-          <span className="text-[19px] font-medium text-slate-900">Total outgoing</span>
-          <span className="ml-auto text-[19px] font-bold text-red-500">-{totals.exits.toLocaleString("fr-FR")} FCFA</span>
+          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-red-50 text-[30px]">🧮</span>
+          <span className="text-[16.5px] font-medium text-slate-900">Total outgoing</span>
+          <span className="ml-auto text-[16.5px] font-bold text-red-500">-{totals.exits.toLocaleString("fr-FR")} FCFA</span>
         </div>
         <div className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white px-5 py-5">
-          <span className="flex h-[60px] w-[60px] items-center justify-center rounded-2xl bg-slate-100 text-[34px]">📊</span>
-          <span className="text-[19px] font-medium text-slate-900">Results displayed</span>
-          <span className="ml-auto text-[19px] font-bold text-slate-900">{txs.length}</span>
+          <span className="flex h-[53px] w-[53px] items-center justify-center rounded-2xl bg-slate-100 text-[30px]">📊</span>
+          <span className="text-[16.5px] font-medium text-slate-900">Results displayed</span>
+          <span className="ml-auto text-[16.5px] font-bold text-slate-900">{txs.length}</span>
         </div>
       </div>
 
-      <p className="mt-6 text-[14px] font-bold tracking-[0.22em] text-slate-500">FILTERS</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.22em] text-slate-500">FILTERS</p>
       <div className="relative mt-3">
-        <Search size={22} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" />
+        <Search size={19} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search by amount, operator, reference"
-          className="w-full rounded-full border border-slate-300 bg-white py-[18px] pl-14 pr-5 text-[17px] font-medium placeholder:text-slate-500 focus:border-yellow-500"
+          className="w-full rounded-full border border-slate-300 bg-white py-[16px] pl-14 pr-5 text-[15px] font-medium placeholder:text-slate-500 focus:border-yellow-500"
         />
       </div>
 
       <div className="mt-3.5 grid grid-cols-2 gap-3.5">
         <div className="relative">
-          <select value={type} onChange={(e) => setType(e.target.value)} className="w-full appearance-none rounded-[24px] border border-slate-300 bg-white px-5 py-[16px] text-[17px] font-medium focus:border-yellow-500">
+          <select value={type} onChange={(e) => setType(e.target.value)} className="w-full appearance-none rounded-[24px] border border-slate-300 bg-white px-5 py-[14px] text-[15px] font-medium focus:border-yellow-500">
             {TYPE_OPTIONS.map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
-          <ChevronDown size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
         <div className="relative">
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full appearance-none rounded-[24px] border border-slate-300 bg-white px-5 py-[16px] text-[17px] font-medium focus:border-yellow-500">
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full appearance-none rounded-[24px] border border-slate-300 bg-white px-5 py-[14px] text-[15px] font-medium focus:border-yellow-500">
             {STATUS_OPTIONS.map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
-          <ChevronDown size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
       </div>
       <div className="relative mt-3.5 w-[calc(50%-7px)]">
-        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full appearance-none rounded-[24px] border border-slate-300 bg-white px-5 py-[16px] text-[17px] font-medium focus:border-yellow-500">
+        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full appearance-none rounded-[24px] border border-slate-300 bg-white px-5 py-[14px] text-[15px] font-medium focus:border-yellow-500">
           {CURRENCY_OPTIONS.map(([v, l]) => (
             <option key={v} value={v}>{l}</option>
           ))}
         </select>
-        <ChevronDown size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
       </div>
 
       <div className="mt-3.5 flex justify-center gap-3.5">
         <button
           onClick={() => load(true)}
-          className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-3.5 text-[18px] font-medium text-slate-900 shadow-sm hover:bg-slate-50"
+          className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-3.5 text-[16px] font-medium text-slate-900 shadow-sm hover:bg-slate-50"
         >
-          <RefreshCw size={20} className={refreshing ? "animate-spin" : ""} /> Refresh
+          <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} /> Refresh
         </button>
         <button
           onClick={exportCsv}
-          className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-3.5 text-[18px] font-medium text-slate-900 shadow-sm hover:bg-slate-50"
+          className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-3.5 text-[16px] font-medium text-slate-900 shadow-sm hover:bg-slate-50"
         >
-          <Download size={20} /> Export CSV
+          <Download size={18} /> Export CSV
         </button>
       </div>
 
-      <p className="mt-6 text-[14px] font-bold tracking-[0.22em] text-slate-500">HISTORY</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.22em] text-slate-500">HISTORY</p>
 
-      {loading && <p className="mt-4 text-center text-[14px] font-bold text-slate-400">Loading...</p>}
+      {loading && <p className="mt-4 text-center text-[12.5px] font-bold text-slate-400">Loading...</p>}
 
       {!loading && txs.length === 0 && (
-        <div className="mt-3 rounded-3xl border border-slate-200 bg-white p-8 text-center text-[14px] font-semibold text-slate-400">
+        <div className="mt-3 rounded-3xl border border-slate-200 bg-white p-8 text-center text-[12.5px] font-semibold text-slate-400">
           No transactions found.
         </div>
       )}
 
       {groups.map(([day, items]) => (
         <div key={day}>
-          <p className="mt-4 text-[15px] font-bold tracking-[0.18em] text-slate-500">{day}</p>
+          <p className="mt-4 text-[13px] font-bold tracking-[0.18em] text-slate-500">{day}</p>
           <div className="stagger mt-2.5 space-y-3.5">
             {items.map((tx) => {
               const failed = tx.status === "failed";
@@ -262,7 +262,7 @@ export default function TransactionsPage() {
                 <Link
                   key={tx.id}
                   href={`/dashboard/transactions/${tx.id}`}
-                  className={`flex items-center gap-3.5 rounded-[24px] border-[1.5px] p-[18px] transition hover:shadow-md ${
+                  className={`flex items-center gap-3.5 rounded-[24px] border-[1.5px] p-[16px] transition hover:shadow-md ${
                     failed
                       ? "border-red-400 border-l-[7px] border-l-red-500 bg-red-50"
                       : pending
@@ -270,30 +270,30 @@ export default function TransactionsPage() {
                         : "border-green-500 border-l-[7px] border-l-green-500 bg-green-50"
                   }`}
                 >
-                  <span className="flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-full bg-white/80 text-[30px] shadow-sm">
+                  <span className="flex h-[49.5px] w-[49.5px] shrink-0 items-center justify-center rounded-full bg-white/80 text-[26.5px] shadow-sm">
                     {txEmoji(tx.type, tx.operator)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[18px] font-medium text-slate-900">{txTitle(tx.type, tx.operator)}</p>
+                    <p className="truncate text-[16px] font-medium text-slate-900">{txTitle(tx.type, tx.operator)}</p>
                     {tx.channel === "api" && (
-                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-sky-300 bg-sky-50 px-2 py-0.5 text-[13px] font-bold text-sky-600">
-                        <CodeXml size={13} /> API
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-lg border border-sky-300 bg-sky-50 px-2 py-0.5 text-[11.5px] font-bold text-sky-600">
+                        <CodeXml size={11} /> API
                       </span>
                     )}
-                    <p className="mt-1 truncate text-[15px] font-medium text-slate-500">
+                    <p className="mt-1 truncate text-[13px] font-medium text-slate-500">
                       {tx.operator ?? tx.label ?? "SDK Pay"} · {time}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p
-                      className={`text-[18px] font-bold ${
+                      className={`text-[16px] font-bold ${
                         failed ? "text-slate-500" : incoming ? "text-green-500" : "text-red-500"
                       }`}
                     >
                       {incoming ? "+" : "-"}{txAmount(tx)}
                     </p>
                     <span
-                      className={`mt-1.5 inline-block rounded-lg border px-2.5 py-1 text-[13.5px] font-medium ${
+                      className={`mt-1.5 inline-block rounded-lg border px-2.5 py-1 text-[12px] font-medium ${
                         failed
                           ? "border-red-300 bg-red-100/70 text-red-500"
                           : pending

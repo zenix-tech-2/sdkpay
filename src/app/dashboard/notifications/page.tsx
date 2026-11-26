@@ -22,15 +22,15 @@ function fmtDate(iso: string) {
 function iconFor(n: Notif) {
   const t = `${n.title} ${n.message}`.toLowerCase();
   if (t.includes("pending") || t.includes("processing") || t.includes("attente")) {
-    return <Clock size={30} className="text-[#f0a500]" />;
+    return <Clock size={26} className="text-[#f0a500]" />;
   }
   if (t.includes("withdrawal") || t.includes("retrait") || t.includes("envoi") || t.includes("sent")) {
-    return <ArrowUpCircle size={30} className="text-orange-500" />;
+    return <ArrowUpCircle size={26} className="text-orange-500" />;
   }
   if (t.includes("deposit") || t.includes("dépôt") || t.includes("reçu") || t.includes("received") || t.includes("paiement")) {
-    return <Bell size={28} className="text-slate-900" />;
+    return <Bell size={25} className="text-slate-900" />;
   }
-  return <Bell size={28} className="text-slate-900" />;
+  return <Bell size={25} className="text-slate-900" />;
 }
 
 export default function NotificationsPage() {
@@ -74,32 +74,32 @@ export default function NotificationsPage() {
     <div className="mx-auto -mt-5 max-w-2xl sm:-mt-6">
       <div className="flex items-center gap-3 border-b border-slate-200 bg-[#f4f6fb] py-4">
         <Link href="/dashboard" className="text-slate-500" aria-label="back">
-          <ArrowLeft size={24} />
+          <ArrowLeft size={21} />
         </Link>
-        <Bell size={26} className="text-slate-900" fill="currentColor" />
-        <h1 className="text-[24px] font-extrabold text-slate-900">Notifications</h1>
+        <Bell size={23} className="text-slate-900" fill="currentColor" />
+        <h1 className="text-[21px] font-extrabold text-slate-900">Notifications</h1>
         {unread > 0 && (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-[15px] font-extrabold text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-[13px] font-extrabold text-white">
             {unread}
           </span>
         )}
         <span className="ml-auto flex items-center gap-4">
           <button onClick={markAll} title="Mark all read" className="text-[#f0a500]">
-            <CheckCheck size={26} />
+            <CheckCheck size={23} />
           </button>
           <button onClick={clearAll} title="Delete all" className="text-red-600">
-            <Trash2 size={24} />
+            <Trash2 size={21} />
           </button>
         </span>
       </div>
 
-      {loading && <p className="py-10 text-center text-[14px] font-bold text-slate-400">Loading...</p>}
+      {loading && <p className="py-10 text-center text-[12.5px] font-bold text-slate-400">Loading...</p>}
 
       {!loading && notifs.length === 0 && (
         <div className="rounded-b-3xl bg-white p-12 text-center">
-          <Bell size={40} className="mx-auto text-slate-200" />
-          <p className="mt-3 text-[16px] font-extrabold">No notifications</p>
-          <p className="text-[13.5px] font-medium text-slate-400">You're all caught up.</p>
+          <Bell size={35} className="mx-auto text-slate-200" />
+          <p className="mt-3 text-[14px] font-extrabold">No notifications</p>
+          <p className="text-[12px] font-medium text-slate-400">You're all caught up.</p>
         </div>
       )}
 
@@ -111,16 +111,16 @@ export default function NotificationsPage() {
               {!n.isRead && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" />}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[19px] font-bold text-slate-900">{n.title}</p>
-              <p className="mt-0.5 line-clamp-3 text-[17px] font-medium leading-snug text-slate-500">{n.message}</p>
-              <p className="mt-1.5 text-[15px] font-medium text-slate-400">{fmtDate(n.createdAt)}</p>
+              <p className="text-[16.5px] font-bold text-slate-900">{n.title}</p>
+              <p className="mt-0.5 line-clamp-3 text-[15px] font-medium leading-snug text-slate-500">{n.message}</p>
+              <p className="mt-1.5 text-[13px] font-medium text-slate-400">{fmtDate(n.createdAt)}</p>
             </div>
             <span className="flex shrink-0 items-start gap-4 pt-1">
               <Link href="/dashboard/transactions" className="text-slate-300 hover:text-slate-500" title="Open transactions">
-                <ExternalLink size={22} />
+                <ExternalLink size={19} />
               </Link>
               <button onClick={() => remove(n.id)} className="font-extrabold text-red-600" title="Delete" aria-label="delete">
-                <X size={24} strokeWidth={3} />
+                <X size={21} strokeWidth={3} />
               </button>
             </span>
           </div>

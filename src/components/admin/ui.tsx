@@ -11,7 +11,7 @@ const PILL_COLORS: Record<string, string> = {
 
 export function Pill({ color = "gray", children }: { color?: keyof typeof PILL_COLORS | string; children: ReactNode }) {
   return (
-    <span className={`inline-block rounded-lg px-2.5 py-1 text-[12px] font-bold ${PILL_COLORS[color as string] || PILL_COLORS.gray}`}>
+    <span className={`inline-block rounded-lg px-2.5 py-1 text-[10.5px] font-bold ${PILL_COLORS[color as string] || PILL_COLORS.gray}`}>
       {children}
     </span>
   );
@@ -35,8 +35,8 @@ export function PageTitle({ title, sub, right }: { title: string; sub?: string; 
   return (
     <div className="mb-4 flex items-start justify-between gap-3">
       <div>
-        <h1 className="text-[26px] font-extrabold tracking-tight text-slate-900">{title}</h1>
-        {sub && <p className="text-[13.5px] font-medium text-slate-500">{sub}</p>}
+        <h1 className="text-[23px] font-extrabold tracking-tight text-slate-900">{title}</h1>
+        {sub && <p className="text-[12px] font-medium text-slate-500">{sub}</p>}
       </div>
       {right}
     </div>
@@ -45,7 +45,7 @@ export function PageTitle({ title, sub, right }: { title: string; sub?: string; 
 
 export function Th({ children, right }: { children: ReactNode; right?: boolean }) {
   return (
-    <th className={`px-4 py-3 text-[11px] font-bold tracking-wider text-slate-400 ${right ? "text-right" : "text-left"}`}>
+    <th className={`px-4 py-3 text-[10px] font-bold tracking-wider text-slate-400 ${right ? "text-right" : "text-left"}`}>
       {children}
     </th>
   );
@@ -53,14 +53,14 @@ export function Th({ children, right }: { children: ReactNode; right?: boolean }
 
 export function Td({ children, right, mono }: { children: ReactNode; right?: boolean; mono?: boolean }) {
   return (
-    <td className={`px-4 py-3.5 text-[13.5px] font-medium text-slate-800 ${right ? "text-right" : ""} ${mono ? "font-mono text-[12.5px]" : ""}`}>
+    <td className={`px-4 py-3.5 text-[12px] font-medium text-slate-800 ${right ? "text-right" : ""} ${mono ? "font-mono text-[11px]" : ""}`}>
       {children}
     </td>
   );
 }
 
 export function Empty({ children }: { children: ReactNode }) {
-  return <p className="px-4 py-8 text-center text-[13px] font-semibold text-slate-400">{children}</p>;
+  return <p className="px-4 py-8 text-center text-[11.5px] font-semibold text-slate-400">{children}</p>;
 }
 
 export function agoShort(iso: string | Date) {

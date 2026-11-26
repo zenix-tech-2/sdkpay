@@ -8,8 +8,8 @@ import { LogoLarge } from "@/components/Logo";
 import CountrySelect from "@/components/auth/CountrySelect";
 
 const inputCls =
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-[13px] text-[15px] font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition";
-const labelCls = "mb-1.5 block text-[16px] font-extrabold text-slate-900";
+  "w-full rounded-xl border border-slate-200 bg-white px-4 py-[11.5px] text-[13px] font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition";
+const labelCls = "mb-1.5 block text-[14px] font-extrabold text-slate-900";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -78,13 +78,13 @@ export default function RegisterPage() {
         <div className="pt-4">
           <LogoLarge />
         </div>
-        <h1 className="mt-8 text-center text-[30px] sm:text-[36px] font-extrabold tracking-tight text-slate-900">
+        <h1 className="mt-8 text-center text-[26.5px] sm:text-[31.5px] font-extrabold tracking-tight text-slate-900">
           Create an account
         </h1>
 
         <form onSubmit={submit} className="mt-8 rounded-[26px] border border-slate-200 bg-white p-6 sm:p-9 shadow-xl shadow-slate-200/50 space-y-5">
           {error && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-[13.5px] font-bold text-red-600">
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-[12px] font-bold text-red-600">
               {error}
             </div>
           )}
@@ -92,7 +92,7 @@ export default function RegisterPage() {
           <div>
             <label className={labelCls}>Full name</label>
             <div className="relative">
-              <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 value={form.fullName}
@@ -106,7 +106,7 @@ export default function RegisterPage() {
           <div>
             <label className={labelCls}>Username</label>
             <div className="relative">
-              <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 value={form.username}
@@ -121,7 +121,7 @@ export default function RegisterPage() {
           <div>
             <label className={labelCls}>Email</label>
             <div className="relative">
-              <Mail size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 type="email"
@@ -139,7 +139,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-[150px_1fr] sm:grid-cols-[180px_1fr] gap-3">
               <CountrySelect value={form.dial} onChange={(d) => set("dial", d)} />
               <div className="relative">
-                <Phone size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   required
                   inputMode="tel"
@@ -155,7 +155,7 @@ export default function RegisterPage() {
           <div>
             <label className={labelCls}>Code de parrainage <span className="font-semibold">(facultatif)</span></label>
             <div className="relative">
-              <Ticket size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+              <Ticket size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
               <input
                 value={form.referral}
                 onChange={(e) => set("referral", e.target.value)}
@@ -169,7 +169,7 @@ export default function RegisterPage() {
           <div>
             <label className={labelCls}>Password</label>
             <div className="relative">
-              <Lock size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 type={show1 ? "text" : "password"}
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
               />
               <button type="button" onClick={() => setShow1(!show1)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
-                {show1 ? <EyeOff size={20} /> : <Eye size={20} />}
+                {show1 ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
           <div>
             <label className={labelCls}>Confirm password</label>
             <div className="relative">
-              <Lock size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 type={show2 ? "text" : "password"}
@@ -199,7 +199,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
               />
               <button type="button" onClick={() => setShow2(!show2)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
-                {show2 ? <EyeOff size={20} /> : <Eye size={20} />}
+                {show2 ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
@@ -207,13 +207,13 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[16px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60 transition"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[14px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60 transition"
           >
-            {loading && <Loader2 size={18} className="animate-spin" />}
+            {loading && <Loader2 size={16} className="animate-spin" />}
             {loading ? "Création..." : "Créer mon compte"}
           </button>
 
-          <p className="text-center text-[13.5px] font-semibold text-slate-500">
+          <p className="text-center text-[12px] font-semibold text-slate-500">
             Vous avez déjà un compte ?{" "}
             <Link href="/login" className="font-extrabold text-yellow-600 hover:underline">
               Se connecter
@@ -221,7 +221,7 @@ export default function RegisterPage() {
           </p>
         </form>
 
-        <p className="mt-6 text-center text-[12px] font-medium text-slate-400">
+        <p className="mt-6 text-center text-[10.5px] font-medium text-slate-400">
           En continuant, vous acceptez nos Conditions d&apos;utilisation et notre Politique de confidentialité.
         </p>
       </div>

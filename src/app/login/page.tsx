@@ -7,8 +7,8 @@ import { User, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { LogoLarge } from "@/components/Logo";
 
 const inputCls =
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-[13px] text-[15px] font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition";
-const labelCls = "mb-1.5 block text-[16px] font-extrabold text-slate-900";
+  "w-full rounded-xl border border-slate-200 bg-white px-4 py-[11.5px] text-[13px] font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:border-yellow-500 focus:ring-4 focus:ring-yellow-500/20 transition";
+const labelCls = "mb-1.5 block text-[14px] font-extrabold text-slate-900";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,16 +49,16 @@ export default function LoginPage() {
         <div className="pt-4">
           <LogoLarge />
         </div>
-        <h1 className="mt-8 text-center text-[30px] sm:text-[36px] font-extrabold tracking-tight text-slate-900">
+        <h1 className="mt-8 text-center text-[26.5px] sm:text-[31.5px] font-extrabold tracking-tight text-slate-900">
           Welcome back
         </h1>
-        <p className="mt-2 text-center text-[14px] font-semibold text-slate-500">
+        <p className="mt-2 text-center text-[12.5px] font-semibold text-slate-500">
           Connectez-vous pour gérer vos paiements
         </p>
 
         <form onSubmit={submit} className="mt-8 rounded-[26px] border border-slate-200 bg-white p-6 sm:p-9 shadow-xl shadow-slate-200/50 space-y-5">
           {error && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-[13.5px] font-bold text-red-600">
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-[12px] font-bold text-red-600">
               {error}
             </div>
           )}
@@ -66,7 +66,7 @@ export default function LoginPage() {
           <div>
             <label className={labelCls}>Email or username</label>
             <div className="relative">
-              <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 value={identifier}
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div>
             <label className={labelCls}>Password</label>
             <div className="relative">
-              <Lock size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 required
                 type={show ? "text" : "password"}
@@ -92,12 +92,12 @@ export default function LoginPage() {
                 autoComplete="current-password"
               />
               <button type="button" onClick={() => setShow(!show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
-                {show ? <EyeOff size={20} /> : <Eye size={20} />}
+                {show ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-[13px] font-bold">
+          <div className="flex items-center justify-between text-[11.5px] font-bold">
             <label className="flex items-center gap-2 text-slate-600">
               <input type="checkbox" defaultChecked className="h-4 w-4 rounded accent-yellow-500" />
               Se souvenir de moi
@@ -108,13 +108,13 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[16px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60 transition"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[14px] font-extrabold text-slate-900 shadow-lg shadow-yellow-400/30 hover:bg-yellow-300 disabled:opacity-60 transition"
           >
-            {loading && <Loader2 size={18} className="animate-spin" />}
+            {loading && <Loader2 size={16} className="animate-spin" />}
             {loading ? "Connexion..." : "Se connecter"}
           </button>
 
-          <p className="text-center text-[13.5px] font-semibold text-slate-500">
+          <p className="text-center text-[12px] font-semibold text-slate-500">
             Pas encore de compte ?{" "}
             <Link href="/register" className="font-extrabold text-yellow-600 hover:underline">
               Créer un compte
@@ -123,7 +123,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-[13px] font-bold text-slate-400 hover:text-slate-600">
+          <Link href="/" className="text-[11.5px] font-bold text-slate-400 hover:text-slate-600">
             ← Retour à l&apos;accueil
           </Link>
         </div>

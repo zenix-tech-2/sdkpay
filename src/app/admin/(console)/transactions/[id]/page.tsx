@@ -47,34 +47,34 @@ export default function AdminTxDetail({ params }: { params: Promise<{ id: string
     setRefundReason("");
   }
 
-  if (!data?.transaction) return <p className="py-16 text-center text-[14px] font-bold text-slate-400">Loading...</p>;
+  if (!data?.transaction) return <p className="py-16 text-center text-[12.5px] font-bold text-slate-400">Loading...</p>;
   const t = data.transaction;
 
   function Row({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
     return (
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 py-2.5 last:border-0">
-        <span className="text-[13px] font-medium text-slate-400">{label}</span>
-        <span className={`text-right text-[13.5px] font-semibold ${mono ? "font-mono text-[12.5px]" : ""}`}>{value}</span>
+        <span className="text-[11.5px] font-medium text-slate-400">{label}</span>
+        <span className={`text-right text-[12px] font-semibold ${mono ? "font-mono text-[11px]" : ""}`}>{value}</span>
       </div>
     );
   }
 
   return (
     <div>
-      <Link href="/admin/transactions" className="flex items-center gap-1 text-[13px] font-bold text-slate-500">
-        <ArrowLeft size={16} /> Transactions
+      <Link href="/admin/transactions" className="flex items-center gap-1 text-[11.5px] font-bold text-slate-500">
+        <ArrowLeft size={14} /> Transactions
       </Link>
       <div className="mt-1 flex items-start justify-between gap-2">
         <div>
-          <h1 className="font-mono text-[20px] font-extrabold">{t.reference}</h1>
-          <p className="text-[13px] font-medium text-slate-500">
+          <h1 className="font-mono text-[17.5px] font-extrabold">{t.reference}</h1>
+          <p className="text-[11.5px] font-medium text-slate-500">
             {t.type} · {data.user ? <Link href={`/admin/users/${data.user.id}`} className="font-bold text-sky-600">{data.user.email}</Link> : "—"}
           </p>
         </div>
         {statusPill(t.status === "success" ? "Successful" : t.status)}
       </div>
 
-      {msg && <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-[12.5px] font-bold">{msg}</p>}
+      {msg && <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-[11px] font-bold">{msg}</p>}
 
       <Card className="mt-3 !py-2">
         <Row label="Amount debited" value={fmtTx(t.amount, t.currency)} />
@@ -90,12 +90,12 @@ export default function AdminTxDetail({ params }: { params: Promise<{ id: string
 
       {t.status === "pending" && (
         <Card className="mt-3">
-          <p className="text-[14px] font-extrabold">Manual decision</p>
+          <p className="text-[12.5px] font-extrabold">Manual decision</p>
           <div className="mt-2.5 grid grid-cols-2 gap-2.5">
-            <button onClick={() => act("complete")} className="rounded-xl bg-green-500 py-3 text-[14px] font-extrabold text-white">
+            <button onClick={() => act("complete")} className="rounded-xl bg-green-500 py-3 text-[12.5px] font-extrabold text-white">
               ✓ Complete
             </button>
-            <button onClick={() => act("fail")} className="rounded-xl bg-rose-50 py-3 text-[14px] font-extrabold text-rose-600">
+            <button onClick={() => act("fail")} className="rounded-xl bg-rose-50 py-3 text-[12.5px] font-extrabold text-rose-600">
               Mark failed
             </button>
           </div>
@@ -104,11 +104,11 @@ export default function AdminTxDetail({ params }: { params: Promise<{ id: string
 
       {(t.type === "deposit" || t.type === "payment_received") && t.status === "success" && (
         <Card className="mt-3">
-          <p className="flex items-center gap-2 text-[14px] font-extrabold">
-            <Undo2 size={16} /> Refund
+          <p className="flex items-center gap-2 text-[12.5px] font-extrabold">
+            <Undo2 size={14} /> Refund
           </p>
           {!refundOpen ? (
-            <button onClick={() => setRefundOpen(true)} className="mt-2 rounded-xl bg-slate-100 px-4 py-2.5 text-[13px] font-bold">
+            <button onClick={() => setRefundOpen(true)} className="mt-2 rounded-xl bg-slate-100 px-4 py-2.5 text-[11.5px] font-bold">
               Open refund case
             </button>
           ) : (
@@ -117,15 +117,15 @@ export default function AdminTxDetail({ params }: { params: Promise<{ id: string
                 value={refundAmt}
                 onChange={(e) => setRefundAmt(e.target.value.replace(/[^0-9]/g, ""))}
                 placeholder={`Amount (max ${fmtTx(t.amount - t.fee, t.currency)})`}
-                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[13.5px] font-bold"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[12px] font-bold"
               />
               <input
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
                 placeholder="Reason (visible to merchant on execution)"
-                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[13.5px] font-medium"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-[12px] font-medium"
               />
-              <button onClick={createRefund} className="w-full rounded-xl bg-[#10132e] py-2.5 text-[13.5px] font-bold text-white">
+              <button onClick={createRefund} className="w-full rounded-xl bg-[#10132e] py-2.5 text-[12px] font-bold text-white">
                 Create case
               </button>
             </div>

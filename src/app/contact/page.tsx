@@ -15,13 +15,13 @@ export default function ContactPage() {
       <div className="mx-auto max-w-4xl px-4 pb-16">
         <div className="flex items-center justify-between pt-5">
           <Logo />
-          <Link href="/" className="flex items-center gap-1 text-[13px] font-bold text-slate-500 hover:text-slate-800">
-            <ArrowLeft size={15} /> Accueil
+          <Link href="/" className="flex items-center gap-1 text-[11.5px] font-bold text-slate-500 hover:text-slate-800">
+            <ArrowLeft size={13} /> Accueil
           </Link>
         </div>
 
-        <h1 className="mt-8 text-center text-[30px] font-extrabold tracking-tight">Contact</h1>
-        <p className="mt-1 text-center text-[14px] font-medium text-slate-500">Notre équipe répond en moins de 24h, 7j/7</p>
+        <h1 className="mt-8 text-center text-[26.5px] font-extrabold tracking-tight">Contact</h1>
+        <p className="mt-1 text-center text-[12.5px] font-medium text-slate-500">Notre équipe répond en moins de 24h, 7j/7</p>
 
         <div className="mt-8 grid sm:grid-cols-3 gap-3">
           {[
@@ -31,10 +31,10 @@ export default function ContactPage() {
           ].map((c) => (
             <div key={c.t} className="rounded-3xl border border-slate-200 bg-white p-5 text-center">
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
-                <c.icon size={19} />
+                <c.icon size={17} />
               </span>
-              <p className="mt-2 text-[12px] font-extrabold text-slate-400">{c.t}</p>
-              <p className="text-[13.5px] font-extrabold">{c.v}</p>
+              <p className="mt-2 text-[10.5px] font-extrabold text-slate-400">{c.t}</p>
+              <p className="text-[12px] font-extrabold">{c.v}</p>
             </div>
           ))}
         </div>
@@ -42,10 +42,10 @@ export default function ContactPage() {
         <div className="mt-4 rounded-[26px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xl">
           {sent ? (
             <div className="py-8 text-center">
-              <CheckCircle2 size={56} className="mx-auto text-green-500" />
-              <h2 className="mt-3 text-[20px] font-extrabold">Message envoyé !</h2>
-              <p className="mt-1 text-[13.5px] font-medium text-slate-500">Merci {form.name || ""}, notre équipe vous répondra très vite.</p>
-              <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }} className="mt-4 rounded-full bg-slate-900 px-6 py-2.5 text-[13.5px] font-extrabold text-white">
+              <CheckCircle2 size={49} className="mx-auto text-green-500" />
+              <h2 className="mt-3 text-[17.5px] font-extrabold">Message envoyé !</h2>
+              <p className="mt-1 text-[12px] font-medium text-slate-500">Merci {form.name || ""}, notre équipe vous répondra très vite.</p>
+              <button onClick={() => { setSent(false); setForm({ name: "", email: "", subject: "", message: "" }); }} className="mt-4 rounded-full bg-slate-900 px-6 py-2.5 text-[12px] font-extrabold text-white">
                 Nouveau message
               </button>
             </div>
@@ -58,13 +58,13 @@ export default function ContactPage() {
               className="space-y-4"
             >
               <div className="grid sm:grid-cols-2 gap-3">
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Votre nom" className="rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500" />
-                <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Votre email" className="rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500" />
+                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Votre nom" className="rounded-2xl border border-slate-200 px-4 py-3.5 text-[12.5px] font-bold focus:border-yellow-500" />
+                <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Votre email" className="rounded-2xl border border-slate-200 px-4 py-3.5 text-[12.5px] font-bold focus:border-yellow-500" />
               </div>
-              <input required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Sujet : ex. Problème de retrait" className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-bold focus:border-yellow-500" />
-              <textarea required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Décrivez votre besoin..." rows={5} className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[14px] font-medium focus:border-yellow-500" />
-              <button className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[15px] font-extrabold hover:bg-yellow-300">
-                <Send size={17} /> Envoyer le message
+              <input required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Sujet : ex. Problème de retrait" className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[12.5px] font-bold focus:border-yellow-500" />
+              <textarea required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Décrivez votre besoin..." rows={5} className="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-[12.5px] font-medium focus:border-yellow-500" />
+              <button className="flex w-full items-center justify-center gap-2 rounded-full bg-yellow-400 py-4 text-[13px] font-extrabold hover:bg-yellow-300">
+                <Send size={15} /> Envoyer le message
               </button>
             </form>
           )}

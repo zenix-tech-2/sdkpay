@@ -39,31 +39,31 @@ export default function AdminOverview() {
           <Link key={c.l} href={c.href} className="rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md">
             <div className="flex items-start justify-between">
               <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${c.bg}`}>
-                <c.icon size={22} />
+                <c.icon size={19} />
               </span>
-              <ArrowUpRight size={17} className="text-slate-300" />
+              <ArrowUpRight size={15} className="text-slate-300" />
             </div>
-            <p className="mt-3 truncate text-[26px] font-extrabold text-slate-900">{c.n}</p>
-            <p className="text-[13.5px] font-bold">{c.l}</p>
-            <p className="text-[12px] font-medium text-slate-400">{c.sub}</p>
+            <p className="mt-3 truncate text-[23px] font-extrabold text-slate-900">{c.n}</p>
+            <p className="text-[12px] font-bold">{c.l}</p>
+            <p className="text-[10.5px] font-medium text-slate-400">{c.sub}</p>
           </Link>
         ))}
       </div>
 
       <Card className="mt-4">
-        <p className="text-[15px] font-extrabold">Volume · last 14 days</p>
+        <p className="text-[13px] font-extrabold">Volume · last 14 days</p>
         <div className="mt-4 flex h-32 items-end gap-1.5">
           {(data?.series ?? []).map((d) => (
             <div key={d.day} className="flex flex-1 flex-col items-center gap-1" title={`${d.day}: ${d.txs} txs`}>
               <div className="flex w-full items-end gap-0.5">
                 <div className="flex-1 rounded-t bg-yellow-400" style={{ height: `${Math.max(3, (d.volume / maxVol) * 110)}px` }} />
               </div>
-              <span className="hidden text-[9px] font-bold text-slate-400 sm:block">{d.day.split(" ")[1]}</span>
+              <span className="hidden text-[10px] font-bold text-slate-400 sm:block">{d.day.split(" ")[1]}</span>
             </div>
           ))}
-          {!data && <p className="w-full text-center text-[12px] text-slate-400">Loading...</p>}
+          {!data && <p className="w-full text-center text-[10.5px] text-slate-400">Loading...</p>}
         </div>
-        <div className="mt-2 flex gap-4 text-[11.5px] font-bold text-slate-500">
+        <div className="mt-2 flex gap-4 text-[10px] font-bold text-slate-500">
           <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-yellow-400" /> Volume (FCFA)</span>
           <span className="ml-auto">{(data?.series ?? []).reduce((a, b) => a + b.txs, 0)} txs · {(data?.series ?? []).reduce((a, b) => a + b.users, 0)} new users</span>
         </div>
@@ -71,7 +71,7 @@ export default function AdminOverview() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <Card className="!p-0 overflow-hidden">
-          <p className="px-5 pb-2 pt-4 text-[15px] font-extrabold">Latest transactions</p>
+          <p className="px-5 pb-2 pt-4 text-[13px] font-extrabold">Latest transactions</p>
           <table className="w-full">
             <thead><tr className="border-y border-slate-100"><Th>Reference</Th><Th>Amount</Th><Th>Status</Th></tr></thead>
             <tbody>
@@ -87,13 +87,13 @@ export default function AdminOverview() {
           {(!data || data.latestTx.length === 0) && <Empty>No transactions yet.</Empty>}
         </Card>
         <Card className="!p-0 overflow-hidden">
-          <p className="px-5 pb-2 pt-4 text-[15px] font-extrabold">Latest users</p>
+          <p className="px-5 pb-2 pt-4 text-[13px] font-extrabold">Latest users</p>
           <table className="w-full">
             <thead><tr className="border-y border-slate-100"><Th>User</Th><Th>Country</Th><Th>When</Th></tr></thead>
             <tbody>
               {(data?.latestUsers ?? []).map((u) => (
                 <tr key={u.id} className="border-b border-slate-50 last:border-0">
-                  <Td><span className="block font-bold">{u.fullName}</span><span className="block text-[12px] text-slate-400">{u.email}</span></Td>
+                  <Td><span className="block font-bold">{u.fullName}</span><span className="block text-[10.5px] text-slate-400">{u.email}</span></Td>
                   <Td>{u.country}</Td>
                   <Td>{agoShort(u.createdAt)}</Td>
                 </tr>

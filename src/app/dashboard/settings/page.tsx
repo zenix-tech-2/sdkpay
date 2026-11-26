@@ -297,20 +297,20 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-xl dark:text-slate-100">
       <div className="flex items-center justify-between">
-        <h1 className="text-[34px] font-extrabold tracking-tight">Settings</h1>
+        <h1 className="text-[30px] font-extrabold tracking-tight">Settings</h1>
         <Link
           href="/dashboard/settings/updates"
-          className="flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-4 py-2 text-[16px] font-bold text-[#f0a500] dark:bg-yellow-500/10"
+          className="flex items-center gap-1.5 rounded-full border border-yellow-300 bg-yellow-50 px-4 py-2 text-[14px] font-bold text-[#f0a500] dark:bg-yellow-500/10"
         >
-          <Megaphone size={18} /> Updates
+          <Megaphone size={16} /> Updates
         </Link>
       </div>
 
       {/* PROFILE */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">PROFILE</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">PROFILE</p>
       <div className="mt-3 overflow-hidden rounded-[24px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center gap-4 border-b border-slate-200 p-5 dark:border-slate-700">
-          <span className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full bg-[#f6b800] text-[22px] font-extrabold text-[#0a1128]">
+          <span className="flex h-[56.5px] w-[56.5px] shrink-0 items-center justify-center rounded-full bg-[#f6b800] text-[19.5px] font-extrabold text-[#0a1128]">
             {me
               ? me.fullName
                   .trim()
@@ -322,20 +322,20 @@ export default function SettingsPage() {
               : ""}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-2 text-[22px] font-extrabold">
+            <p className="flex items-center gap-2 text-[19.5px] font-extrabold">
               <span className="truncate">{me?.fullName ?? "..."}</span>
               <button onClick={() => setEditOpen(true)} className="text-slate-500" aria-label="edit profile">
-                <Pencil size={18} />
+                <Pencil size={16} />
               </button>
             </p>
-            <p className="text-[17px] font-medium text-slate-500">@{me?.username}</p>
+            <p className="text-[15px] font-medium text-slate-500">@{me?.username}</p>
           </div>
           {me?.kycStatus === "verified" ? (
-            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-green-100 px-3.5 py-1.5 text-[15px] font-bold text-green-600">
-              <ShieldCheck size={17} /> Verified
+            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-green-100 px-3.5 py-1.5 text-[13px] font-bold text-green-600">
+              <ShieldCheck size={15} /> Verified
             </span>
           ) : (
-            <span className="shrink-0 rounded-full bg-yellow-100 px-3.5 py-1.5 text-[15px] font-bold text-yellow-700">
+            <span className="shrink-0 rounded-full bg-yellow-100 px-3.5 py-1.5 text-[13px] font-bold text-yellow-700">
               {kycLabel}
             </span>
           )}
@@ -347,12 +347,12 @@ export default function SettingsPage() {
           { icon: MapPin, label: "Country", value: me?.country ?? "..." },
         ].map((r, i, arr) => (
           <div key={r.label} className={`flex items-center gap-3.5 px-5 py-4 ${i < arr.length - 1 ? "border-b border-slate-200 dark:border-slate-700" : ""}`}>
-            <r.icon size={26} className="shrink-0 text-slate-900 dark:text-slate-100" />
-            <span className="text-[19px] font-medium">{r.label}</span>
-            <span className={`ml-auto text-[18px] font-medium text-slate-500 ${r.truncate ? "max-w-[170px] truncate" : ""}`}>{r.value}</span>
+            <r.icon size={23} className="shrink-0 text-slate-900 dark:text-slate-100" />
+            <span className="text-[16.5px] font-medium">{r.label}</span>
+            <span className={`ml-auto text-[16px] font-medium text-slate-500 ${r.truncate ? "max-w-[170px] truncate" : ""}`}>{r.value}</span>
             {r.copy && (
               <button onClick={copyId} className="text-slate-400">
-                {copied ? <Check size={22} className="text-green-500" /> : <Copy size={22} />}
+                {copied ? <Check size={19} className="text-green-500" /> : <Copy size={19} />}
               </button>
             )}
           </div>
@@ -360,61 +360,61 @@ export default function SettingsPage() {
       </div>
 
       {/* VERIFICATION */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">VERIFICATION</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">VERIFICATION</p>
       <Link href="/dashboard/kyc" className="mt-3 flex items-center gap-3.5 rounded-[24px] border border-slate-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
-        <ShieldCheck size={30} className="text-blue-600" fill="#dbeafe" />
-        <span className="text-[19px] font-medium">KYC Verification</span>
-        <span className="ml-auto text-[18px] font-medium text-slate-500">{kycLabel}</span>
+        <ShieldCheck size={26} className="text-blue-600" fill="#dbeafe" />
+        <span className="text-[16.5px] font-medium">KYC Verification</span>
+        <span className="ml-auto text-[16px] font-medium text-slate-500">{kycLabel}</span>
         <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-green-500 text-green-500">
-          <Check size={15} strokeWidth={3} />
+          <Check size={13} strokeWidth={3} />
         </span>
       </Link>
 
       {/* APPEARANCE */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">APPEARANCE</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">APPEARANCE</p>
       <div className="mt-3 flex items-center gap-3.5 rounded-[24px] border border-slate-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
-        <Palette size={28} />
-        <span className="text-[19px] font-medium">Theme</span>
+        <Palette size={25} />
+        <span className="text-[16.5px] font-medium">Theme</span>
         <span className="ml-auto flex rounded-2xl bg-slate-100 p-1.5 dark:bg-slate-800">
           <button
             onClick={() => switchTheme("light")}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-[17px] font-bold ${theme === "light" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500"}`}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-[15px] font-bold ${theme === "light" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500"}`}
           >
-            <Sun size={18} /> Light
+            <Sun size={16} /> Light
           </button>
           <button
             onClick={() => switchTheme("dark")}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-[17px] font-bold ${theme === "dark" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500"}`}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-[15px] font-bold ${theme === "dark" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500"}`}
           >
-            <Moon size={18} /> Dark
+            <Moon size={16} /> Dark
           </button>
         </span>
       </div>
 
       {/* FINANCES */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">FINANCES</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">FINANCES</p>
       <div className="mt-3 overflow-hidden rounded-[24px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <button onClick={() => setNumOpen(true)} className="flex w-full items-center gap-3.5 border-b border-slate-200 px-5 py-4 dark:border-slate-700">
-          <ArrowDownToLine size={26} className="text-slate-900 dark:text-slate-100" />
-          <span className="text-[19px] font-medium">Withdrawal numbers</span>
-          <span className="ml-auto text-[18px] font-medium text-slate-500">Manage</span>
-          <ChevronRight size={21} className="text-slate-300" />
+          <ArrowDownToLine size={23} className="text-slate-900 dark:text-slate-100" />
+          <span className="text-[16.5px] font-medium">Withdrawal numbers</span>
+          <span className="ml-auto text-[16px] font-medium text-slate-500">Manage</span>
+          <ChevronRight size={18} className="text-slate-300" />
         </button>
         <Link href="/dashboard/settings/auto-conversion" className="flex w-full items-center gap-3.5 px-5 py-4">
-          <ArrowLeftRight size={26} className="text-slate-900 dark:text-slate-100" />
-          <span className="text-[19px] font-medium">Automatic conversion</span>
-          <span className="ml-auto text-[18px] font-medium text-slate-500">Configure</span>
-          <ChevronRight size={21} className="text-slate-300" />
+          <ArrowLeftRight size={23} className="text-slate-900 dark:text-slate-100" />
+          <span className="text-[16.5px] font-medium">Automatic conversion</span>
+          <span className="ml-auto text-[16px] font-medium text-slate-500">Configure</span>
+          <ChevronRight size={18} className="text-slate-300" />
         </Link>
       </div>
 
       {/* NOTIFICATIONS */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">NOTIFICATIONS</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">NOTIFICATIONS</p>
       <div className="mt-3 overflow-hidden rounded-[24px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <button onClick={() => setPrefsOpen(!prefsOpen)} className="flex w-full items-center gap-3.5 px-5 py-4">
-          <Bell size={26} fill="currentColor" />
-          <span className="text-[19px] font-medium">Notification preferences</span>
-          <ChevronDown size={21} className={`ml-auto text-slate-400 transition-transform ${prefsOpen ? "rotate-180" : ""}`} />
+          <Bell size={23} fill="currentColor" />
+          <span className="text-[16.5px] font-medium">Notification preferences</span>
+          <ChevronDown size={18} className={`ml-auto text-slate-400 transition-transform ${prefsOpen ? "rotate-180" : ""}`} />
         </button>
         {prefsOpen && (
           <>
@@ -427,22 +427,22 @@ export default function SettingsPage() {
               ] as [string, string, string, typeof Bell, string][]
             ).map(([key, title, sub, Icon, cls]) => (
               <div key={key} className="flex items-center gap-3.5 border-t border-slate-200 px-5 py-4 dark:border-slate-700">
-                <Icon size={26} className={cls} />
+                <Icon size={23} className={cls} />
                 <span>
-                  <span className="block text-[19px] font-medium">{title}</span>
-                  <span className="block text-[16px] font-medium text-slate-500">{sub}</span>
+                  <span className="block text-[16.5px] font-medium">{title}</span>
+                  <span className="block text-[14px] font-medium text-slate-500">{sub}</span>
                 </span>
                 <button
                   onClick={() => setPrefs({ ...prefs, [key]: !prefs[key as keyof typeof prefs] })}
-                  className={`relative ml-auto h-[38px] w-[68px] shrink-0 rounded-full transition ${prefs[key as keyof typeof prefs] ? "bg-[#f0a500]" : "bg-slate-200 dark:bg-slate-700"}`}
+                  className={`relative ml-auto h-[33.5px] w-[60px] shrink-0 rounded-full transition ${prefs[key as keyof typeof prefs] ? "bg-[#f0a500]" : "bg-slate-200 dark:bg-slate-700"}`}
                 >
-                  <span className={`absolute top-[4px] h-[30px] w-[30px] rounded-full bg-white shadow transition-all ${prefs[key as keyof typeof prefs] ? "right-[4px]" : "left-[4px]"}`} />
+                  <span className={`absolute top-[4px] h-[26.5px] w-[26.5px] rounded-full bg-white shadow transition-all ${prefs[key as keyof typeof prefs] ? "right-[4px]" : "left-[4px]"}`} />
                 </button>
               </div>
             ))}
             <div className="border-t border-slate-200 p-4 dark:border-slate-700">
-              <button onClick={savePrefs} className="flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-[17px] font-medium">
-                <Save size={19} /> {prefsSaved ? "Saved!" : "Save"}
+              <button onClick={savePrefs} className="flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-[15px] font-medium">
+                <Save size={17} /> {prefsSaved ? "Saved!" : "Save"}
               </button>
             </div>
           </>
@@ -450,121 +450,121 @@ export default function SettingsPage() {
       </div>
 
       {/* SECURITY & API */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">SECURITY & API</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">SECURITY & API</p>
       <div className="mt-3 overflow-hidden rounded-[24px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <button onClick={() => setPwOpen(!pwOpen)} className="flex w-full items-center gap-3.5 px-5 py-4">
           <span className="flex flex-col items-center leading-none">
-            <Lock size={22} />
-            <span className="text-[9px] font-extrabold tracking-widest">****</span>
+            <Lock size={19} />
+            <span className="text-[10px] font-extrabold tracking-widest">****</span>
           </span>
-          <span className="text-[19px] font-medium">Change password</span>
-          <ChevronDown size={21} className={`ml-auto text-slate-400 transition-transform ${pwOpen ? "rotate-180" : ""}`} />
+          <span className="text-[16.5px] font-medium">Change password</span>
+          <ChevronDown size={18} className={`ml-auto text-slate-400 transition-transform ${pwOpen ? "rotate-180" : ""}`} />
         </button>
         {pwOpen && (
           <div className="space-y-2.5 border-t border-slate-200 p-4 dark:border-slate-700">
-            {pwErr && <p className="rounded-xl bg-red-50 px-3 py-2 text-[13px] font-bold text-red-600">{pwErr}</p>}
-            {pwMsg && <p className="rounded-xl bg-green-50 px-3 py-2 text-[13px] font-bold text-green-700">{pwMsg}</p>}
-            <input type="password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} placeholder="Current password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold dark:bg-slate-800" />
-            <input type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} placeholder="New password (min. 6)" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold dark:bg-slate-800" />
-            <input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} placeholder="Confirm new password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold dark:bg-slate-800" />
-            <button onClick={changePassword} className="w-full rounded-full bg-slate-900 py-3 text-[14px] font-extrabold text-white dark:bg-yellow-400 dark:text-slate-900">
+            {pwErr && <p className="rounded-xl bg-red-50 px-3 py-2 text-[11.5px] font-bold text-red-600">{pwErr}</p>}
+            {pwMsg && <p className="rounded-xl bg-green-50 px-3 py-2 text-[11.5px] font-bold text-green-700">{pwMsg}</p>}
+            <input type="password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} placeholder="Current password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold dark:bg-slate-800" />
+            <input type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} placeholder="New password (min. 6)" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold dark:bg-slate-800" />
+            <input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} placeholder="Confirm new password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold dark:bg-slate-800" />
+            <button onClick={changePassword} className="w-full rounded-full bg-slate-900 py-3 text-[12.5px] font-extrabold text-white dark:bg-yellow-400 dark:text-slate-900">
               Update password
             </button>
           </div>
         )}
         <button onClick={() => setPinOpen(!pinOpen)} className="flex w-full items-center gap-3.5 border-t border-slate-200 px-5 py-4 dark:border-slate-700">
-          <KeyRound size={26} className="text-slate-500" />
-          <span className="text-[19px] font-medium">PIN</span>
-          <span className="ml-auto text-[18px] font-medium text-slate-500">{pinSet ? "Configured" : "Not set"}</span>
-          <ChevronDown size={21} className={`text-slate-400 transition-transform ${pinOpen ? "rotate-180" : ""}`} />
+          <KeyRound size={23} className="text-slate-500" />
+          <span className="text-[16.5px] font-medium">PIN</span>
+          <span className="ml-auto text-[16px] font-medium text-slate-500">{pinSet ? "Configured" : "Not set"}</span>
+          <ChevronDown size={18} className={`text-slate-400 transition-transform ${pinOpen ? "rotate-180" : ""}`} />
         </button>
         {pinOpen && (
           <div className="space-y-2.5 border-t border-slate-200 p-4 dark:border-slate-700">
-            {pinMsg && <p className={`rounded-xl px-3 py-2 text-[13px] font-bold ${pinMsg.includes("required") || pinMsg.includes("match") || pinMsg.includes("incorrect") ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}>{pinMsg}</p>}
+            {pinMsg && <p className={`rounded-xl px-3 py-2 text-[11.5px] font-bold ${pinMsg.includes("required") || pinMsg.includes("match") || pinMsg.includes("incorrect") ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}>{pinMsg}</p>}
             {pinSet && (
-              <input value={pinForm.current} onChange={(e) => setPinForm({ ...pinForm, current: e.target.value.replace(/\D/g, "").slice(0, 4) })} inputMode="numeric" placeholder="Current PIN" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-[16px] font-extrabold tracking-[0.4em] dark:bg-slate-800" />
+              <input value={pinForm.current} onChange={(e) => setPinForm({ ...pinForm, current: e.target.value.replace(/\D/g, "").slice(0, 4) })} inputMode="numeric" placeholder="Current PIN" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-[14px] font-extrabold tracking-[0.4em] dark:bg-slate-800" />
             )}
             <div className="grid grid-cols-2 gap-2.5">
-              <input value={pinForm.next} onChange={(e) => setPinForm({ ...pinForm, next: e.target.value.replace(/\D/g, "").slice(0, 4) })} inputMode="numeric" placeholder="New PIN" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-[16px] font-extrabold tracking-[0.4em] dark:bg-slate-800" />
-              <input value={pinForm.confirm} onChange={(e) => setPinForm({ ...pinForm, confirm: e.target.value.replace(/\D/g, "").slice(0, 4) })} inputMode="numeric" placeholder="Confirm" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-[16px] font-extrabold tracking-[0.4em] dark:bg-slate-800" />
+              <input value={pinForm.next} onChange={(e) => setPinForm({ ...pinForm, next: e.target.value.replace(/\D/g, "").slice(0, 4) })} inputMode="numeric" placeholder="New PIN" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-[14px] font-extrabold tracking-[0.4em] dark:bg-slate-800" />
+              <input value={pinForm.confirm} onChange={(e) => setPinForm({ ...pinForm, confirm: e.target.value.replace(/\D/g, "").slice(0, 4) })} inputMode="numeric" placeholder="Confirm" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-center text-[14px] font-extrabold tracking-[0.4em] dark:bg-slate-800" />
             </div>
-            <button onClick={savePin} className="w-full rounded-full bg-slate-900 py-3 text-[14px] font-extrabold text-white dark:bg-yellow-400 dark:text-slate-900">
+            <button onClick={savePin} className="w-full rounded-full bg-slate-900 py-3 text-[12.5px] font-extrabold text-white dark:bg-yellow-400 dark:text-slate-900">
               Save PIN
             </button>
-            <p className="text-center text-[12px] font-medium text-slate-400">Required for withdrawals and transfers.</p>
+            <p className="text-center text-[10.5px] font-medium text-slate-400">Required for withdrawals and transfers.</p>
           </div>
         )}
         <Link href="/dashboard/api" className="flex w-full items-center gap-3.5 border-t border-slate-200 px-5 py-4 dark:border-slate-700">
-          <CodeXml size={26} />
-          <span className="text-[19px] font-medium">API & intégrations</span>
-          <ChevronRight size={21} className="ml-auto text-slate-300" />
+          <CodeXml size={23} />
+          <span className="text-[16.5px] font-medium">API & intégrations</span>
+          <ChevronRight size={18} className="ml-auto text-slate-300" />
         </Link>
       </div>
 
       {/* CONNECTED DEVICES */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">CONNECTED DEVICES</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">CONNECTED DEVICES</p>
       <div className="mt-3 overflow-hidden rounded-[24px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         {devices.map((d, i) => (
           <div key={d.id} className={`flex items-center gap-3.5 px-5 py-4 ${i > 0 ? "border-t border-slate-200 dark:border-slate-700" : ""}`}>
-            <MonitorSmartphone size={30} className="shrink-0 text-slate-700 dark:text-slate-200" />
+            <MonitorSmartphone size={26} className="shrink-0 text-slate-700 dark:text-slate-200" />
             <div className="min-w-0 flex-1">
-              <p className="flex flex-wrap items-center gap-2 text-[19px] font-medium">
+              <p className="flex flex-wrap items-center gap-2 text-[16.5px] font-medium">
                 {d.device || "Unknown device"}
                 {d.isCurrent && (
-                  <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-[13px] font-bold text-green-600">This device</span>
+                  <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-[11.5px] font-bold text-green-600">This device</span>
                 )}
               </p>
-              <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[16px] font-medium text-slate-500">
-                <span className="flex items-center gap-1"><MapPinned size={16} /> {d.ip || "—"}</span>
-                <span className="flex items-center gap-1"><Clock size={16} /> {timeAgo(d.lastActiveAt)}</span>
+              <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[14px] font-medium text-slate-500">
+                <span className="flex items-center gap-1"><MapPinned size={14} /> {d.ip || "—"}</span>
+                <span className="flex items-center gap-1"><Clock size={14} /> {timeAgo(d.lastActiveAt)}</span>
               </p>
             </div>
             {!d.isCurrent && (
               <button onClick={() => disconnect(d.id)} className="shrink-0 text-slate-500" title="Disconnect">
-                <LogOut size={22} />
+                <LogOut size={19} />
               </button>
             )}
           </div>
         ))}
         {devices.length === 0 && (
-          <p className="px-5 py-6 text-center text-[14px] font-semibold text-slate-400">No devices found.</p>
+          <p className="px-5 py-6 text-center text-[12.5px] font-semibold text-slate-400">No devices found.</p>
         )}
         {others > 0 && (
-          <button onClick={disconnectOthers} className="flex w-full items-center gap-2 border-t border-slate-200 px-5 py-4 text-[19px] font-medium text-red-500 dark:border-slate-700">
-            <LogOut size={21} /> Disconnect all other devices ({others})
+          <button onClick={disconnectOthers} className="flex w-full items-center gap-2 border-t border-slate-200 px-5 py-4 text-[16.5px] font-medium text-red-500 dark:border-slate-700">
+            <LogOut size={18} /> Disconnect all other devices ({others})
           </button>
         )}
       </div>
 
       {/* DANGER ZONE */}
-      <p className="mt-6 text-[14px] font-bold tracking-[0.2em] text-slate-500">DANGER ZONE</p>
+      <p className="mt-6 text-[12.5px] font-bold tracking-[0.2em] text-slate-500">DANGER ZONE</p>
       <button onClick={() => setDelOpen(true)} className="mt-3 flex w-full items-center gap-3.5 rounded-[24px] border border-slate-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
-        <Trash2 size={28} className="text-red-500" />
+        <Trash2 size={25} className="text-red-500" />
         <span className="text-left">
-          <span className="block text-[19px] font-medium text-red-500">Delete my account</span>
-          <span className="block text-[16px] font-medium text-slate-500">Irreversible action</span>
+          <span className="block text-[16.5px] font-medium text-red-500">Delete my account</span>
+          <span className="block text-[14px] font-medium text-slate-500">Irreversible action</span>
         </span>
-        <ChevronRight size={21} className="ml-auto text-red-200" />
+        <ChevronRight size={18} className="ml-auto text-red-200" />
       </button>
 
-      <button onClick={logout} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 py-3.5 text-[15px] font-extrabold text-red-500">
-        <LogOut size={18} /> Log out
+      <button onClick={logout} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 py-3.5 text-[13px] font-extrabold text-red-500">
+        <LogOut size={16} /> Log out
       </button>
-      <p className="mt-3 pb-4 text-center text-[11.5px] font-medium text-slate-400">SDK Pay v1.7h</p>
+      <p className="mt-3 pb-4 text-center text-[10px] font-medium text-slate-400">SDK Pay v1.7h</p>
 
       {/* edit profile modal */}
       {editOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={() => setEditOpen(false)} />
           <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 dark:bg-slate-900">
-            <button onClick={() => setEditOpen(false)} className="absolute right-4 top-4 text-slate-400"><X size={20} /></button>
-            <h3 className="text-[19px] font-extrabold">Edit profile</h3>
-            {pMsg && <p className="mt-2 rounded-xl bg-slate-100 px-3 py-2 text-[12.5px] font-bold">{pMsg}</p>}
+            <button onClick={() => setEditOpen(false)} className="absolute right-4 top-4 text-slate-400"><X size={18} /></button>
+            <h3 className="text-[16.5px] font-extrabold">Edit profile</h3>
+            {pMsg && <p className="mt-2 rounded-xl bg-slate-100 px-3 py-2 text-[11px] font-bold">{pMsg}</p>}
             <div className="mt-3 space-y-2.5">
-              <input value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} placeholder="Full name" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-              <input value={profile.username} onChange={(e) => setProfile({ ...profile, username: e.target.value })} placeholder="Username" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-              <input value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} placeholder="Phone" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-              <button onClick={saveProfile} className="w-full rounded-full bg-slate-900 py-3 text-[14px] font-extrabold text-white">Save</button>
+              <input value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} placeholder="Full name" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+              <input value={profile.username} onChange={(e) => setProfile({ ...profile, username: e.target.value })} placeholder="Username" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+              <input value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} placeholder="Phone" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+              <button onClick={saveProfile} className="w-full rounded-full bg-slate-900 py-3 text-[12.5px] font-extrabold text-white">Save</button>
             </div>
           </div>
         </div>
@@ -576,16 +576,16 @@ export default function SettingsPage() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setNumOpen(false)} />
           <div className="relative max-h-[85vh] w-full overflow-y-auto rounded-t-[28px] bg-white p-6 sm:max-w-md sm:rounded-[28px]">
             <div className="flex items-center justify-between">
-              <h3 className="text-[20px] font-extrabold">Withdrawal numbers</h3>
-              <button onClick={() => setNumOpen(false)} className="text-slate-400"><X size={22} /></button>
+              <h3 className="text-[17.5px] font-extrabold">Withdrawal numbers</h3>
+              <button onClick={() => setNumOpen(false)} className="text-slate-400"><X size={19} /></button>
             </div>
             <div className="mt-3 space-y-2">
-              {numbers.length === 0 && <p className="rounded-2xl bg-slate-50 px-4 py-5 text-center text-[13.5px] font-semibold text-slate-400">No saved numbers yet.</p>}
+              {numbers.length === 0 && <p className="rounded-2xl bg-slate-50 px-4 py-5 text-center text-[12px] font-semibold text-slate-400">No saved numbers yet.</p>}
               {numbers.map((n) => (
                 <div key={n.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[14.5px] font-extrabold">{n.phone}</p>
-                    <p className="text-[12px] font-semibold text-slate-400">{n.label || n.operator || ""}</p>
+                    <p className="truncate text-[13px] font-extrabold">{n.phone}</p>
+                    <p className="text-[10.5px] font-semibold text-slate-400">{n.label || n.operator || ""}</p>
                   </div>
                   <button
                     onClick={async () => {
@@ -594,16 +594,16 @@ export default function SettingsPage() {
                     }}
                     className="rounded-xl bg-red-50 p-2.5 text-red-500"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               ))}
             </div>
             <div className="mt-4 space-y-2.5 rounded-2xl bg-slate-50 p-4">
-              <p className="flex items-center gap-1.5 text-[14px] font-extrabold"><Plus size={16} /> Add a number</p>
-              <input value={addPhone} onChange={(e) => setAddPhone(e.target.value.replace(/[^0-9\s+]/g, ""))} placeholder="+237 XXX XXX XXX" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-              <input value={addLabel} onChange={(e) => setAddLabel(e.target.value)} placeholder="Label (optional)" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-[14px] font-medium" />
-              <button onClick={addNumber} className="w-full rounded-full bg-slate-900 py-3 text-[14px] font-extrabold text-white">Add number</button>
+              <p className="flex items-center gap-1.5 text-[12.5px] font-extrabold"><Plus size={14} /> Add a number</p>
+              <input value={addPhone} onChange={(e) => setAddPhone(e.target.value.replace(/[^0-9\s+]/g, ""))} placeholder="+237 XXX XXX XXX" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+              <input value={addLabel} onChange={(e) => setAddLabel(e.target.value)} placeholder="Label (optional)" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-[12.5px] font-medium" />
+              <button onClick={addNumber} className="w-full rounded-full bg-slate-900 py-3 text-[12.5px] font-extrabold text-white">Add number</button>
             </div>
           </div>
         </div>
@@ -614,17 +614,17 @@ export default function SettingsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDelOpen(false)} />
           <div className="relative w-full max-w-sm rounded-3xl bg-white p-6">
-            <button onClick={() => setDelOpen(false)} className="absolute right-4 top-4 text-slate-400"><X size={20} /></button>
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-500"><Trash2 size={26} /></span>
-            <h3 className="mt-3 text-[20px] font-extrabold">Delete my account?</h3>
-            <p className="mt-1 text-[13.5px] font-medium text-slate-500">
+            <button onClick={() => setDelOpen(false)} className="absolute right-4 top-4 text-slate-400"><X size={18} /></button>
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-500"><Trash2 size={23} /></span>
+            <h3 className="mt-3 text-[17.5px] font-extrabold">Delete my account?</h3>
+            <p className="mt-1 text-[12px] font-medium text-slate-500">
               This permanently deletes your profile, wallets, links, numbers and history. Your transaction ledger is kept for compliance. This cannot be undone.
             </p>
-            {delErr && <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-[12.5px] font-bold text-red-600">{delErr}</p>}
-            <input type="password" value={delPw} onChange={(e) => setDelPw(e.target.value)} placeholder="Your password" className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-            <input value={delConfirm} onChange={(e) => setDelConfirm(e.target.value)} placeholder='Type DELETE to confirm' className="mt-2.5 w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-            <button onClick={deleteAccount} disabled={busy} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-red-500 py-3.5 text-[14.5px] font-extrabold text-white disabled:opacity-60">
-              {busy && <Loader2 size={17} className="animate-spin" />} Delete forever
+            {delErr && <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-[11px] font-bold text-red-600">{delErr}</p>}
+            <input type="password" value={delPw} onChange={(e) => setDelPw(e.target.value)} placeholder="Your password" className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+            <input value={delConfirm} onChange={(e) => setDelConfirm(e.target.value)} placeholder='Type DELETE to confirm' className="mt-2.5 w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+            <button onClick={deleteAccount} disabled={busy} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-red-500 py-3.5 text-[13px] font-extrabold text-white disabled:opacity-60">
+              {busy && <Loader2 size={15} className="animate-spin" />} Delete forever
             </button>
           </div>
         </div>

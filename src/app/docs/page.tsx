@@ -57,7 +57,7 @@ const NAV: { section: string; items: { id: string; label: string }[] }[] = [
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-3 overflow-x-auto rounded-2xl bg-[#0d1117] p-5 font-mono text-[12.5px] leading-relaxed text-slate-200">
+    <div className="mt-3 overflow-x-auto rounded-2xl bg-[#0d1117] p-5 font-mono text-[11px] leading-relaxed text-slate-200">
       {children}
     </div>
   );
@@ -65,18 +65,18 @@ function Code({ children }: { children: React.ReactNode }) {
 
 function H({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2 id={id} className="mt-10 scroll-mt-24 text-[22px] font-extrabold tracking-tight first:mt-0">
+    <h2 id={id} className="mt-10 scroll-mt-24 text-[19.5px] font-extrabold tracking-tight first:mt-0">
       {children}
     </h2>
   );
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="mt-2.5 text-[14px] font-medium leading-relaxed text-slate-500">{children}</p>;
+  return <p className="mt-2.5 text-[12.5px] font-medium leading-relaxed text-slate-500">{children}</p>;
 }
 
 function C({ children }: { children: React.ReactNode }) {
-  return <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[12.5px] font-bold text-slate-800">{children}</code>;
+  return <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-800">{children}</code>;
 }
 
 export default function DocsPage() {
@@ -93,13 +93,13 @@ export default function DocsPage() {
     <div className="space-y-5">
       {NAV.map((g) => (
         <div key={g.section}>
-          <p className="px-3 text-[13px] font-extrabold text-slate-900">{g.section}</p>
+          <p className="px-3 text-[11.5px] font-extrabold text-slate-900">{g.section}</p>
           <div className="mt-1.5 space-y-0.5">
             {g.items.map((it) => (
               <button
                 key={it.id}
                 onClick={() => go(it.id)}
-                className={`block w-full rounded-xl px-3 py-2 text-left text-[15px] font-medium ${
+                className={`block w-full rounded-xl px-3 py-2 text-left text-[13px] font-medium ${
                   active === it.id ? "bg-yellow-50 font-bold text-yellow-600" : "text-slate-700 hover:bg-slate-50"
                 }`}
               >
@@ -115,17 +115,17 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[62px] max-w-6xl items-center justify-between px-4">
+        <div className="mx-auto flex h-[54.5px] max-w-6xl items-center justify-between px-4">
           <Logo />
           <div className="flex items-center gap-2">
-            <Link href="/" className="hidden items-center gap-1 text-[13px] font-bold text-slate-500 sm:flex">
-              <ArrowLeft size={14} /> Accueil
+            <Link href="/" className="hidden items-center gap-1 text-[11.5px] font-bold text-slate-500 sm:flex">
+              <ArrowLeft size={12} /> Accueil
             </Link>
-            <Link href="/register" className="rounded-full bg-yellow-400 px-4 py-2 text-[13px] font-extrabold">
+            <Link href="/register" className="rounded-full bg-yellow-400 px-4 py-2 text-[11.5px] font-extrabold">
               Obtenir une clé API
             </Link>
             <button onClick={() => setMenu(!menu)} className="rounded-lg border border-slate-200 p-2 lg:hidden" aria-label="menu">
-              {menu ? <X size={18} /> : <Menu size={18} />}
+              {menu ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
         </div>
@@ -138,11 +138,11 @@ export default function DocsPage() {
         </aside>
 
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1 text-[11px] font-extrabold text-yellow-700">
-            <BookOpen size={12} /> SDK Pay Developers · API v1
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1 text-[10px] font-extrabold text-yellow-700">
+            <BookOpen size={11} /> SDK Pay Developers · API v1
           </span>
-          <h1 className="mt-3 text-[30px] font-extrabold tracking-tight">Documentation développeur</h1>
-          <p className="mt-2 text-[14px] font-medium text-slate-500">
+          <h1 className="mt-3 text-[26.5px] font-extrabold tracking-tight">Documentation développeur</h1>
+          <p className="mt-2 text-[12.5px] font-medium text-slate-500">
             Base URL : <C>https://sdkpay.com/v1</C> · Auth Bearer · JSON · 23 pays · Webhooks signés
           </p>
 
@@ -158,7 +158,7 @@ export default function DocsPage() {
           <P>2. Encaissez un paiement Mobile Money :</P>
           <Code>
             <p><span className="text-sky-300">POST</span> <span className="text-green-300">/v1/collect</span></p>
-            <pre className="mt-2 whitespace-pre-wrap text-[12px]">{`{
+            <pre className="mt-2 whitespace-pre-wrap text-[10.5px]">{`{
   "country_code": "CM",
   "amount": 5000,
   "currency": "XAF",
@@ -229,7 +229,7 @@ export default function DocsPage() {
             Vérifiez <C>X-SDK-Signature</C> (HMAC-SHA256 du corps brut avec votre secret webhook).
           </P>
           <Code>
-            <pre className="whitespace-pre-wrap text-[12px]">{`POST {VOTRE_URL}  X-SDK-Signature: <hmac>
+            <pre className="whitespace-pre-wrap text-[10.5px]">{`POST {VOTRE_URL}  X-SDK-Signature: <hmac>
 {
   "event": "payment.success",
   "data": { "reference": "ORDER-123", "amount": 5000 }
@@ -247,7 +247,7 @@ export default function DocsPage() {
 
           <H id="env">Variables d&apos;environnement</H>
           <Code>
-            <pre className="whitespace-pre-wrap text-[12px]">{`ASHTECHPAY_API_KEY=...        # clé AshTechPay (live)
+            <pre className="whitespace-pre-wrap text-[10.5px]">{`ASHTECHPAY_API_KEY=...        # clé AshTechPay (live)
 ASHTECHPAY_BASE_URL=https://ashtechpay.com/v1
 ASHTECHPAY_WEBHOOK_SECRET=...  # vérification webhooks entrants
 SASPAY_SECRET_KEY=sk_live_...   # clé SasPay (backup)
@@ -293,10 +293,10 @@ PUBLIC_BASE_URL=https://sdkpay.com  # URL publique (webhooks)`}</pre>
           </P>
 
           <div className="mt-10 flex flex-wrap gap-2.5">
-            <Link href="/register" className="rounded-xl bg-yellow-400 px-5 py-3 text-[13.5px] font-extrabold">
+            <Link href="/register" className="rounded-xl bg-yellow-400 px-5 py-3 text-[12px] font-extrabold">
               Créer un compte marchand
             </Link>
-            <Link href="/dashboard/api/direct" className="rounded-xl border border-slate-200 px-5 py-3 text-[13.5px] font-extrabold">
+            <Link href="/dashboard/api/direct" className="rounded-xl border border-slate-200 px-5 py-3 text-[12px] font-extrabold">
               Ouvrir Direct API
             </Link>
           </div>

@@ -59,9 +59,9 @@ export default function AdminTeam() {
   if (forbidden) {
     return (
       <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
-        <ShieldCheck size={36} className="mx-auto text-slate-300" />
-        <p className="mt-3 text-[16px] font-extrabold">Super admin only</p>
-        <p className="text-[13px] font-medium text-slate-500">Ask a super admin to manage the team.</p>
+        <ShieldCheck size={32} className="mx-auto text-slate-300" />
+        <p className="mt-3 text-[14px] font-extrabold">Super admin only</p>
+        <p className="text-[11.5px] font-medium text-slate-500">Ask a super admin to manage the team.</p>
       </div>
     );
   }
@@ -72,8 +72,8 @@ export default function AdminTeam() {
         title="Team"
         sub="Admin accounts and roles"
         right={
-          <button onClick={() => setModal(true)} className="flex items-center gap-1.5 rounded-full bg-[#f0a500] px-4 py-2.5 text-[13.5px] font-extrabold text-white">
-            <Plus size={16} /> New admin
+          <button onClick={() => setModal(true)} className="flex items-center gap-1.5 rounded-full bg-[#f0a500] px-4 py-2.5 text-[12px] font-extrabold text-white">
+            <Plus size={14} /> New admin
           </button>
         }
       />
@@ -89,7 +89,7 @@ export default function AdminTeam() {
               <tr key={a.id} className="border-b border-slate-50 last:border-0">
                 <Td>
                   <span className="block font-bold">{a.name}</span>
-                  <span className="block text-[12px] text-slate-400">{a.email}</span>
+                  <span className="block text-[10.5px] text-slate-400">{a.email}</span>
                 </Td>
                 <Td><Pill color={a.role === "super" ? "yellow" : "blue"}>{a.role}</Pill></Td>
                 <Td><Pill color={a.isActive ? "green" : "red"}>{a.isActive ? "Active" : "Disabled"}</Pill></Td>
@@ -97,7 +97,7 @@ export default function AdminTeam() {
                 <Td right>
                   <button
                     onClick={() => toggle(a)}
-                    className={`rounded-lg px-3 py-1.5 text-[12px] font-extrabold ${a.isActive ? "bg-red-50 text-red-500" : "bg-green-100 text-green-700"}`}
+                    className={`rounded-lg px-3 py-1.5 text-[10.5px] font-extrabold ${a.isActive ? "bg-red-50 text-red-500" : "bg-green-100 text-green-700"}`}
                   >
                     {a.isActive ? "Disable" : "Enable"}
                   </button>
@@ -113,25 +113,25 @@ export default function AdminTeam() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={() => setModal(false)} />
           <div className="relative w-full max-w-sm rounded-3xl bg-white p-6">
-            <button onClick={() => setModal(false)} className="absolute right-4 top-4 text-slate-400"><X size={20} /></button>
-            <h3 className="text-[19px] font-extrabold">New admin</h3>
-            {err && <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-[12.5px] font-bold text-red-600">{err}</p>}
+            <button onClick={() => setModal(false)} className="absolute right-4 top-4 text-slate-400"><X size={18} /></button>
+            <h3 className="text-[16.5px] font-extrabold">New admin</h3>
+            {err && <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-[11px] font-bold text-red-600">{err}</p>}
             <div className="mt-4 space-y-3">
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-              <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" type="email" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
-              <input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Password (min. 8)" type="password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[14px] font-bold" />
+              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+              <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" type="email" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
+              <input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Password (min. 8)" type="password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-[12.5px] font-bold" />
               <div className="grid grid-cols-2 gap-2">
                 {(["support", "super"] as const).map((r) => (
                   <button
                     key={r}
                     onClick={() => setForm({ ...form, role: r })}
-                    className={`rounded-2xl border-2 py-2.5 text-[13.5px] font-extrabold capitalize ${form.role === r ? "border-yellow-400 bg-yellow-50" : "border-slate-200 text-slate-400"}`}
+                    className={`rounded-2xl border-2 py-2.5 text-[12px] font-extrabold capitalize ${form.role === r ? "border-yellow-400 bg-yellow-50" : "border-slate-200 text-slate-400"}`}
                   >
                     {r}
                   </button>
                 ))}
               </div>
-              <button onClick={create} className="w-full rounded-full bg-[#f0a500] py-3.5 text-[14.5px] font-extrabold text-white">
+              <button onClick={create} className="w-full rounded-full bg-[#f0a500] py-3.5 text-[13px] font-extrabold text-white">
                 Create admin
               </button>
             </div>

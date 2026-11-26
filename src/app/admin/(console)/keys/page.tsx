@@ -34,12 +34,12 @@ export default function AdminKeys() {
     <div>
       <PageTitle title="API keys" sub="All merchant keys across test and live" />
       <div className="relative">
-        <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search key name or merchant email..."
-          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[14px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
+          className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-[12.5px] font-medium shadow-sm focus:ring-2 focus:ring-yellow-400"
         />
       </div>
       <div className="mt-3 overflow-x-auto rounded-2xl bg-white shadow-sm">
@@ -54,7 +54,7 @@ export default function AdminKeys() {
               <tr key={k.id} className="border-b border-slate-50 last:border-0">
                 <Td>
                   <span className="block font-bold">{k.fullName}</span>
-                  <span className="block text-[12px] text-slate-400">{k.email}</span>
+                  <span className="block text-[10.5px] text-slate-400">{k.email}</span>
                 </Td>
                 <Td>{k.name}</Td>
                 <Td><Pill color={k.isLive ? "green" : "gray"}>{k.isLive ? "Live" : "Test"}</Pill></Td>
@@ -62,7 +62,7 @@ export default function AdminKeys() {
                 <Td>{agoShort(k.createdAt)}</Td>
                 <Td right>
                   <button onClick={() => revoke(k.id)} className="rounded-lg bg-red-50 p-2 text-red-500" title="Revoke">
-                    <Trash2 size={15} />
+                    <Trash2 size={13} />
                   </button>
                 </Td>
               </tr>
