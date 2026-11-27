@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import PwaInstall from "@/components/PwaInstall";
 import type { ReactNode } from "react";
 import "./globals.css";
 
@@ -6,7 +7,15 @@ export const metadata: Metadata = {
   title: "SDK Pay | Paiements en ligne pour l'Afrique",
   description:
     "SDK PAY permet aux créateurs, entrepreneurs et commerçants de vendre leurs produits physiques ou numériques avec un lien de paiement.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  appleWebApp: { capable: true, title: "SDK Pay", statusBarStyle: "default" },
 };
+
+export const viewport: Viewport = { themeColor: "#2563eb" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -19,7 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body className="bg-white text-slate-900 antialiased">{children}</body>
+      <body className="bg-white text-slate-900 antialiased">{children}
+        <PwaInstall />
+      </body>
     </html>
   );
 }
