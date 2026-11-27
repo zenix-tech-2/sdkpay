@@ -218,7 +218,7 @@ export async function executeCryptoCharge(
 ): Promise<CryptoChargeResult & { provider: ProviderName; live: boolean; reason: string }> {
   const decision = selectProvider({ countryCode: p.countryCode || "CM", currency: "USDT", method: "crypto" });
   if (decision.provider === "ashtechpay") {
-    const res = await ashtechpay.cryptoCharge!(p);
+    const res = await ashtechpay.cryptoCharge!({ ...p, userId: p.userId ?? ctx.userId });
     await logEvent({
       txId: ctx.txId,
       userId: ctx.userId,
@@ -244,7 +244,7 @@ export async function executeCryptoDisburse(
 ): Promise<CollectResult & { provider: ProviderName; live: boolean; reason: string }> {
   const decision = selectProvider({ countryCode: p.countryCode || "CM", currency: "USDT", method: "crypto" });
   if (decision.provider === "ashtechpay" && ashtechpay.cryptoDisburse) {
-    const res = await ashtechpay.cryptoDisburse(p);
+    const res = await ashtechpay.cryptoDisburse({ ...p, userId: ctx.userId });
     await logEvent({
       txId: ctx.txId,
       userId: ctx.userId,

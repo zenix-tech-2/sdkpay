@@ -215,7 +215,7 @@ export const ashtechpay: ProviderClient = {
     }
   },
 
-  async cryptoDisburse(p: { amountUsdt: number; network: string; address: string; reference: string }): Promise<CollectResult> {
+  async cryptoDisburse(p: { amountUsdt: number; network: string; address: string; reference: string; userId?: string }): Promise<CollectResult> {
     try {
       const json = await call(CRYPTO_DISBURSE_PATH, {
         method: "POST",
@@ -225,6 +225,7 @@ export const ashtechpay: ProviderClient = {
           network: p.network,
           address: p.address,
           reference: p.reference,
+          user_id: p.userId || p.reference,
         }),
       });
       const d = (json.data ?? json) as Record<string, unknown>;
@@ -249,6 +250,7 @@ export const ashtechpay: ProviderClient = {
           network: p.network,
           country_code: (p.countryCode || "CM").toUpperCase(),
           reference: p.reference,
+          user_id: p.userId || p.reference,
         }),
       });
       const d = (json.data ?? json) as Record<string, unknown>;

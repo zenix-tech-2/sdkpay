@@ -51,6 +51,7 @@ export interface CryptoChargeParams {
   network: string; // TRC20 | BEP20 | ERC20
   countryCode?: string;
   reference: string;
+  userId?: string;
 }
 
 export interface CryptoChargeResult {
@@ -73,7 +74,7 @@ export interface ProviderClient {
   disburse(p: DisburseParams): Promise<CollectResult>;
   getStatus(providerRef: string): Promise<{ status: ProviderTxStatus; raw?: unknown }>;
   cryptoCharge?(p: CryptoChargeParams): Promise<CryptoChargeResult>;
-  cryptoDisburse?(p: { amountUsdt: number; network: string; address: string; reference: string }): Promise<CollectResult>;
+  cryptoDisburse?(p: { amountUsdt: number; network: string; address: string; reference: string; userId?: string }): Promise<CollectResult>;
 }
 
 export function providerMode(): "auto" | "ashtechpay" | "saaspay" | "demo" {
