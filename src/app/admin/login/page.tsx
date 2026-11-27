@@ -11,7 +11,7 @@ export default function AdminLoginPage() {
   const [show, setShow] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
-  const [hint, setHint] = useState(false);
+  const [, setHint] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/auth")
@@ -60,12 +60,6 @@ export default function AdminLoginPage() {
         <form onSubmit={submit} className="mt-6 rounded-3xl bg-white p-6 shadow-2xl">
           {err && (
             <p className="mb-3 rounded-xl bg-red-50 px-3 py-2.5 text-[10.5px] font-bold text-red-600">{err}</p>
-          )}
-          {hint && (
-            <p className="mb-3 rounded-xl bg-yellow-50 px-3 py-2.5 text-[10px] font-semibold text-yellow-800">
-              First run: use <b>admin@sdkpay.com</b> / <b>Admin123!</b> — then set ADMIN_EMAIL /
-              ADMIN_PASSWORD env vars.
-            </p>
           )}
           <label className="text-[10.5px] font-extrabold">Email</label>
           <input

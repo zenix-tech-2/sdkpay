@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/lib/base-url";
 import type {
   CollectParams,
   CollectResult,
@@ -157,9 +158,7 @@ export const ashtechpay: ProviderClient = {
           operator: op,
           reference: p.reference,
           description: p.description || `SDK Pay deposit ${p.reference}`,
-          webhook_url: process.env.PUBLIC_BASE_URL
-            ? `${process.env.PUBLIC_BASE_URL}/api/webhooks/ashtechpay`
-            : undefined,
+          webhook_url: `${await getBaseUrl()}/api/webhooks/ashtechpay`,
         }),
       });
       const d = (json.data ?? json) as Record<string, unknown>;
@@ -188,9 +187,7 @@ export const ashtechpay: ProviderClient = {
           operator: op,
           reference: p.reference,
           description: p.description || `SDK Pay payout ${p.reference}`,
-          webhook_url: process.env.PUBLIC_BASE_URL
-            ? `${process.env.PUBLIC_BASE_URL}/api/webhooks/ashtechpay`
-            : undefined,
+          webhook_url: `${await getBaseUrl()}/api/webhooks/ashtechpay`,
         }),
       });
       const d = (json.data ?? json) as Record<string, unknown>;

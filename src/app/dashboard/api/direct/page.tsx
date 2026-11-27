@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useBaseUrl } from "@/hooks/useBaseUrl";
 import { ArrowLeft, CodeXml, KeyRound, Eye, EyeOff, Copy, Check, RefreshCw, Webhook, Loader2, BookOpen } from "lucide-react";
 
 const GOLD = "#f0a500";
@@ -51,6 +52,7 @@ function ProvidersCard() {
 }
 
 export default function DirectApiPage() {
+  const baseUrl = useBaseUrl();
   const [masked, setMasked] = useState<string | null>(null);
   const [fullKey, setFullKey] = useState("");
   const [showKey, setShowKey] = useState(false);
@@ -269,7 +271,7 @@ export default function DirectApiPage() {
           Use your key only from your server, in the Authorization header.
         </p>
         <div className="mt-3 overflow-hidden rounded-2xl bg-[#0d1117] p-4 font-mono text-[10px] leading-relaxed">
-          <p><span className="text-sky-300">POST</span> <span className="text-green-300">https://sdkpay.com/v1/collect</span></p>
+          <p><span className="text-sky-300">POST</span> <span className="text-green-300">{baseUrl}/v1/collect</span></p>
           <pre className="mt-1 whitespace-pre-wrap text-slate-300">{`Authorization: Bearer ak_••••••
 
 {

@@ -47,6 +47,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Logo from "@/components/Logo";
+import { useBaseUrl } from "@/hooks/useBaseUrl";
 import { COUNTRIES, OPERATORS } from "@/data/countries";
 import OperatorLogo from "@/components/dashboard/OperatorLogo";
 import CountryFlag from "@/components/CountryFlag";
@@ -172,6 +173,7 @@ const T: Record<Lang, Record<string, string>> = {
 
 export default function LandingPage() {
   const scopeRef = useAutoReveal<HTMLDivElement>();
+  const baseUrl = useBaseUrl();
   const [lang, setLang] = useState<Lang>("fr");
   const [menuOpen, setMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -826,7 +828,7 @@ export default function LandingPage() {
               </div>
               <div className="border-b border-white/10 px-4 py-2.5">
                 <p className="text-[10px] font-bold text-white/50">Documentation API</p>
-                <p className="text-[10px] font-mono text-green-400 underline">https://doc.sdkpay.com/docs/introduction</p>
+                <p className="text-[10px] font-mono text-green-400 underline">{baseUrl}/docs</p>
               </div>
               <div className="flex gap-2 px-4 py-2.5 border-b border-white/10">
                 <button
@@ -848,7 +850,7 @@ export default function LandingPage() {
               <pre className="code-scroll overflow-x-auto px-4 pb-4 font-mono text-[10px] leading-[1.7]">
                 <code>
                   <span className="text-sky-300">const</span> <span className="text-white">response</span> <span className="text-white/60">=</span> <span className="text-sky-300">await</span> <span className="text-yellow-200">fetch</span><span className="text-white">(</span>{"\n"}
-                  {"  "}<span className="text-green-300">&quot;https://sdkpay.com/v1/{apiTab === "payin" ? "collect" : "disburse"}&quot;</span><span className="text-white">,</span>{"\n"}
+                  {"  "}<span className="text-green-300">&quot;{baseUrl}/v1/{apiTab === "payin" ? "collect" : "disburse"}&quot;</span><span className="text-white">,</span>{"\n"}
                   {"  "}<span className="text-white">{"{"}</span>{"\n"}
                   {"    "}<span className="text-sky-200">method</span><span className="text-white">:</span> <span className="text-green-300">&quot;POST&quot;</span><span className="text-white">,</span>{"\n"}
                   {"    "}<span className="text-sky-200">headers</span><span className="text-white">:</span> <span className="text-white">{"{"}</span>{"\n"}
